@@ -1,15 +1,15 @@
 {
   "files": {
     "main.css": "/poker-preflop-trainer/static/css/main.d391f04f.css",
-    "main.js": "/poker-preflop-trainer/static/js/main.437d01c0.js",
+    "main.js": "/poker-preflop-trainer/static/js/main.e1b49f63.js",
     "static/js/453.fd05e428.chunk.js": "/poker-preflop-trainer/static/js/453.fd05e428.chunk.js",
     "index.html": "/poker-preflop-trainer/index.html",
     "main.d391f04f.css.map": "/poker-preflop-trainer/static/css/main.d391f04f.css.map",
-    "main.437d01c0.js.map": "/poker-preflop-trainer/static/js/main.437d01c0.js.map",
+    "main.e1b49f63.js.map": "/poker-preflop-trainer/static/js/main.e1b49f63.js.map",
     "453.fd05e428.chunk.js.map": "/poker-preflop-trainer/static/js/453.fd05e428.chunk.js.map"
   },
   "entrypoints": [
     "static/css/main.d391f04f.css",
-    "static/js/main.437d01c0.js"
+    "static/js/main.e1b49f63.js"
   ]
 }
