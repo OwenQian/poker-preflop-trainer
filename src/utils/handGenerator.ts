@@ -1,5 +1,6 @@
 import { Card, Hand, HandName, Position, QuizQuestion, Rank, Suit, Action } from '../types';
 import { getRangeData } from '../data/sampleRanges';
+import { RangeCategory } from '../components/RangeTabSelector/RangeTabSelector';
 
 const RANKS: Rank[] = ['A', 'K', 'Q', 'J', 'T', '9', '8', '7', '6', '5', '4', '3', '2'];
 const SUITS: Suit[] = ['hearts', 'diamonds', 'clubs', 'spades'];
@@ -80,27 +81,57 @@ export const handNameToHand = (handName: HandName): Hand => {
 
 export const generateQuizQuestion = (
   heroPosition: Position,
-  opponentPositions: Position[]
+  opponentPositions: Position[],
+  rangeCategory: RangeCategory = 'RFI'
 ): QuizQuestion | null => {
-  // Generate position combination string
-  const positionCombo = `${heroPosition}_vs_${opponentPositions.join('_')}`;
+  // Generate position combination string based on range category
+  let positionCombo: string;
+  
+  switch (rangeCategory) {
+    case 'RFI':
+      positionCombo = `${heroPosition}_RFI`;
+      break;
+    case 'vs RFI':
+      if (opponentPositions.length > 0) {
+        positionCombo = `${heroPosition}_vs_${opponentPositions[0]}_RFI`;
+      } else {
+        positionCombo = `${heroPosition}_vs_BU_RFI`;
+      }
+      break;
+    case 'RFI vs 3bet':
+      positionCombo = `${heroPosition}_RFI_vs_3BET`;
+      break;
+    case 'vs Limp':
+      positionCombo = `${heroPosition}_vs_LIMP`;
+      break;
+    default:
+      positionCombo = `${heroPosition}_RFI`;
+  }
   
   // Get range data for this position combination
-  let rangeData = getRangeData(positionCombo);
+  let rangeData = getRangeData(positionCombo, rangeCategory);
   
-  // If exact match not found, try with just the first opponent
-  if (!rangeData && opponentPositions.length > 0) {
-    rangeData = getRangeData(`${heroPosition}_vs_${opponentPositions[0]}`);
-  }
-  
-  // If still not found, try RFI range for hero position (opening ranges)
+  // Fallback strategies for each range category
   if (!rangeData) {
-    rangeData = getRangeData(`${heroPosition}_RFI`);
-  }
-  
-  // Use default range if still not found
-  if (!rangeData) {
-    rangeData = getRangeData('BU_RFI');
+    switch (rangeCategory) {
+      case 'RFI':
+        // Try standard RFI fallbacks
+        rangeData = getRangeData(`${heroPosition}_RFI`, rangeCategory) || 
+                   getRangeData('BU_RFI', rangeCategory);
+        break;
+      case 'vs RFI':
+        // Try with different opponent positions
+        rangeData = getRangeData('BB_vs_BU_RFI', rangeCategory);
+        break;
+      case 'RFI vs 3bet':
+        // Try generic RFI vs 3bet
+        rangeData = getRangeData('BU_RFI_vs_3BET', rangeCategory);
+        break;
+      case 'vs Limp':
+        // For now, fall back to RFI until limp ranges are added
+        rangeData = getRangeData(`${heroPosition}_RFI`, 'RFI');
+        break;
+    }
   }
   
   if (!rangeData) {

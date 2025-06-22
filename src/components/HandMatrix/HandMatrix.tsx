@@ -1,9 +1,11 @@
 import React from 'react';
 import { HandName, HandFrequencies, Action } from '../../types';
+import { RangeCategory } from '../RangeTabSelector/RangeTabSelector';
 import './HandMatrix.css';
 
 interface HandMatrixProps {
   rangeData: Record<HandName, HandFrequencies>;
+  rangeCategory: RangeCategory;
   currentHand?: HandName;
   onHandSelect?: (hand: HandName) => void;
   visible?: boolean;
@@ -27,6 +29,7 @@ const HAND_MATRIX: HandName[][] = [
 
 const HandMatrix: React.FC<HandMatrixProps> = ({
   rangeData,
+  rangeCategory,
   currentHand,
   onHandSelect,
   visible = true
@@ -35,7 +38,10 @@ const HandMatrix: React.FC<HandMatrixProps> = ({
     let totalCombos = 0;
     
     Object.entries(rangeData).forEach(([handName, frequencies]) => {
-      const raiseFreq = frequencies.raise / 100; // Convert percentage to decimal
+      // For range categories other than RFI, count both raise and call actions
+      const actionFreq = rangeCategory === 'RFI' 
+        ? frequencies.raise / 100 
+        : (frequencies.raise + frequencies.call) / 100;
       
       if (handName.length >= 2) {
         const rank1 = handName[0];
@@ -43,15 +49,15 @@ const HandMatrix: React.FC<HandMatrixProps> = ({
         
         // Pocket pairs have 6 combinations
         if (rank1 === rank2) {
-          totalCombos += 6 * raiseFreq;
+          totalCombos += 6 * actionFreq;
         }
         // Suited hands have 4 combinations
         else if (handName.endsWith('s')) {
-          totalCombos += 4 * raiseFreq;
+          totalCombos += 4 * actionFreq;
         }
         // Offsuit hands have 12 combinations
         else if (handName.endsWith('o')) {
-          totalCombos += 12 * raiseFreq;
+          totalCombos += 12 * actionFreq;
         }
       }
     });
@@ -69,12 +75,39 @@ const HandMatrix: React.FC<HandMatrixProps> = ({
 
     const { raise, call, fold } = frequencies;
     
-    if (fold === 100) return 'gray';
-    if (raise === 100) return 'orange';
-    if (raise > 0) return 'yellow';
-    if (call >= 80) return 'green';
-    if (call >= 50) return 'lightgreen';
-    return 'lightgray';
+    if (fold === 100 || (raise === 0 && call === 0)) return 'gray';
+    
+    // Different color schemes based on range category
+    switch (rangeCategory) {
+      case 'RFI':
+        if (raise === 100) return 'orange';
+        if (raise > 0) return 'yellow';
+        return 'gray';
+        
+      case 'vs RFI':
+        if (raise === 100) return 'red'; // 3-bet
+        if (raise > 0) return 'orange'; // Mixed 3-bet
+        if (call === 100) return 'blue'; // Call
+        if (call > 0) return 'lightblue'; // Mixed call
+        return 'gray';
+        
+      case 'RFI vs 3bet':
+        if (raise === 100) return 'darkred'; // 4-bet
+        if (raise > 0) return 'red'; // Mixed 4-bet
+        if (call === 100) return 'green'; // Call
+        if (call > 0) return 'lightgreen'; // Mixed call
+        return 'gray';
+        
+      case 'vs Limp':
+        if (raise === 100) return 'purple'; // Raise vs limp
+        if (raise > 0) return 'lightpurple'; // Mixed raise
+        if (call === 100) return 'teal'; // Call
+        if (call > 0) return 'lightteal'; // Mixed call
+        return 'gray';
+        
+      default:
+        return 'gray';
+    }
   };
 
   const getHandAction = (hand: HandName): Action | null => {
@@ -94,7 +127,25 @@ const HandMatrix: React.FC<HandMatrixProps> = ({
     if (!frequencies) return '';
 
     const { raise, call } = frequencies;
-    return `${raise > 0 ? `BET ${raise}%` : ''}\n${call > 0 ? `CHECK ${call}%` : ''}`.trim();
+    
+    // Different action labels based on range category
+    const raiseLabel = (() => {
+      switch (rangeCategory) {
+        case 'RFI': return 'RFI';
+        case 'vs RFI': return '3B';
+        case 'RFI vs 3bet': return '4B';
+        case 'vs Limp': return 'R';
+        default: return 'R';
+      }
+    })();
+    
+    const callLabel = 'C';
+    
+    const parts = [];
+    if (raise > 0) parts.push(`${raiseLabel} ${raise}%`);
+    if (call > 0) parts.push(`${callLabel} ${call}%`);
+    
+    return parts.join('\n');
   };
 
   if (!visible) return null;
@@ -109,14 +160,54 @@ const HandMatrix: React.FC<HandMatrixProps> = ({
           </div>
         </div>
         <div className="legend">
-          <div className="legend-item">
-            <div className="legend-color orange"></div>
-            <span>Always raise (100%)</span>
-          </div>
-          <div className="legend-item">
-            <div className="legend-color yellow"></div>
-            <span>Borderline - raise in favorable conditions</span>
-          </div>
+          {rangeCategory === 'RFI' && (
+            <>
+              <div className="legend-item">
+                <div className="legend-color orange"></div>
+                <span>Always raise (100%)</span>
+              </div>
+              <div className="legend-item">
+                <div className="legend-color yellow"></div>
+                <span>Mixed frequency raise</span>
+              </div>
+            </>
+          )}
+          {rangeCategory === 'vs RFI' && (
+            <>
+              <div className="legend-item">
+                <div className="legend-color red"></div>
+                <span>3-bet</span>
+              </div>
+              <div className="legend-item">
+                <div className="legend-color blue"></div>
+                <span>Call</span>
+              </div>
+            </>
+          )}
+          {rangeCategory === 'RFI vs 3bet' && (
+            <>
+              <div className="legend-item">
+                <div className="legend-color darkred"></div>
+                <span>4-bet</span>
+              </div>
+              <div className="legend-item">
+                <div className="legend-color green"></div>
+                <span>Call</span>
+              </div>
+            </>
+          )}
+          {rangeCategory === 'vs Limp' && (
+            <>
+              <div className="legend-item">
+                <div className="legend-color purple"></div>
+                <span>Raise</span>
+              </div>
+              <div className="legend-item">
+                <div className="legend-color teal"></div>
+                <span>Call</span>
+              </div>
+            </>
+          )}
           <div className="legend-item">
             <div className="legend-color gray"></div>
             <span>Fold</span>

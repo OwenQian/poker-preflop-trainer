@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Position, GradingMode, QuizQuestion, QuizAnswer, HandProgress, FSRSCard } from './types';
+import { Position, GradingMode, QuizQuestion, QuizAnswer, HandProgress } from './types';
 import { FSRS } from './utils/fsrs/fsrs';
 import { generateQuizQuestion } from './utils/handGenerator';
 import { gradeAnswer } from './utils/gradingSystem';
@@ -11,11 +11,11 @@ import {
   getQuizState,
   saveQuizState 
 } from './utils/storage/localStorage';
-import { getRangeData } from './data/sampleRanges';
 
 import PositionSelector from './components/PositionSelector/PositionSelector';
 import Quiz from './components/Quiz/Quiz';
-import HandMatrix from './components/HandMatrix/HandMatrix';
+import RangeTabSelector, { RangeCategory } from './components/RangeTabSelector/RangeTabSelector';
+import MultiRangeDisplay from './components/MultiRangeDisplay/MultiRangeDisplay';
 
 import './App.css';
 
@@ -27,6 +27,7 @@ const App: React.FC = () => {
   const [opponentPositions, setOpponentPositions] = useState<Position[]>([]);
   const [gradingMode, setGradingMode] = useState<GradingMode>('lax');
   const [showMatrix, setShowMatrix] = useState(true);
+  const [rangeCategory, setRangeCategory] = useState<RangeCategory>('RFI');
   
   const [currentQuestion, setCurrentQuestion] = useState<QuizQuestion | null>(null);
   const [sessionStats, setSessionStats] = useState({
@@ -44,6 +45,7 @@ const App: React.FC = () => {
     setOpponentPositions(settings.opponentPositions);
     setGradingMode(settings.gradingMode);
     setShowMatrix(settings.showMatrix);
+    setRangeCategory(settings.rangeCategory || 'RFI');
 
     const quizState = getQuizState();
     setSessionStats(quizState.currentSessionStats);
@@ -55,9 +57,10 @@ const App: React.FC = () => {
       heroPosition,
       opponentPositions,
       gradingMode,
-      showMatrix
+      showMatrix,
+      rangeCategory
     });
-  }, [heroPosition, opponentPositions, gradingMode, showMatrix]);
+  }, [heroPosition, opponentPositions, gradingMode, showMatrix, rangeCategory]);
 
   const startQuiz = () => {
     if (!heroPosition || opponentPositions.length === 0) {
@@ -65,7 +68,7 @@ const App: React.FC = () => {
       return;
     }
 
-    const question = generateQuizQuestion(heroPosition, opponentPositions);
+    const question = generateQuizQuestion(heroPosition, opponentPositions, rangeCategory);
     if (!question) {
       alert('Unable to generate quiz question. Please try different position settings.');
       return;
@@ -154,7 +157,7 @@ const App: React.FC = () => {
 
     // Generate next question
     setTimeout(() => {
-      const nextQuestion = generateQuizQuestion(heroPosition!, opponentPositions);
+      const nextQuestion = generateQuizQuestion(heroPosition!, opponentPositions, rangeCategory);
       if (nextQuestion) {
         setCurrentQuestion(nextQuestion);
       }
@@ -166,20 +169,6 @@ const App: React.FC = () => {
     setCurrentQuestion(null);
   };
 
-  const getRangeDataForDisplay = () => {
-    if (!heroPosition) return {};
-    
-    // Try to get position-specific RFI range first
-    const rfiCombo = `${heroPosition}_RFI`;
-    let rangeData = getRangeData(rfiCombo);
-    
-    // Fallback to default ranges if needed
-    if (!rangeData) {
-      rangeData = getRangeData('LJ_RFI'); // Default to LJ if no specific range found
-    }
-    
-    return rangeData?.hands || {};
-  };
 
   return (
     <div className="app">
@@ -202,11 +191,21 @@ const App: React.FC = () => {
               </div>
 
               <div className="range-preview">
-                <h3>Preflop RFI Range - {heroPosition || 'Select Position'}</h3>
-                <HandMatrix
-                  rangeData={getRangeDataForDisplay()}
-                  visible={true}
+                <RangeTabSelector
+                  activeCategory={rangeCategory}
+                  onCategoryChange={setRangeCategory}
                 />
+                {heroPosition ? (
+                  <MultiRangeDisplay
+                    heroPosition={heroPosition}
+                    opponentPositions={opponentPositions}
+                    rangeCategory={rangeCategory}
+                  />
+                ) : (
+                  <div className="select-position-message">
+                    <p>Select your position to see range charts</p>
+                  </div>
+                )}
               </div>
             </div>
 
@@ -290,6 +289,7 @@ const App: React.FC = () => {
               onAnswer={handleQuizAnswer}
               showMatrix={showMatrix}
               onToggleMatrix={() => setShowMatrix(!showMatrix)}
+              rangeCategory={rangeCategory}
             />
           </div>
         )}

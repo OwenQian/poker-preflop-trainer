@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { Action, FSRSRating, QuizQuestion, QuizAnswer, GradingMode } from '../../types';
+import { RangeCategory } from '../RangeTabSelector/RangeTabSelector';
 import CardDisplay from '../CardDisplay/CardDisplay';
 import HandMatrix from '../HandMatrix/HandMatrix';
 import './Quiz.css';
@@ -10,6 +11,7 @@ interface QuizProps {
   onAnswer: (answer: QuizAnswer) => void;
   showMatrix?: boolean;
   onToggleMatrix?: () => void;
+  rangeCategory?: RangeCategory;
 }
 
 const Quiz: React.FC<QuizProps> = ({
@@ -17,7 +19,8 @@ const Quiz: React.FC<QuizProps> = ({
   gradingMode,
   onAnswer,
   showMatrix = true,
-  onToggleMatrix
+  onToggleMatrix,
+  rangeCategory = 'RFI'
 }) => {
   const [selectedActions, setSelectedActions] = useState<Action[]>([]);
   const [showConfidenceButtons, setShowConfidenceButtons] = useState(false);
@@ -105,6 +108,7 @@ const Quiz: React.FC<QuizProps> = ({
         {showMatrix && (
           <HandMatrix
             rangeData={{ [question.handName]: question.frequencies }}
+            rangeCategory={rangeCategory}
             currentHand={question.handName}
             visible={showMatrix}
           />

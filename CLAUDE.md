@@ -21,10 +21,13 @@ src/
 │   ├── HandMatrix/      # Poker hand range visualization
 │   ├── PositionSelector/ # Poker table position selection UI
 │   ├── Quiz/            # Main quiz interface
-│   └── CardDisplay/     # Playing card visual components
+│   ├── CardDisplay/     # Playing card visual components
+│   ├── RangeTabSelector/ # Tab interface for range categories
+│   └── MultiRangeDisplay/ # Multi-range chart display component
 ├── data/                # Poker strategy data
-│   ├── zenithRanges.ts  # Complete poker ranges (988 lines)
-│   └── sampleRanges.ts  # Range data interface
+│   ├── zenithRanges.ts  # Original complete poker ranges (988 lines)
+│   ├── jonLittleRanges.ts # Jon Little extracted ranges with multiple categories
+│   └── sampleRanges.ts  # Range data interface and aggregation
 ├── types/               # TypeScript type definitions
 │   └── index.ts         # All application types
 ├── utils/               # Utility functions and algorithms
@@ -50,6 +53,7 @@ src/
 - `FSRSCard`: Spaced repetition card data
 - `QuizQuestion`: Generated practice questions
 - `GradingMode`: Answer evaluation modes ('strict', 'lax', 'randomizer')
+- `RangeCategory`: Range types ('RFI', 'vs RFI', 'RFI vs 3bet', 'vs Limp')
 
 ### 2. Application State Management
 
@@ -61,6 +65,7 @@ The app uses React hooks for state management with three main states:
 **Key State Variables:**
 - `heroPosition`: Player's selected position
 - `opponentPositions`: Opposing player positions array
+- `rangeCategory`: Selected range type ('RFI', 'vs RFI', 'RFI vs 3bet', 'vs Limp')
 - `gradingMode`: How answers are evaluated
 - `currentQuestion`: Active quiz question
 - `sessionStats`: Current session performance metrics
@@ -75,16 +80,23 @@ The app uses React hooks for state management with three main states:
 }
 ```
 
-**Current Ranges Available:**
-- LJ_RFI (Lojack Raise First In) - ~14.3%
-- HJ_RFI (Hijack Raise First In) - ~18.6% 
-- CO_RFI (Cutoff Raise First In) - ~25.9%
-- BU_RFI (Button Raise First In)
-- SB_RFI (Small Blind Raise First In)
+**Range Categories:**
 
-**Missing Ranges** (commonly requested):
-- UTG_RFI (Under The Gun)
-- UTG+1_RFI (Under The Gun +1)
+1. **RFI (Raise First In)**:
+   - UTG_RFI, UTG+1_RFI, LJ_RFI, HJ_RFI, CO_RFI, BU_RFI, SB_RFI
+   - Note: BB_RFI doesn't exist (BB is forced bet, not RFI)
+
+2. **vs RFI (Defending against RFI)**:
+   - BB_vs_[position]_RFI, SB_vs_[position]_RFI, BU_vs_CO_RFI, CO_vs_HJ_RFI
+   - Includes 3bet and call ranges for each opponent position
+
+3. **RFI vs 3bet (Responding to 3-bets)**:
+   - UTG_RFI_vs_3BET, BU_RFI_vs_3BET
+   - 4bet and call ranges when facing 3-bets
+
+4. **vs Limp (Isolating Limpers)**:
+   - [position]_vs_LIMP for UTG+1, LJ, HJ, CO, BU, SB, BB
+   - 6bb raise sizing (4bb + 2×limpers)
 
 ### 4. Quiz Generation (src/utils/handGenerator.ts)
 
@@ -149,10 +161,11 @@ New Card → Learning → Review (with lapses back to Learning)
   - Displays total combinations and percentage of all 1,326 possible starting hands
   - Factors in raise frequencies (e.g., 50% frequency = 0.5x combos)
   - Combo calculation: Pocket pairs (6), Suited (4), Offsuit (12)
-- **Color Coding**: 
-  - Orange: Always raise (100%)
-  - Light Red: Borderline - raise in favorable conditions (any % > 0)
-  - Gray: Fold
+- **Color Coding by Range Category**:
+  - **RFI**: Orange (100%), Yellow (borderline), Gray (fold)
+  - **vs RFI**: Red (3-bet), Blue (call), Gray (fold) 
+  - **RFI vs 3bet**: Dark Red (4-bet), Light Blue (call), Gray (fold)
+  - **vs Limp**: Orange (raise), Gray (fold)
 
 ### PositionSelector Component
 - **Interactive Table**: Visual 8-player poker table with clickable positions
@@ -161,6 +174,18 @@ New Card → Learning → Review (with lapses back to Learning)
 - **Blind Indicators**: 1 chip at SB, 2 chips at BB to represent blinds
 - **Validation**: Prevents hero/opponent position conflicts
 - **Help Text**: Position descriptions and strategic context
+
+### RangeTabSelector Component
+- **Tab Interface**: Four tabs for different range categories
+- **Tooltips**: Descriptive explanations for each range type
+- **State Persistence**: Selected tab saved to localStorage
+
+### MultiRangeDisplay Component  
+- **Dynamic Charts**: Shows different numbers of charts based on range category
+- **RFI**: Single chart per position (excludes BB_RFI)
+- **vs RFI/RFI vs 3bet**: One chart per opponent position
+- **vs Limp**: Single chart with strategy notes
+- **Error Handling**: Clear messaging for unavailable ranges
 
 ### Quiz Component
 - **Question Display**: Hand cards and position info
@@ -172,25 +197,37 @@ New Card → Learning → Review (with lapses back to Learning)
 
 ### Adding New Ranges
 
-1. **Define Range Data**: Add to `src/data/zenithRanges.ts`
+1. **Define Range Data**: Add to appropriate file in `src/data/`
+   - **RFI ranges**: Add to `jonLittleRanges.ts` RFI section
+   - **vs RFI ranges**: Add to `jonLittleRanges.ts` FACING_RFI section
+   - **vs Limp ranges**: Add to UPSWING_VS_LIMP_RANGES section
+
 ```typescript
 {
   positionCombo: 'UTG_RFI',
-  hands: {
-    'AA': { raise: 100, call: 0, fold: 0 },
-    // ... complete hand range
-  }
+  hands: convertHandArrayToRange(['AA', 'KK', 'QQ', /* ... */])
 }
 ```
 
-2. **Update Position Logic**: Ensure range lookup works in `handGenerator.ts`
+2. **Update Range Aggregation**: Ensure new ranges are included in `ALL_RANGES` object in `sampleRanges.ts`
+
+3. **Update Position Logic**: Ensure range lookup works in `handGenerator.ts`
 
 ### Modifying Hand Matrix Colors
 
-Edit `getHandColor()` function in `src/components/HandMatrix/HandMatrix.tsx`:
+Edit `getHandColor()` function in `src/components/HandMatrix/HandMatrix.tsx`. Colors adapt based on `rangeCategory`:
 ```typescript
-if (raise >= 80) return 'orange';      // Dark red (100%)
-if (raise >= 50) return 'yellow';      // Light red (50%)
+switch (rangeCategory) {
+  case 'RFI':
+    if (raise >= 80) return 'orange';    // Always raise
+    if (raise > 0) return 'yellow';      // Borderline
+    return 'gray';                       // Fold
+  case 'vs RFI':
+    if (raise > 0) return 'red';         // 3-bet
+    if (call > 0) return 'blue';         // Call  
+    return 'gray';                       // Fold
+  // ... other categories
+}
 ```
 
 ### Adding New Grading Modes

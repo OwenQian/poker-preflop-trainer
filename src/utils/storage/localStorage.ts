@@ -1,4 +1,5 @@
 import { HandProgress, Position, GradingMode } from '../../types';
+import { RangeCategory } from '../../components/RangeTabSelector/RangeTabSelector';
 
 const STORAGE_KEYS = {
   HAND_PROGRESS: 'preflop_trainer_hand_progress',
@@ -11,6 +12,7 @@ export interface UserSettings {
   opponentPositions: Position[];
   gradingMode: GradingMode;
   showMatrix: boolean;
+  rangeCategory?: RangeCategory;
 }
 
 export interface QuizState {
