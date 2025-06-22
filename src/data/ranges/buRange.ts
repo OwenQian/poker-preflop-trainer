@@ -115,7 +115,7 @@ export const BU_RFI: RangeData = {
     'T9s': { raise: 100, call: 0, fold: 0 },  // Light red
     'T9o': { raise: 100, call: 0, fold: 0 },
     'T8s': { raise: 100, call: 0, fold: 0 },
-    'T8o': { raise: 100, call: 0, fold: 0 },
+    'T8o': { raise: 50, call: 0, fold: 50 },
     'T7s': { raise: 100, call: 0, fold: 0 },
     'T7o': { raise: 0, call: 0, fold: 100 },
     'T6s': { raise: 100, call: 0, fold: 0 },
