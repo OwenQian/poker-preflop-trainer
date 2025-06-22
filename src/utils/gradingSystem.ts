@@ -103,7 +103,7 @@ const getCorrectActions = (frequencies: HandFrequencies): Action[] => {
 };
 
 const getRandomizerCorrectAction = (frequencies: HandFrequencies, randomNumber: number): Action => {
-  const { raise, call, fold } = frequencies;
+  const { call, fold } = frequencies;
   
   // Fold gets the lowest numbers
   if (randomNumber <= fold) {

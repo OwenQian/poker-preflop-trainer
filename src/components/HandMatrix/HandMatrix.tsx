@@ -1,5 +1,5 @@
 import React from 'react';
-import { HandName, HandFrequencies, Action } from '../../types';
+import { HandName, HandFrequencies } from '../../types';
 import { RangeCategory } from '../RangeTabSelector/RangeTabSelector';
 import './HandMatrix.css';
 
@@ -110,17 +110,18 @@ const HandMatrix: React.FC<HandMatrixProps> = ({
     }
   };
 
-  const getHandAction = (hand: HandName): Action | null => {
-    const frequencies = rangeData[hand];
-    if (!frequencies) return null;
+  // Commented out unused function to fix ESLint warning
+  // const getHandAction = (hand: HandName): Action | null => {
+  //   const frequencies = rangeData[hand];
+  //   if (!frequencies) return null;
 
-    const { raise, call, fold } = frequencies;
+  //   const { raise, call, fold } = frequencies;
     
-    if (fold === 100) return 'fold';
-    if (raise >= call && raise >= fold) return 'raise';
-    if (call >= fold) return 'call';
-    return 'fold';
-  };
+  //   if (fold === 100) return 'fold';
+  //   if (raise >= call && raise >= fold) return 'raise';
+  //   if (call >= fold) return 'call';
+  //   return 'fold';
+  // };
 
   const formatFrequencies = (hand: HandName): string => {
     const frequencies = rangeData[hand];

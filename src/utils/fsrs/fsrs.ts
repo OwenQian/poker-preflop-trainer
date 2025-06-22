@@ -1,4 +1,4 @@
-import { FSRSCard, FSRSParameters, FSRSRating, CardState } from '../../types';
+import { FSRSCard, FSRSParameters, FSRSRating } from '../../types';
 
 // Default FSRS-4 parameters
 export const DEFAULT_FSRS_PARAMETERS: FSRSParameters = {
