@@ -1,0 +1,22 @@
+.card-display {
+  display: flex;
+  gap: 12px;
+  justify-content: center;
+  align-items: center;
+  margin: 20px 0;
+}
+
+.poker-card {
+  transition: transform 0.2s ease;
+}
+
+.poker-card:hover {
+  transform: translateY(-2px);
+}
+
+/* Responsive design */
+@media (max-width: 768px) {
+  .card-display {
+    gap: 8px;
+  }
+}

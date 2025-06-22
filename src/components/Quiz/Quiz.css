@@ -1,0 +1,253 @@
+.quiz-container {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 20px;
+}
+
+.quiz-header {
+  text-align: center;
+  margin-bottom: 30px;
+}
+
+.quiz-header h2 {
+  color: #333;
+  margin-bottom: 10px;
+}
+
+.grading-mode-info {
+  background: #f0f8ff;
+  padding: 10px;
+  border-radius: 6px;
+  font-size: 14px;
+  color: #2c5282;
+  border-left: 4px solid #3182ce;
+}
+
+.quiz-content {
+  display: flex;
+  flex-direction: column;
+  gap: 30px;
+}
+
+.situation-info {
+  display: flex;
+  justify-content: center;
+  gap: 40px;
+  padding: 20px;
+  background: #f8f9fa;
+  border-radius: 8px;
+}
+
+.situation-info .label {
+  font-weight: bold;
+  color: #666;
+  margin-right: 8px;
+}
+
+.situation-info .value {
+  color: #333;
+  font-weight: 500;
+}
+
+.cards-section {
+  text-align: center;
+}
+
+.cards-section h3 {
+  color: #333;
+  margin-bottom: 20px;
+  font-size: 24px;
+}
+
+.matrix-toggle {
+  text-align: center;
+}
+
+.toggle-button {
+  background: #3182ce;
+  color: white;
+  border: none;
+  padding: 10px 20px;
+  border-radius: 6px;
+  cursor: pointer;
+  font-size: 14px;
+  transition: background-color 0.2s;
+}
+
+.toggle-button:hover {
+  background: #2c5282;
+}
+
+.actions-section {
+  text-align: center;
+}
+
+.actions-section h3 {
+  color: #333;
+  margin-bottom: 20px;
+  font-size: 20px;
+}
+
+.action-buttons {
+  display: flex;
+  gap: 20px;
+  justify-content: center;
+  margin-bottom: 30px;
+}
+
+.action-button {
+  padding: 15px 30px;
+  border: 3px solid;
+  border-radius: 8px;
+  font-size: 18px;
+  font-weight: bold;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  min-width: 120px;
+}
+
+.action-button:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+}
+
+.action-button.selected {
+  transform: scale(1.05);
+  box-shadow: 0 6px 12px rgba(0, 0, 0, 0.3);
+}
+
+.submit-button {
+  background: #48bb78;
+  color: white;
+  border: none;
+  padding: 15px 40px;
+  border-radius: 8px;
+  font-size: 18px;
+  font-weight: bold;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.submit-button:hover:not(:disabled) {
+  background: #38a169;
+  transform: translateY(-2px);
+}
+
+.submit-button:disabled {
+  background: #a0aec0;
+  cursor: not-allowed;
+}
+
+.confidence-section {
+  text-align: center;
+}
+
+.confidence-section h3 {
+  color: #333;
+  margin-bottom: 20px;
+  font-size: 20px;
+}
+
+.confidence-buttons {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: 20px;
+  justify-content: center;
+}
+
+.confidence-button {
+  padding: 20px;
+  border: 2px solid;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 8px;
+  font-weight: bold;
+  font-size: 16px;
+}
+
+.confidence-button:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+}
+
+.confidence-button.again {
+  background: #fed7d7;
+  border-color: #e53e3e;
+  color: #c53030;
+}
+
+.confidence-button.again:hover {
+  background: #feb2b2;
+}
+
+.confidence-button.hard {
+  background: #feebc8;
+  border-color: #dd6b20;
+  color: #c05621;
+}
+
+.confidence-button.hard:hover {
+  background: #fbd38d;
+}
+
+.confidence-button.good {
+  background: #c6f6d5;
+  border-color: #38a169;
+  color: #2f855a;
+}
+
+.confidence-button.good:hover {
+  background: #9ae6b4;
+}
+
+.confidence-button.easy {
+  background: #bee3f8;
+  border-color: #3182ce;
+  color: #2c5282;
+}
+
+.confidence-button.easy:hover {
+  background: #90cdf4;
+}
+
+.confidence-desc {
+  font-size: 12px;
+  font-weight: normal;
+  opacity: 0.8;
+  text-align: center;
+}
+
+/* Responsive design */
+@media (max-width: 768px) {
+  .quiz-container {
+    padding: 15px;
+  }
+  
+  .situation-info {
+    flex-direction: column;
+    gap: 15px;
+    text-align: center;
+  }
+  
+  .action-buttons {
+    flex-direction: column;
+    align-items: center;
+  }
+  
+  .action-button {
+    width: 100%;
+    max-width: 200px;
+  }
+  
+  .confidence-buttons {
+    grid-template-columns: 1fr;
+  }
+  
+  .cards-section h3 {
+    font-size: 20px;
+  }
+}
