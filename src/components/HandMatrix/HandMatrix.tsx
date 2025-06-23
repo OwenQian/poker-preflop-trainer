@@ -34,6 +34,8 @@ const HandMatrix: React.FC<HandMatrixProps> = ({
   onHandSelect,
   visible = true
 }) => {
+  const [showMixedStrategy, setShowMixedStrategy] = React.useState(true);
+  
   const calculateCombos = () => {
     let totalCombos = 0;
     
@@ -75,6 +77,11 @@ const HandMatrix: React.FC<HandMatrixProps> = ({
     if (!frequencies) return { backgroundColor: '#9e9e9e' };
 
     const { raise, call, fold } = frequencies;
+    
+    // If mixed strategy view is off, always use solid colors
+    if (!showMixedStrategy) {
+      return { backgroundColor: getHandColor(hand) };
+    }
     
     // If it's a single action (100% or all 0s), use solid colors
     if (raise === 100 || call === 100 || fold === 100 || (raise === 0 && call === 0)) {
@@ -144,16 +151,18 @@ const HandMatrix: React.FC<HandMatrixProps> = ({
         
       case 'vs RFI':
         if (raise === 100) return 'red'; // 3-bet
-        if (raise > 0) return 'orange'; // Mixed 3-bet
+        if (raise > 0 && call === 0) return 'orange'; // Pure mixed 3-bet
         if (call === 100) return 'blue'; // Call
-        if (call > 0) return 'lightblue'; // Mixed call
+        if (call > 0 && raise === 0) return 'lightblue'; // Pure mixed call
+        if (raise > 0 && call > 0) return 'purple'; // Mixed 3-bet/call
         return 'gray';
         
       case 'RFI vs 3bet':
         if (raise === 100) return 'darkred'; // 4-bet
-        if (raise > 0) return 'red'; // Mixed 4-bet
+        if (raise > 0 && call === 0) return 'red'; // Pure mixed 4-bet
         if (call === 100) return 'green'; // Call
-        if (call > 0) return 'lightgreen'; // Mixed call
+        if (call > 0 && raise === 0) return 'lightgreen'; // Pure mixed call
+        if (raise > 0 && call > 0) return 'olive'; // Mixed 4-bet/call
         return 'gray';
         
       case 'vs Limp':
@@ -214,8 +223,18 @@ const HandMatrix: React.FC<HandMatrixProps> = ({
       <div className="matrix-header">
         <div className="header-top">
           <h3>Hand Range Matrix</h3>
-          <div className="range-stats">
-            <span className="combo-count">{combos}/1326 combos ({percentage}%)</span>
+          <div className="header-controls">
+            <label className="toggle-label">
+              <input
+                type="checkbox"
+                checked={showMixedStrategy}
+                onChange={(e) => setShowMixedStrategy(e.target.checked)}
+              />
+              <span>Mixed Strategy View</span>
+            </label>
+            <div className="range-stats">
+              <span className="combo-count">{combos}/1326 combos ({percentage}%)</span>
+            </div>
           </div>
         </div>
         <div className="legend">
@@ -241,10 +260,28 @@ const HandMatrix: React.FC<HandMatrixProps> = ({
                 <div className="legend-color blue"></div>
                 <span>Call (100%)</span>
               </div>
-              <div className="legend-item">
-                <div className="legend-color" style={{ background: 'linear-gradient(to right, #f44336 50%, #2196F3 50%)' }}></div>
-                <span>Mixed 3bet/Call</span>
-              </div>
+              {showMixedStrategy && (
+                <div className="legend-item">
+                  <div className="legend-color" style={{ background: 'linear-gradient(to right, #f44336 50%, #2196F3 50%)' }}></div>
+                  <span>Mixed 3bet/Call</span>
+                </div>
+              )}
+              {!showMixedStrategy && (
+                <>
+                  <div className="legend-item">
+                    <div className="legend-color orange"></div>
+                    <span>Mixed 3-bet only</span>
+                  </div>
+                  <div className="legend-item">
+                    <div className="legend-color lightblue"></div>
+                    <span>Mixed call only</span>
+                  </div>
+                  <div className="legend-item">
+                    <div className="legend-color purple"></div>
+                    <span>Mixed 3-bet/Call</span>
+                  </div>
+                </>
+              )}
             </>
           )}
           {rangeCategory === 'RFI vs 3bet' && (
@@ -257,10 +294,28 @@ const HandMatrix: React.FC<HandMatrixProps> = ({
                 <div className="legend-color green"></div>
                 <span>Call (100%)</span>
               </div>
-              <div className="legend-item">
-                <div className="legend-color" style={{ background: 'linear-gradient(to right, #c62828 50%, #4CAF50 50%)' }}></div>
-                <span>Mixed 4bet/Call</span>
-              </div>
+              {showMixedStrategy && (
+                <div className="legend-item">
+                  <div className="legend-color" style={{ background: 'linear-gradient(to right, #c62828 50%, #4CAF50 50%)' }}></div>
+                  <span>Mixed 4bet/Call</span>
+                </div>
+              )}
+              {!showMixedStrategy && (
+                <>
+                  <div className="legend-item">
+                    <div className="legend-color red"></div>
+                    <span>Mixed 4-bet only</span>
+                  </div>
+                  <div className="legend-item">
+                    <div className="legend-color lightgreen"></div>
+                    <span>Mixed call only</span>
+                  </div>
+                  <div className="legend-item">
+                    <div className="legend-color olive"></div>
+                    <span>Mixed 4-bet/Call</span>
+                  </div>
+                </>
+              )}
             </>
           )}
           {rangeCategory === 'vs Limp' && (
