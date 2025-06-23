@@ -149,6 +149,15 @@
   box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
 }
 
+.matrix-cell:hover .hand-frequencies {
+  font-size: 9px;
+  font-weight: 700;
+  background-color: rgba(255, 255, 255, 0.9);
+  padding: 1px 2px;
+  border-radius: 2px;
+  margin-top: 1px;
+}
+
 .matrix-cell.current {
   border: 3px solid #2196F3;
   box-shadow: 0 0 10px rgba(33, 150, 243, 0.5);
@@ -159,14 +168,17 @@
   font-size: 10px;
   color: #333;
   margin-bottom: 1px;
+  text-shadow: 0 0 2px rgba(255, 255, 255, 0.7);
 }
 
 .hand-frequencies {
-  font-size: 6px;
+  font-size: 8px;
   text-align: center;
-  line-height: 1.1;
-  color: #666;
+  line-height: 1.2;
+  color: #000;
   white-space: pre-line;
+  font-weight: 600;
+  text-shadow: 0 0 3px rgba(255, 255, 255, 0.8), 0 0 1px rgba(255, 255, 255, 0.8);
 }
 
 /* Responsive design */

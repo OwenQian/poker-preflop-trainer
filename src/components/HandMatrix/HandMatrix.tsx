@@ -69,6 +69,64 @@ const HandMatrix: React.FC<HandMatrixProps> = ({
   };
 
   const { combos, percentage } = calculateCombos();
+  
+  const getMixedFrequencyStyle = (hand: HandName): React.CSSProperties => {
+    const frequencies = rangeData[hand];
+    if (!frequencies) return { backgroundColor: '#9e9e9e' };
+
+    const { raise, call, fold } = frequencies;
+    
+    // If it's a single action (100% or all 0s), use solid colors
+    if (raise === 100 || call === 100 || fold === 100 || (raise === 0 && call === 0)) {
+      return { backgroundColor: getHandColor(hand) };
+    }
+    
+    // Build gradient for mixed frequencies
+    const colors = {
+      raise: (() => {
+        switch (rangeCategory) {
+          case 'RFI': return '#ff9500'; // orange
+          case 'vs RFI': return '#f44336'; // red
+          case 'RFI vs 3bet': return '#c62828'; // dark red
+          case 'vs Limp': return '#ff9500'; // orange
+          default: return '#ff9500';
+        }
+      })(),
+      call: (() => {
+        switch (rangeCategory) {
+          case 'vs RFI': return '#2196F3'; // blue
+          case 'RFI vs 3bet': return '#4CAF50'; // green
+          default: return '#8BC34A'; // light green
+        }
+      })(),
+      fold: '#9e9e9e' // gray
+    };
+    
+    // Build gradient segments
+    const segments = [];
+    let currentPercent = 0;
+    
+    if (raise > 0) {
+      segments.push(`${colors.raise} ${currentPercent}% ${currentPercent + raise}%`);
+      currentPercent += raise;
+    }
+    
+    if (call > 0) {
+      segments.push(`${colors.call} ${currentPercent}% ${currentPercent + call}%`);
+      currentPercent += call;
+    }
+    
+    if (fold > 0) {
+      segments.push(`${colors.fold} ${currentPercent}% ${currentPercent + fold}%`);
+    }
+    
+    return {
+      background: `linear-gradient(to right, ${segments.join(', ')})`,
+      color: 'black',
+      fontWeight: 'bold'
+    };
+  };
+  
   const getHandColor = (hand: HandName): string => {
     const frequencies = rangeData[hand];
     if (!frequencies) return 'gray';
@@ -177,11 +235,15 @@ const HandMatrix: React.FC<HandMatrixProps> = ({
             <>
               <div className="legend-item">
                 <div className="legend-color red"></div>
-                <span>3-bet</span>
+                <span>3-bet (100%)</span>
               </div>
               <div className="legend-item">
                 <div className="legend-color blue"></div>
-                <span>Call</span>
+                <span>Call (100%)</span>
+              </div>
+              <div className="legend-item">
+                <div className="legend-color" style={{ background: 'linear-gradient(to right, #f44336 50%, #2196F3 50%)' }}></div>
+                <span>Mixed 3bet/Call</span>
               </div>
             </>
           )}
@@ -189,11 +251,15 @@ const HandMatrix: React.FC<HandMatrixProps> = ({
             <>
               <div className="legend-item">
                 <div className="legend-color darkred"></div>
-                <span>4-bet</span>
+                <span>4-bet (100%)</span>
               </div>
               <div className="legend-item">
                 <div className="legend-color green"></div>
-                <span>Call</span>
+                <span>Call (100%)</span>
+              </div>
+              <div className="legend-item">
+                <div className="legend-color" style={{ background: 'linear-gradient(to right, #c62828 50%, #4CAF50 50%)' }}></div>
+                <span>Mixed 4bet/Call</span>
               </div>
             </>
           )}
@@ -223,7 +289,7 @@ const HandMatrix: React.FC<HandMatrixProps> = ({
               <div
                 key={`${rowIndex}-${colIndex}`}
                 className={`matrix-cell ${currentHand === hand ? 'current' : ''}`}
-                style={{ backgroundColor: getHandColor(hand) }}
+                style={getMixedFrequencyStyle(hand)}
                 onClick={() => onHandSelect?.(hand)}
               >
                 <div className="hand-name">{hand}</div>

@@ -314,7 +314,52 @@ export const JON_LITTLE_RFI_VS_3BET_RANGES: RangeData[] = [
       ['AA', 'KK', 'QQ', 'JJ', 'TT', '99', 'AKs', 'AQs', 'AJs', 'ATs', 'A9s', 'A8s', 'A7s', 'A6s', 'A5s', 'A4s', 'A3s', 'A2s', 'AKo', 'AQo', 'AJo', 'ATo', 'A9o', 'KQs', 'KJs', 'KTs', 'K9s', 'K8s', 'K7s', 'K6s', 'K5s', 'KQo', 'KJo', 'KTo', 'QJs', 'QTs', 'Q9s', 'Q8s', 'Q7s', 'QJo', 'QTo', 'JTs', 'J9s', 'J8s', 'J7s', 'J6s', 'JTo', 'T9s', 'T8s', 'T7s', 'T6s', 'T9o', '98s', '97s', '96s', '95s', '87s', '86s', '85s', '84s', '76s', '75s', '74s', '65s', '64s', '63s', '54s', '53s', '43s'],
       ['88', '77', '66', '55', '44', '33', '22', 'A8o', 'A7o', 'A6o', 'A5o', 'A4o', 'A3o', 'A2o', 'K9o', 'K8o', 'K7o', 'K6o', 'K5o', 'K4o', 'K4s', 'K3s', 'K2s', 'Q6s', 'Q5s', 'Q4s', 'Q3s', 'Q2s', 'Q9o', 'Q8o', 'Q7o', 'Q6o', 'Q5o', 'J5s', 'J4s', 'J3s', 'J2s', 'J9o', 'J8o', 'J7o', 'J6o', 'T5s', 'T4s', 'T3s', 'T2s', 'T8o', 'T7o', 'T6o', '94s', '93s', '92s', '98o', '97o', '96o', '83s', '82s', '87o', '86o', '73s', '72s', '76o', '62s', '52s', '42s', '32s']
     )
+  },
+  {
+    positionCombo: 'CO_RFI_vs_3BET',
+    hands: {
+      '22': { raise: 0, call: 25, fold: 75 },
+      '33': { raise: 0, call: 25, fold: 75 },
+      '44': { raise: 0, call: 25, fold: 75 },
+      '55': { raise: 0, call: 50, fold: 50 },
+      '66': { raise: 0, call: 50, fold: 50 },
+      '77': { raise: 0, call: 50, fold: 50 },
+      '88': { raise: 25, call: 75, fold: 0 },
+      '99': { raise: 25, call: 75, fold: 0 },
+      'KK': { raise: 100, call: 0, fold: 0 },
+      'AA': { raise: 100, call: 0, fold: 0 },
+      'TT': { raise: 25, call: 75, fold: 0 },
+      'JJ': { raise: 25, call: 75, fold: 0 },
+      'QQ': { raise: 75, call: 25, fold: 0 },
+      'AKo': { raise: 50, call: 50, fold: 0 },
+      'AQo': { raise: 25, call: 75, fold: 0 },
+      'A5s': { raise: 50, call: 50, fold: 0 },
+      'KJs': { raise: 25, call: 75, fold: 0 },
+      'KTs': { raise: 25, call: 75, fold: 0 },
+      'ATs': { raise: 25, call: 75, fold: 0 },
+      'A9s': { raise: 25, call: 75, fold: 0 },
+      'AQs': { raise: 0, call: 100, fold: 0 },
+      'KQs': { raise: 0, call: 100, fold: 0 },
+      'AJs': { raise: 0, call: 100, fold: 0 },
+      'JTs': { raise: 0, call: 100, fold: 0 },
+      'QJs': { raise: 0, call: 75, fold: 25 },
+      'QTs': { raise: 0, call: 75, fold: 25 },
+      'AKs': { raise: 100, call: 0, fold: 0 },
+      'KQo': { raise: 25, call: 25, fold: 50 },
+      'AJo': { raise: 25, call: 0, fold: 75 },
+      'ATo': { raise: 25, call: 0, fold: 75 },
+      'A4s': { raise: 25, call: 25, fold: 50 },
+      'K9s': { raise: 50, call: 0, fold: 50 },
+      'A8s': { raise: 25, call: 0, fold: 75 },
+      '76s': { raise: 0, call: 50, fold: 50 },
+      '65s': { raise: 0, call: 50, fold: 50 },
+      'T9s': { raise: 0, call: 50, fold: 50 }
+    }
   }
+  /* Note: This range was originally CO_RFI_vs_SB_3BET - we're using it as the general CO RFI vs 3bet range */
+  /* For more accurate opponent-specific ranges, consider: 
+     - CO_RFI_vs_SB_3BET (original data) tends to be tighter
+     - CO_RFI_vs_BU_3BET (original data) allows more calls with small pairs */
 ];
 
 // vs Limp ranges (Custom mixed-strategy ranges)
