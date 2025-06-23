@@ -39,7 +39,16 @@
   - [x] ✅ Enable deselection on repeated clicks (set to Always Fold) and implement click-and-drag multi-cell selection
   - [x] ✅ Add "Not in Range" action support with visual distinction (darker gray for hands not in starting range)
   - [x] ✅ Copy to clipboard and view range should correctly show hands that are 100% folds as opposed to not in range.
-  - [ ] Factor in frequencies that hands are in the previous range. E.g., if a hand is RFI 50% then in the RFI vs 3bet range it's only there 50% of the time not 100% which should be reflected in the combo count. It should reflect in the total number of combos in the subrange, and if a 50% frequency hand is 50% raise, 50% call, then that should end up as 25% raise, 25% call when counting the number of combos in the subrange that raise and call respectively.
+  - [x] ✅ Factor in frequencies that hands are in the previous range. E.g., if a hand is RFI 50% then in the RFI vs 3bet range it's only there 50% of the time not 100% which should be reflected in the combo count. It should reflect in the total number of combos in the subrange, and if a 50% frequency hand is 50% raise, 50% call, then that should end up as 25% raise, 25% call when counting the number of combos in the subrange that raise and call respectively.
+  - [ ] **Add Parent Range System for Game Tree Structure** - Implement ability to specify parent ranges for proper poker decision tree modeling
+    - [ ] Add `parentRange` field to range data structure to track decision tree dependencies
+    - [ ] Implement parent range lookup system (e.g., CO RFI is parent of CO RFI vs 3bet)
+    - [ ] Support multi-level dependencies: vs 4bet ranges are descendants of 3bet portions of vs RFI ranges
+    - [ ] Example game tree paths:
+      - CO RFI → BU 3bet → CO faces 3bet (CO RFI vs 3bet range weighted by CO RFI frequencies)
+      - CO RFI → BU 3bet → BU faces 4bet (BU vs 4bet range weighted by BU 3bet frequencies from BU vs RFI range)
+    - [ ] Update frequency weighting to traverse full decision tree path for accurate combo calculations
+    - [ ] Add UI to display decision tree context and parent range information
   - [ ] 🔄 NEXT: Add range comparison mode
   - [ ] Create export formats (JSON, CSV, TypeScript interface)
 
