@@ -99,7 +99,11 @@ export const generateQuizQuestion = (
       }
       break;
     case 'RFI vs 3bet':
-      positionCombo = `${heroPosition}_RFI_vs_3BET`;
+      if (opponentPositions.length > 0) {
+        positionCombo = `${heroPosition}_RFI_vs_${opponentPositions[0]}_3BET`;
+      } else {
+        positionCombo = `${heroPosition}_RFI_vs_3BET`;
+      }
       break;
     case 'vs Limp':
       positionCombo = `${heroPosition}_vs_LIMP`;

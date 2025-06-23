@@ -81,7 +81,7 @@ const MultiRangeDisplay: React.FC<MultiRangeDisplayProps> = ({
           if (rangeCategory === 'vs RFI') {
             positionCombo = `${heroPosition}_vs_${opponentPosition}_RFI`;
           } else { // RFI vs 3bet
-            positionCombo = `${heroPosition}_RFI_vs_3BET`;
+            positionCombo = `${heroPosition}_RFI_vs_${opponentPosition}_3BET`;
           }
           
           const rangeData = getRangeData(positionCombo, rangeCategory);
