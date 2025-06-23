@@ -77,11 +77,20 @@ const MultiRangeDisplay: React.FC<MultiRangeDisplayProps> = ({
       <div className="multi-range-display">
         {opponentPositions.map((opponentPosition, index) => {
           let positionCombo: string;
+          let dependencyRangeData = undefined;
           
           if (rangeCategory === 'vs RFI') {
             positionCombo = `${heroPosition}_vs_${opponentPosition}_RFI`;
+            // For vs RFI, the dependency is the opponent's RFI range
+            const opponentRfiCombo = `${opponentPosition}_RFI`;
+            const opponentRfiRange = getRangeData(opponentRfiCombo, 'RFI');
+            dependencyRangeData = opponentRfiRange?.hands;
           } else { // RFI vs 3bet
             positionCombo = `${heroPosition}_RFI_vs_${opponentPosition}_3BET`;
+            // For RFI vs 3bet, the dependency is our own RFI range
+            const heroRfiCombo = `${heroPosition}_RFI`;
+            const heroRfiRange = getRangeData(heroRfiCombo, 'RFI');
+            dependencyRangeData = heroRfiRange?.hands;
           }
           
           const rangeData = getRangeData(positionCombo, rangeCategory);
@@ -115,6 +124,7 @@ const MultiRangeDisplay: React.FC<MultiRangeDisplayProps> = ({
                 rangeCategory={rangeCategory}
                 currentHand={currentHand}
                 visible={true}
+                dependencyRangeData={dependencyRangeData}
               />
             </div>
           );

@@ -9,6 +9,8 @@ interface HandMatrixProps {
   currentHand?: HandName;
   onHandSelect?: (hand: HandName) => void;
   visible?: boolean;
+  // Optional dependency range for frequency weighting
+  dependencyRangeData?: Record<HandName, HandFrequencies>;
 }
 
 const HAND_MATRIX: HandName[][] = [
@@ -32,7 +34,8 @@ const HandMatrix: React.FC<HandMatrixProps> = ({
   rangeCategory,
   currentHand,
   onHandSelect,
-  visible = true
+  visible = true,
+  dependencyRangeData
 }) => {
   const [showMixedStrategy, setShowMixedStrategy] = React.useState(true);
   
@@ -57,14 +60,41 @@ const HandMatrix: React.FC<HandMatrixProps> = ({
           handCombos = 12; // Offsuit hands
         }
         
+        // Calculate frequency weighting if dependency range is provided
+        let frequencyWeight = 1.0; // Default to 100% if no dependency
+        
+        if (dependencyRangeData && dependencyRangeData[handName]) {
+          const dependencyFreq = dependencyRangeData[handName];
+          // For RFI dependency, the weight is the raise frequency (how often we RFI this hand)
+          // For other dependencies, we might need different logic
+          switch (rangeCategory) {
+            case 'RFI vs 3bet':
+              // Hand is only in this subrange if it was RFI'd first
+              frequencyWeight = dependencyFreq.raise / 100;
+              break;
+            case 'vs RFI':
+              // This is opponent response to RFI - dependency would be opponent's RFI frequency
+              // For now, we'll use the raise frequency as the weight
+              frequencyWeight = dependencyFreq.raise / 100;
+              break;
+            default:
+              // For other categories, use full weight
+              frequencyWeight = 1.0;
+              break;
+          }
+        }
+        
+        // Calculate effective combos considering frequency weighting
+        const effectiveHandCombos = handCombos * frequencyWeight;
+        
         // All hands in the range data are considered "in range" 
         // (including hands that fold 100% - they're in the starting range but fold in this spot)
-        rangeCombos += handCombos;
+        rangeCombos += effectiveHandCombos;
         
-        // Calculate weighted combinations for each action
-        raiseCombos += handCombos * (frequencies.raise / 100);
-        callCombos += handCombos * (frequencies.call / 100);
-        foldCombos += handCombos * (frequencies.fold / 100);
+        // Calculate weighted combinations for each action with frequency weighting applied
+        raiseCombos += effectiveHandCombos * (frequencies.raise / 100);
+        callCombos += effectiveHandCombos * (frequencies.call / 100);
+        foldCombos += effectiveHandCombos * (frequencies.fold / 100);
       }
     });
     
