@@ -1,0 +1,350 @@
+.range-builder {
+  padding: 20px;
+  max-width: 1200px;
+  margin: 0 auto;
+}
+
+.range-builder h1 {
+  text-align: center;
+  margin-bottom: 30px;
+}
+
+.range-builder-content {
+  display: flex;
+  flex-direction: column;
+  gap: 30px;
+}
+
+.action-selector {
+  text-align: center;
+}
+
+.action-buttons {
+  display: flex;
+  gap: 10px;
+  justify-content: center;
+  flex-wrap: wrap;
+}
+
+.action-buttons button {
+  padding: 10px 20px;
+  border: 2px solid #ccc;
+  border-radius: 8px;
+  background: white;
+  cursor: pointer;
+  transition: all 0.2s;
+  font-size: 14px;
+}
+
+.action-buttons button:hover {
+  border-color: #007bff;
+}
+
+.action-buttons button.active {
+  background: #007bff;
+  color: white;
+  border-color: #007bff;
+}
+
+/* Frequency Controls */
+.frequency-controls {
+  margin-top: 25px;
+  padding: 20px;
+  background: #f8fafc;
+  border-radius: 12px;
+  border: 1px solid #e2e8f0;
+  max-width: 600px;
+  margin-left: auto;
+  margin-right: auto;
+}
+
+.frequency-controls h4 {
+  margin: 0 0 15px 0;
+  color: #2d3748;
+  font-size: 16px;
+  font-weight: 600;
+}
+
+.frequency-sliders {
+  display: flex;
+  gap: 20px;
+  justify-content: space-between;
+  margin-bottom: 15px;
+}
+
+.frequency-slider {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.frequency-slider label {
+  font-size: 14px;
+  font-weight: 500;
+  margin-bottom: 8px;
+  color: #4a5568;
+}
+
+.slider {
+  width: 100%;
+  height: 6px;
+  border-radius: 3px;
+  background: #e2e8f0;
+  outline: none;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.slider:hover {
+  background: #cbd5e0;
+}
+
+.slider::-webkit-slider-thumb {
+  appearance: none;
+  width: 18px;
+  height: 18px;
+  border-radius: 50%;
+  background: #4a5568;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.slider::-webkit-slider-thumb:hover {
+  background: #2d3748;
+  transform: scale(1.1);
+}
+
+.slider::-moz-range-thumb {
+  width: 18px;
+  height: 18px;
+  border-radius: 50%;
+  background: #4a5568;
+  cursor: pointer;
+  border: none;
+  transition: all 0.2s;
+}
+
+.slider::-moz-range-thumb:hover {
+  background: #2d3748;
+  transform: scale(1.1);
+}
+
+/* Color-coded sliders */
+.raise-slider {
+  background: linear-gradient(to right, #e2e8f0, #ff9500);
+}
+
+.raise-slider::-webkit-slider-thumb {
+  background: #ff9500;
+}
+
+.raise-slider::-moz-range-thumb {
+  background: #ff9500;
+}
+
+.call-slider {
+  background: linear-gradient(to right, #e2e8f0, #8BC34A);
+}
+
+.call-slider::-webkit-slider-thumb {
+  background: #8BC34A;
+}
+
+.call-slider::-moz-range-thumb {
+  background: #8BC34A;
+}
+
+.fold-slider {
+  background: linear-gradient(to right, #e2e8f0, #6b7280);
+}
+
+.fold-slider::-webkit-slider-thumb {
+  background: #6b7280;
+}
+
+.fold-slider::-moz-range-thumb {
+  background: #6b7280;
+}
+
+.frequency-total {
+  text-align: center;
+  font-size: 14px;
+  font-weight: 600;
+  color: #2d3748;
+  padding: 8px 12px;
+  background: white;
+  border-radius: 6px;
+  border: 1px solid #e2e8f0;
+}
+
+.range-grid-container {
+  display: flex;
+  justify-content: center;
+}
+
+.grid-placeholder {
+  width: 400px;
+  height: 400px;
+  border: 2px dashed #ccc;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  color: #666;
+  font-size: 18px;
+}
+
+.range-actions {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+  align-items: center;
+}
+
+.history-controls {
+  display: flex;
+  gap: 10px;
+  justify-content: center;
+}
+
+.export-controls {
+  display: flex;
+  gap: 15px;
+  justify-content: center;
+  flex-wrap: wrap;
+}
+
+.save-button, .view-button, .copy-button, .compare-button {
+  padding: 12px 24px;
+  border: none;
+  border-radius: 8px;
+  font-size: 16px;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.save-button {
+  background: linear-gradient(135deg, #10b981, #059669);
+  color: white;
+}
+
+.save-button:hover {
+  background: linear-gradient(135deg, #059669, #047857);
+  transform: translateY(-1px);
+}
+
+.view-button {
+  background: #28a745;
+  color: white;
+}
+
+.view-button:hover {
+  background: #218838;
+}
+
+.copy-button {
+  background: #17a2b8;
+  color: white;
+}
+
+.copy-button:hover {
+  background: #138496;
+}
+
+.compare-button {
+  background: #6f42c1;
+  color: white;
+}
+
+.compare-button:hover {
+  background: #5a32a3;
+  transform: translateY(-1px);
+}
+
+.clear-button {
+  padding: 12px 24px;
+  border: none;
+  border-radius: 8px;
+  font-size: 16px;
+  cursor: pointer;
+  transition: all 0.2s;
+  background: #dc3545;
+  color: white;
+}
+
+.clear-button:hover {
+  background: #c82333;
+}
+
+.clear-button:active {
+  transform: translateY(1px);
+}
+
+.undo-button, .redo-button {
+  padding: 8px 16px;
+  border: none;
+  border-radius: 6px;
+  font-size: 14px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.2s;
+  background: #f3f4f6;
+  color: #374151;
+  border: 1px solid #d1d5db;
+}
+
+.undo-button:hover:not(:disabled), .redo-button:hover:not(:disabled) {
+  background: #e5e7eb;
+  border-color: #9ca3af;
+  transform: translateY(-1px);
+}
+
+.undo-button:disabled, .redo-button:disabled {
+  background: #f9fafb;
+  color: #9ca3af;
+  cursor: not-allowed;
+  border-color: #e5e7eb;
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+  .action-buttons {
+    gap: 8px;
+  }
+  
+  .action-buttons button {
+    padding: 8px 16px;
+    font-size: 13px;
+  }
+  
+  .frequency-controls {
+    margin-top: 20px;
+    padding: 15px;
+    max-width: 100%;
+  }
+  
+  .frequency-sliders {
+    flex-direction: column;
+    gap: 15px;
+  }
+  
+  .frequency-slider {
+    align-items: stretch;
+  }
+  
+  .frequency-slider label {
+    text-align: center;
+  }
+  
+  .range-actions {
+    flex-direction: column;
+    align-items: center;
+    gap: 10px;
+  }
+  
+  .save-button, .view-button, .copy-button, .compare-button, .clear-button {
+    width: 100%;
+    max-width: 250px;
+  }
+}

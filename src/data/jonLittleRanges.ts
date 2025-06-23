@@ -317,203 +317,352 @@ export const JON_LITTLE_RFI_VS_3BET_RANGES: RangeData[] = [
   }
 ];
 
-// vs Limp ranges (Upswing Live ranges)
+// vs Limp ranges (Custom mixed-strategy ranges)
 // Hero's position when facing a single limper
 // Raise size: 6bb (4bb + 2n where n=1 limper)
+// 
+// IMPORTANT: These ranges are for facing ONE limper only
+// With multiple limpers, tighten the range by removing the bluffier hands:
+// - Remove suited connectors and weaker Ax hands from mixed-frequency spots
+// - Keep premium hands (77+, broadway combinations) at same frequencies
+// - Generally fold most 50% frequency hands against 2+ limpers
 export const UPSWING_VS_LIMP_RANGES: RangeData[] = [
   {
     positionCombo: 'UTG+1_vs_LIMP',
-    hands: convertHandArrayToRange([
-      // Premium pairs
-      'AA', 'KK', 'QQ', 'JJ', 'TT', '99', '88', '77', '66', '55', '44', '33', '22',
-      // Aces
-      'AKs', 'AKo', 'AQs', 'AQo', 'AJs', 'AJo', 'ATs', 'ATo', 'A9s',
-      'A8s', 'A7s', 'A6s', 'A5s', 'A4s', 'A3s', 'A2s',
-      // King hands
-      'KQs', 'KQo', 'KJs', 'KJo', 'KTs', 'KTo', 'K9s', 'K8s', 'K7s', 'K6s', 'K5s', 'K4s', 'K3s', 'K2s',
-      // Queen hands
-      'QJs', 'QJo', 'QTs', 'QTo', 'Q9s', 'Q8s', 'Q7s', 'Q6s', 'Q5s', 'Q4s', 'Q3s', 'Q2s',
-      // Jack hands
-      'JTs', 'JTo', 'J9s', 'J8s', 'J7s', 'J6s', 'J5s', 'J4s', 'J3s', 'J2s',
-      // Ten hands
-      'T9s', 'T8s', 'T7s', 'T6s', 'T5s', 'T4s', 'T3s', 'T2s',
-      // Nine hands
-      '98s', '97s', '96s', '95s', '94s', '93s', '92s',
-      // Eight hands
-      '87s', '86s', '85s', '84s', '83s', '82s',
-      // Seven hands
-      '76s', '75s', '74s', '73s', '72s',
-      // Six hands
-      '65s', '64s', '63s', '62s',
-      // Five hands
-      '54s', '53s', '52s',
-      // Four hands
-      '43s', '42s',
-      // Three hands
-      '32s'
-    ])
+    hands: {
+      '77': { raise: 50, call: 0, fold: 50 },
+      '88': { raise: 100, call: 0, fold: 0 },
+      '99': { raise: 100, call: 0, fold: 0 },
+      'AA': { raise: 100, call: 0, fold: 0 },
+      'KK': { raise: 100, call: 0, fold: 0 },
+      'QQ': { raise: 100, call: 0, fold: 0 },
+      'JJ': { raise: 100, call: 0, fold: 0 },
+      'TT': { raise: 100, call: 0, fold: 0 },
+      'AKs': { raise: 100, call: 0, fold: 0 },
+      'AKo': { raise: 100, call: 0, fold: 0 },
+      'AQs': { raise: 100, call: 0, fold: 0 },
+      'AQo': { raise: 100, call: 0, fold: 0 },
+      'AJs': { raise: 100, call: 0, fold: 0 },
+      'ATs': { raise: 100, call: 0, fold: 0 },
+      'KQs': { raise: 100, call: 0, fold: 0 },
+      'KJs': { raise: 50, call: 0, fold: 50 },
+      'KTs': { raise: 50, call: 0, fold: 50 },
+      'QJs': { raise: 100, call: 0, fold: 0 },
+      'QTs': { raise: 50, call: 0, fold: 50 },
+      'JTs': { raise: 100, call: 0, fold: 0 },
+      'T9s': { raise: 50, call: 0, fold: 50 },
+      '98s': { raise: 50, call: 0, fold: 50 }
+    }
   },
   {
     positionCombo: 'LJ_vs_LIMP', 
-    hands: convertHandArrayToRange([
-      // All pairs
-      'AA', 'KK', 'QQ', 'JJ', 'TT', '99', '88', '77', '66', '55', '44', '33', '22',
-      // Aces
-      'AKs', 'AKo', 'AQs', 'AQo', 'AJs', 'AJo', 'ATs', 'ATo', 'A9s',
-      'A8s', 'A7s', 'A6s', 'A5s', 'A4s', 'A3s', 'A2s',
-      // King hands
-      'KQs', 'KQo', 'KJs', 'KJo', 'KTs', 'KTo', 'K9s', 'K8s', 'K7s', 'K6s', 'K5s', 'K4s', 'K3s', 'K2s',
-      // Queen hands
-      'QJs', 'QJo', 'QTs', 'QTo', 'Q9s', 'Q8s', 'Q7s', 'Q6s', 'Q5s', 'Q4s', 'Q3s', 'Q2s',
-      // Jack hands
-      'JTs', 'JTo', 'J9s', 'J8s', 'J7s', 'J6s', 'J5s', 'J4s', 'J3s', 'J2s',
-      // Ten hands
-      'T9s', 'T8s', 'T7s', 'T6s', 'T5s', 'T4s', 'T3s', 'T2s',
-      // Nine hands
-      '98s', '97s', '96s', '95s', '94s', '93s', '92s',
-      // Eight hands
-      '87s', '86s', '85s', '84s', '83s', '82s',
-      // Seven hands
-      '76s', '75s', '74s', '73s', '72s',
-      // Six hands
-      '65s', '64s', '63s', '62s',
-      // Five hands
-      '54s', '53s', '52s',
-      // Four hands
-      '43s', '42s',
-      // Three hands
-      '32s'
-    ])
+    hands: {
+      '55': { raise: 50, call: 0, fold: 50 },
+      '66': { raise: 50, call: 0, fold: 50 },
+      '77': { raise: 100, call: 0, fold: 0 },
+      '88': { raise: 100, call: 0, fold: 0 },
+      '99': { raise: 100, call: 0, fold: 0 },
+      'AA': { raise: 100, call: 0, fold: 0 },
+      'KK': { raise: 100, call: 0, fold: 0 },
+      'QQ': { raise: 100, call: 0, fold: 0 },
+      'JJ': { raise: 100, call: 0, fold: 0 },
+      'TT': { raise: 100, call: 0, fold: 0 },
+      'AKs': { raise: 100, call: 0, fold: 0 },
+      'AKo': { raise: 100, call: 0, fold: 0 },
+      'AQs': { raise: 100, call: 0, fold: 0 },
+      'AQo': { raise: 100, call: 0, fold: 0 },
+      'AJs': { raise: 100, call: 0, fold: 0 },
+      'ATs': { raise: 100, call: 0, fold: 0 },
+      'A9s': { raise: 50, call: 0, fold: 50 },
+      'A5s': { raise: 50, call: 0, fold: 50 },
+      'KQs': { raise: 100, call: 0, fold: 0 },
+      'KJs': { raise: 100, call: 0, fold: 0 },
+      'KTs': { raise: 50, call: 0, fold: 50 },
+      'QJs': { raise: 100, call: 0, fold: 0 },
+      'QTs': { raise: 50, call: 0, fold: 50 },
+      'JTs': { raise: 100, call: 0, fold: 0 },
+      'J9s': { raise: 50, call: 0, fold: 50 },
+      'T9s': { raise: 100, call: 0, fold: 0 },
+      '98s': { raise: 50, call: 0, fold: 50 },
+      '87s': { raise: 50, call: 0, fold: 50 },
+      '76s': { raise: 50, call: 0, fold: 50 },
+      '65s': { raise: 50, call: 0, fold: 50 }
+    }
   },
   {
     positionCombo: 'HJ_vs_LIMP',
-    hands: convertHandArrayToRange([
-      // All pairs
-      'AA', 'KK', 'QQ', 'JJ', 'TT', '99', '88', '77', '66', '55', '44', '33', '22',
-      // Aces
-      'AKs', 'AKo', 'AQs', 'AQo', 'AJs', 'AJo', 'ATs', 'ATo', 'A9s',
-      'A8s', 'A7s', 'A6s', 'A5s', 'A4s', 'A3s', 'A2s',
-      // King hands
-      'KQs', 'KQo', 'KJs', 'KJo', 'KTs', 'KTo', 'K9s', 'K8s', 'K7s', 'K6s', 'K5s', 'K4s', 'K3s', 'K2s',
-      // Queen hands
-      'QJs', 'QJo', 'QTs', 'QTo', 'Q9s', 'Q8s', 'Q7s', 'Q6s', 'Q5s', 'Q4s', 'Q3s', 'Q2s',
-      // Jack hands
-      'JTs', 'JTo', 'J9s', 'J8s', 'J7s', 'J6s', 'J5s', 'J4s', 'J3s', 'J2s',
-      // Ten hands
-      'T9s', 'T8s', 'T7s', 'T6s', 'T5s', 'T4s', 'T3s', 'T2s',
-      // Nine hands
-      '98s', '97s', '96s', '95s', '94s', '93s', '92s',
-      // Eight hands
-      '87s', '86s', '85s', '84s', '83s', '82s',
-      // Seven hands
-      '76s', '75s', '74s', '73s', '72s',
-      // Six hands
-      '65s', '64s', '63s', '62s',
-      // Five hands
-      '54s', '53s', '52s',
-      // Four hands
-      '43s', '42s',
-      // Three hands
-      '32s'
-    ])
+    hands: {
+      '55': { raise: 50, call: 0, fold: 50 },
+      '66': { raise: 100, call: 0, fold: 0 },
+      '77': { raise: 100, call: 0, fold: 0 },
+      '88': { raise: 100, call: 0, fold: 0 },
+      '99': { raise: 100, call: 0, fold: 0 },
+      'AA': { raise: 100, call: 0, fold: 0 },
+      'KK': { raise: 100, call: 0, fold: 0 },
+      'QQ': { raise: 100, call: 0, fold: 0 },
+      'JJ': { raise: 100, call: 0, fold: 0 },
+      'TT': { raise: 100, call: 0, fold: 0 },
+      'AKs': { raise: 100, call: 0, fold: 0 },
+      'AKo': { raise: 100, call: 0, fold: 0 },
+      'AQs': { raise: 100, call: 0, fold: 0 },
+      'AQo': { raise: 100, call: 0, fold: 0 },
+      'AJs': { raise: 100, call: 0, fold: 0 },
+      'AJo': { raise: 50, call: 0, fold: 50 },
+      'ATs': { raise: 100, call: 0, fold: 0 },
+      'A9s': { raise: 50, call: 0, fold: 50 },
+      'A8s': { raise: 50, call: 0, fold: 50 },
+      'A5s': { raise: 50, call: 0, fold: 50 },
+      'A4s': { raise: 50, call: 0, fold: 50 },
+      'KQs': { raise: 100, call: 0, fold: 0 },
+      'KQo': { raise: 50, call: 0, fold: 50 },
+      'KJs': { raise: 100, call: 0, fold: 0 },
+      'KTs': { raise: 50, call: 0, fold: 50 },
+      'K9s': { raise: 50, call: 0, fold: 50 },
+      'QJs': { raise: 100, call: 0, fold: 0 },
+      'QTs': { raise: 50, call: 0, fold: 50 },
+      'Q9s': { raise: 50, call: 0, fold: 50 },
+      'JTs': { raise: 100, call: 0, fold: 0 },
+      'J9s': { raise: 50, call: 0, fold: 50 },
+      'T9s': { raise: 100, call: 0, fold: 0 },
+      '98s': { raise: 50, call: 0, fold: 50 },
+      '87s': { raise: 50, call: 0, fold: 50 },
+      '76s': { raise: 50, call: 0, fold: 50 },
+      '65s': { raise: 50, call: 0, fold: 50 }
+    }
   },
   {
     positionCombo: 'CO_vs_LIMP',
-    hands: convertHandArrayToRange([
-      // All pairs
-      'AA', 'KK', 'QQ', 'JJ', 'TT', '99', '88', '77', '66', '55', '44', '33', '22',
-      // All aces
-      'AKs', 'AKo', 'AQs', 'AQo', 'AJs', 'AJo', 'ATs', 'ATo', 'A9s',
-      'A8s', 'A7s', 'A6s', 'A5s', 'A4s', 'A3s', 'A2s',
-      // King hands
-      'KQs', 'KQo', 'KJs', 'KJo', 'KTs', 'KTo', 'K9s', 'K8s', 'K7s', 'K6s', 'K5s', 'K4s', 'K3s', 'K2s',
-      // Queen hands
-      'QJs', 'QJo', 'QTs', 'QTo', 'Q9s', 'Q8s', 'Q7s', 'Q6s', 'Q5s', 'Q4s', 'Q3s', 'Q2s',
-      // Jack hands
-      'JTs', 'JTo', 'J9s', 'J8s', 'J7s', 'J6s', 'J5s', 'J4s', 'J3s', 'J2s',
-      // Ten hands
-      'T9s', 'T9o', 'T8s', 'T7s', 'T6s', 'T5s', 'T4s', 'T3s', 'T2s',
-      // Nine hands
-      '98s', '98o', '97s', '96s', '95s', '94s', '93s', '92s',
-      // Eight hands
-      '87s', '87o', '86s', '85s', '84s', '83s', '82s',
-      // Seven hands
-      '76s', '75s', '74s', '73s', '72s',
-      // Six hands
-      '65s', '64s', '63s', '62s',
-      // Five hands
-      '54s', '53s', '52s',
-      // Four hands
-      '43s', '42s',
-      // Three hands
-      '32s'
-    ])
+    hands: {
+      '22': { raise: 50, call: 0, fold: 50 },
+      '33': { raise: 50, call: 0, fold: 50 },
+      '44': { raise: 50, call: 0, fold: 50 },
+      '55': { raise: 100, call: 0, fold: 0 },
+      '66': { raise: 100, call: 0, fold: 0 },
+      '77': { raise: 100, call: 0, fold: 0 },
+      '88': { raise: 100, call: 0, fold: 0 },
+      '99': { raise: 100, call: 0, fold: 0 },
+      'AA': { raise: 100, call: 0, fold: 0 },
+      'KK': { raise: 100, call: 0, fold: 0 },
+      'QQ': { raise: 100, call: 0, fold: 0 },
+      'JJ': { raise: 100, call: 0, fold: 0 },
+      'TT': { raise: 100, call: 0, fold: 0 },
+      'AKs': { raise: 100, call: 0, fold: 0 },
+      'AKo': { raise: 100, call: 0, fold: 0 },
+      'AQs': { raise: 100, call: 0, fold: 0 },
+      'AQo': { raise: 100, call: 0, fold: 0 },
+      'AJs': { raise: 100, call: 0, fold: 0 },
+      'AJo': { raise: 100, call: 0, fold: 0 },
+      'ATs': { raise: 100, call: 0, fold: 0 },
+      'ATo': { raise: 50, call: 0, fold: 50 },
+      'A9s': { raise: 100, call: 0, fold: 0 },
+      'A8s': { raise: 50, call: 0, fold: 50 },
+      'A7s': { raise: 50, call: 0, fold: 50 },
+      'A6s': { raise: 50, call: 0, fold: 50 },
+      'A5s': { raise: 50, call: 0, fold: 50 },
+      'A4s': { raise: 50, call: 0, fold: 50 },
+      'A3s': { raise: 50, call: 0, fold: 50 },
+      'A2s': { raise: 50, call: 0, fold: 50 },
+      'KQs': { raise: 100, call: 0, fold: 0 },
+      'KQo': { raise: 100, call: 0, fold: 0 },
+      'KJs': { raise: 100, call: 0, fold: 0 },
+      'KJo': { raise: 50, call: 0, fold: 50 },
+      'KTs': { raise: 100, call: 0, fold: 0 },
+      'K9s': { raise: 50, call: 0, fold: 50 },
+      'QJs': { raise: 100, call: 0, fold: 0 },
+      'QJo': { raise: 50, call: 0, fold: 50 },
+      'QTs': { raise: 100, call: 0, fold: 0 },
+      'Q9s': { raise: 50, call: 0, fold: 50 },
+      'JTs': { raise: 100, call: 0, fold: 0 },
+      'J9s': { raise: 50, call: 0, fold: 50 },
+      'T9s': { raise: 100, call: 0, fold: 0 },
+      'T8s': { raise: 50, call: 0, fold: 50 },
+      '98s': { raise: 50, call: 0, fold: 50 },
+      '97s': { raise: 50, call: 0, fold: 50 },
+      '87s': { raise: 50, call: 0, fold: 50 },
+      '76s': { raise: 50, call: 0, fold: 50 },
+      '65s': { raise: 50, call: 0, fold: 50 },
+      '54s': { raise: 50, call: 0, fold: 50 }
+    }
   },
   {
     positionCombo: 'BU_vs_LIMP',
-    hands: convertHandArrayToRange([
-      // All pairs
-      'AA', 'KK', 'QQ', 'JJ', 'TT', '99', '88', '77', '66', '55', '44', '33', '22',
-      // All aces
-      'AKs', 'AKo', 'AQs', 'AQo', 'AJs', 'AJo', 'ATs', 'ATo', 'A9s', 'A9o',
-      'A8s', 'A7s', 'A6s', 'A5s', 'A4s', 'A3s', 'A2s',
-      // King hands
-      'KQs', 'KQo', 'KJs', 'KJo', 'KTs', 'KTo', 'K9s', 'K8s', 'K7s', 'K6s', 'K5s', 'K4s', 'K3s', 'K2s',
-      // Queen hands
-      'QJs', 'QJo', 'QTs', 'QTo', 'Q9s', 'Q8s', 'Q7s', 'Q6s', 'Q5s', 'Q4s', 'Q3s', 'Q2s',
-      // Jack hands
-      'JTs', 'JTo', 'J9s', 'J8s', 'J7s', 'J6s', 'J5s', 'J4s', 'J3s', 'J2s',
-      // Ten hands
-      'T9s', 'T9o', 'T8s', 'T7s', 'T6s', 'T5s', 'T4s', 'T3s', 'T2s',
-      // Nine hands
-      '98s', '98o', '97s', '96s', '95s', '94s', '93s', '92s',
-      // Eight hands
-      '87s', '87o', '86s', '85s', '84s', '83s', '82s',
-      // Seven hands
-      '76s', '76o', '75s', '74s', '73s', '72s',
-      // Six hands
-      '65s', '65o', '64s', '63s', '62s',
-      // Five hands
-      '54s', '53s', '52s',
-      // Four hands
-      '43s', '42s',
-      // Three hands
-      '32s'
-    ])
+    hands: {
+      '22': { raise: 50, call: 0, fold: 50 },
+      '33': { raise: 50, call: 0, fold: 50 },
+      '44': { raise: 50, call: 0, fold: 50 },
+      '55': { raise: 100, call: 0, fold: 0 },
+      '66': { raise: 100, call: 0, fold: 0 },
+      '77': { raise: 100, call: 0, fold: 0 },
+      '88': { raise: 100, call: 0, fold: 0 },
+      '99': { raise: 100, call: 0, fold: 0 },
+      'AA': { raise: 100, call: 0, fold: 0 },
+      'KK': { raise: 100, call: 0, fold: 0 },
+      'QQ': { raise: 100, call: 0, fold: 0 },
+      'JJ': { raise: 100, call: 0, fold: 0 },
+      'TT': { raise: 100, call: 0, fold: 0 },
+      'AKs': { raise: 100, call: 0, fold: 0 },
+      'AKo': { raise: 100, call: 0, fold: 0 },
+      'AQs': { raise: 100, call: 0, fold: 0 },
+      'AQo': { raise: 100, call: 0, fold: 0 },
+      'AJs': { raise: 100, call: 0, fold: 0 },
+      'AJo': { raise: 100, call: 0, fold: 0 },
+      'ATs': { raise: 100, call: 0, fold: 0 },
+      'ATo': { raise: 50, call: 0, fold: 50 },
+      'A9s': { raise: 100, call: 0, fold: 0 },
+      'A8s': { raise: 100, call: 0, fold: 0 },
+      'A7s': { raise: 50, call: 0, fold: 50 },
+      'A6s': { raise: 50, call: 0, fold: 50 },
+      'A5s': { raise: 100, call: 0, fold: 0 },
+      'A4s': { raise: 100, call: 0, fold: 0 },
+      'A3s': { raise: 50, call: 0, fold: 50 },
+      'A2s': { raise: 50, call: 0, fold: 50 },
+      'KQs': { raise: 100, call: 0, fold: 0 },
+      'KQo': { raise: 100, call: 0, fold: 0 },
+      'KJs': { raise: 100, call: 0, fold: 0 },
+      'KJo': { raise: 50, call: 0, fold: 50 },
+      'KTs': { raise: 100, call: 0, fold: 0 },
+      'KTo': { raise: 50, call: 0, fold: 50 },
+      'K9s': { raise: 50, call: 0, fold: 50 },
+      'K8s': { raise: 50, call: 0, fold: 50 },
+      'K7s': { raise: 50, call: 0, fold: 50 },
+      'K6s': { raise: 50, call: 0, fold: 50 },
+      'K5s': { raise: 50, call: 0, fold: 50 },
+      'QJs': { raise: 100, call: 0, fold: 0 },
+      'QJo': { raise: 50, call: 0, fold: 50 },
+      'QTs': { raise: 100, call: 0, fold: 0 },
+      'QTo': { raise: 50, call: 0, fold: 50 },
+      'Q9s': { raise: 50, call: 0, fold: 50 },
+      'Q8s': { raise: 50, call: 0, fold: 50 },
+      'Q7s': { raise: 50, call: 0, fold: 50 },
+      'JTs': { raise: 100, call: 0, fold: 0 },
+      'JTo': { raise: 50, call: 0, fold: 50 },
+      'J9s': { raise: 50, call: 0, fold: 50 },
+      'J8s': { raise: 50, call: 0, fold: 50 },
+      'J7s': { raise: 50, call: 0, fold: 50 },
+      'T9s': { raise: 100, call: 0, fold: 0 },
+      'T8s': { raise: 50, call: 0, fold: 50 },
+      'T7s': { raise: 50, call: 0, fold: 50 },
+      'T6s': { raise: 50, call: 0, fold: 50 },
+      '98s': { raise: 100, call: 0, fold: 0 },
+      '97s': { raise: 50, call: 0, fold: 50 },
+      '96s': { raise: 50, call: 0, fold: 50 },
+      '87s': { raise: 50, call: 0, fold: 50 },
+      '86s': { raise: 50, call: 0, fold: 50 },
+      '85s': { raise: 50, call: 0, fold: 50 },
+      '76s': { raise: 50, call: 0, fold: 50 },
+      '75s': { raise: 50, call: 0, fold: 50 },
+      '65s': { raise: 50, call: 0, fold: 50 },
+      '64s': { raise: 50, call: 0, fold: 50 },
+      '54s': { raise: 50, call: 0, fold: 50 },
+      '53s': { raise: 50, call: 0, fold: 50 },
+      'A9o': { raise: 50, call: 0, fold: 50 },
+      'T9o': { raise: 50, call: 0, fold: 50 }
+    }
   },
   {
     positionCombo: 'SB_vs_LIMP',
-    hands: convertHandArrayToRange([
-      // Premium pairs
-      'AA', 'KK', 'QQ', 'JJ', 'TT', '99', '88', '77',
-      // Strong broadway
-      'AKs', 'AKo', 'AQs', 'AQo', 'AJs', 'AJo', 'ATs', 'ATo',
-      'KQs', 'KQo', 'KJs', 'KJo', 'KTs', 'KTo',
-      'QJs', 'QJo', 'QTs', 'QTo',
-      'JTs', 'JTo',
-      // Suited connectors/gappers
-      'T9s', 'T9o', '98s', '98o', '87s', '87o', '76s', '76o',
-      '65s', '65o', '54s',
-      // Small pairs
-      '66', '55', '44', '33', '22'
-    ])
+    hands: {
+      '55': { raise: 50, call: 0, fold: 50 },
+      '66': { raise: 50, call: 0, fold: 50 },
+      '77': { raise: 100, call: 0, fold: 0 },
+      '88': { raise: 100, call: 0, fold: 0 },
+      '99': { raise: 100, call: 0, fold: 0 },
+      'AA': { raise: 100, call: 0, fold: 0 },
+      'KK': { raise: 100, call: 0, fold: 0 },
+      'QQ': { raise: 100, call: 0, fold: 0 },
+      'JJ': { raise: 100, call: 0, fold: 0 },
+      'TT': { raise: 100, call: 0, fold: 0 },
+      'AKs': { raise: 100, call: 0, fold: 0 },
+      'AKo': { raise: 100, call: 0, fold: 0 },
+      'AQs': { raise: 100, call: 0, fold: 0 },
+      'AQo': { raise: 100, call: 0, fold: 0 },
+      'AJs': { raise: 100, call: 0, fold: 0 },
+      'AJo': { raise: 50, call: 0, fold: 50 },
+      'ATs': { raise: 100, call: 0, fold: 0 },
+      'A9s': { raise: 100, call: 0, fold: 0 },
+      'A8s': { raise: 50, call: 0, fold: 50 },
+      'A7s': { raise: 50, call: 0, fold: 50 },
+      'A6s': { raise: 50, call: 0, fold: 50 },
+      'A5s': { raise: 50, call: 0, fold: 50 },
+      'A4s': { raise: 50, call: 0, fold: 50 },
+      'A3s': { raise: 50, call: 0, fold: 50 },
+      'A2s': { raise: 50, call: 0, fold: 50 },
+      'KQs': { raise: 100, call: 0, fold: 0 },
+      'KQo': { raise: 50, call: 0, fold: 50 },
+      'KJs': { raise: 100, call: 0, fold: 0 },
+      'KTs': { raise: 100, call: 0, fold: 0 },
+      'K9s': { raise: 50, call: 0, fold: 50 },
+      'QJs': { raise: 100, call: 0, fold: 0 },
+      'QTs': { raise: 100, call: 0, fold: 0 },
+      'Q9s': { raise: 50, call: 0, fold: 50 },
+      'JTs': { raise: 100, call: 0, fold: 0 },
+      'J9s': { raise: 50, call: 0, fold: 50 },
+      'T9s': { raise: 100, call: 0, fold: 0 },
+      'T8s': { raise: 50, call: 0, fold: 50 },
+      '98s': { raise: 50, call: 0, fold: 50 },
+      '97s': { raise: 50, call: 0, fold: 50 },
+      '87s': { raise: 50, call: 0, fold: 50 },
+      '76s': { raise: 50, call: 0, fold: 50 },
+      '65s': { raise: 50, call: 0, fold: 50 },
+      '54s': { raise: 50, call: 0, fold: 50 }
+    }
   },
   {
     positionCombo: 'BB_vs_LIMP',
-    hands: convertHandArrayToRange([
-      // Premium pairs
-      'AA', 'KK', 'QQ', 'JJ', 'TT', '99', '88', '77',
-      // Strong broadway
-      'AKs', 'AKo', 'AQs', 'AQo', 'AJs', 'AJo', 'ATs', 'ATo',
-      'KQs', 'KQo', 'KJs', 'KJo', 'KTs', 'KTo',
-      'QJs', 'QJo', 'QTs', 'QTo',
-      'JTs', 'JTo',
-      // Suited connectors/gappers
-      'T9s', 'T9o', '98s', '98o', '87s', '87o', '76s', '76o',
-      '65s', '65o', '54s', '54o',
-      // Small pairs
-      '66', '55', '44', '33', '22'
-    ])
+    hands: {
+      '22': { raise: 50, call: 0, fold: 50 },
+      '33': { raise: 50, call: 0, fold: 50 },
+      '44': { raise: 50, call: 0, fold: 50 },
+      '55': { raise: 50, call: 0, fold: 50 },
+      '66': { raise: 50, call: 0, fold: 50 },
+      '77': { raise: 100, call: 0, fold: 0 },
+      '88': { raise: 100, call: 0, fold: 0 },
+      '99': { raise: 100, call: 0, fold: 0 },
+      'AA': { raise: 100, call: 0, fold: 0 },
+      'KK': { raise: 100, call: 0, fold: 0 },
+      'QQ': { raise: 100, call: 0, fold: 0 },
+      'JJ': { raise: 100, call: 0, fold: 0 },
+      'TT': { raise: 100, call: 0, fold: 0 },
+      'AKs': { raise: 100, call: 0, fold: 0 },
+      'AKo': { raise: 100, call: 0, fold: 0 },
+      'AQs': { raise: 100, call: 0, fold: 0 },
+      'AQo': { raise: 100, call: 0, fold: 0 },
+      'AJs': { raise: 100, call: 0, fold: 0 },
+      'AJo': { raise: 50, call: 0, fold: 50 },
+      'ATs': { raise: 100, call: 0, fold: 0 },
+      'ATo': { raise: 50, call: 0, fold: 50 },
+      'A9s': { raise: 100, call: 0, fold: 0 },
+      'A8s': { raise: 50, call: 0, fold: 50 },
+      'A7s': { raise: 50, call: 0, fold: 50 },
+      'A6s': { raise: 50, call: 0, fold: 50 },
+      'A5s': { raise: 100, call: 0, fold: 0 },
+      'A4s': { raise: 50, call: 0, fold: 50 },
+      'A3s': { raise: 50, call: 0, fold: 50 },
+      'A2s': { raise: 50, call: 0, fold: 50 },
+      'KQs': { raise: 100, call: 0, fold: 0 },
+      'KQo': { raise: 50, call: 0, fold: 50 },
+      'KJs': { raise: 100, call: 0, fold: 0 },
+      'KJo': { raise: 50, call: 0, fold: 50 },
+      'KTs': { raise: 100, call: 0, fold: 0 },
+      'K9s': { raise: 50, call: 0, fold: 50 },
+      'K8s': { raise: 50, call: 0, fold: 50 },
+      'QJs': { raise: 100, call: 0, fold: 0 },
+      'QJo': { raise: 50, call: 0, fold: 50 },
+      'QTs': { raise: 100, call: 0, fold: 0 },
+      'Q9s': { raise: 50, call: 0, fold: 50 },
+      'JTs': { raise: 100, call: 0, fold: 0 },
+      'J9s': { raise: 50, call: 0, fold: 50 },
+      'T9s': { raise: 100, call: 0, fold: 0 },
+      'T8s': { raise: 50, call: 0, fold: 50 },
+      '98s': { raise: 50, call: 0, fold: 50 },
+      '97s': { raise: 50, call: 0, fold: 50 },
+      '87s': { raise: 50, call: 0, fold: 50 },
+      '86s': { raise: 50, call: 0, fold: 50 },
+      '76s': { raise: 50, call: 0, fold: 50 },
+      '75s': { raise: 50, call: 0, fold: 50 },
+      '65s': { raise: 50, call: 0, fold: 50 },
+      '54s': { raise: 50, call: 0, fold: 50 }
+    }
   }
 ];
 

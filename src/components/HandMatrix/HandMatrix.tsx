@@ -99,8 +99,8 @@ const HandMatrix: React.FC<HandMatrixProps> = ({
         return 'gray';
         
       case 'vs Limp':
-        if (raise === 100) return 'purple'; // Raise vs limp
-        if (raise > 0) return 'lightpurple'; // Mixed raise
+        if (raise === 100) return 'orange'; // Always raise
+        if (raise > 0) return 'yellow'; // Mixed frequency raise
         if (call === 100) return 'teal'; // Call
         if (call > 0) return 'lightteal'; // Mixed call
         return 'gray';
@@ -200,12 +200,12 @@ const HandMatrix: React.FC<HandMatrixProps> = ({
           {rangeCategory === 'vs Limp' && (
             <>
               <div className="legend-item">
-                <div className="legend-color purple"></div>
-                <span>Raise</span>
+                <div className="legend-color orange"></div>
+                <span>Always raise (100%)</span>
               </div>
               <div className="legend-item">
-                <div className="legend-color teal"></div>
-                <span>Call</span>
+                <div className="legend-color yellow"></div>
+                <span>Mixed frequency raise</span>
               </div>
             </>
           )}

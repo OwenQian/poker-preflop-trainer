@@ -41,7 +41,7 @@ const RangeTabSelector: React.FC<RangeTabSelectorProps> = ({
             onClick={() => onCategoryChange(tab)}
             title={getTabDescription(tab)}
           >
-            {tab === 'RFI' ? tab : `${tab} (WIP)`}
+            {tab === 'RFI' || tab === 'vs Limp' ? tab : `${tab} (WIP)`}
           </button>
         ))}
       </div>

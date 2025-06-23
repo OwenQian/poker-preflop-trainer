@@ -1,0 +1,251 @@
+.save-range-modal-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(0, 0, 0, 0.6);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1000;
+  backdrop-filter: blur(2px);
+}
+
+.save-range-modal {
+  background: white;
+  border-radius: 16px;
+  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+  width: 90%;
+  max-width: 550px;
+  max-height: 90vh;
+  overflow-y: auto;
+  animation: modalSlideIn 0.3s ease-out;
+}
+
+@keyframes modalSlideIn {
+  from {
+    opacity: 0;
+    transform: translateY(-30px) scale(0.95);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+
+.save-range-modal-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 24px 24px 16px 24px;
+  border-bottom: 1px solid #e2e8f0;
+}
+
+.save-range-modal-header h3 {
+  margin: 0;
+  font-size: 20px;
+  font-weight: 600;
+  color: #1a202c;
+}
+
+.save-range-modal-close {
+  background: none;
+  border: none;
+  font-size: 20px;
+  cursor: pointer;
+  color: #718096;
+  padding: 4px;
+  border-radius: 4px;
+  transition: all 0.2s;
+}
+
+.save-range-modal-close:hover {
+  background: #f7fafc;
+  color: #4a5568;
+}
+
+.save-range-modal-content {
+  padding: 24px;
+}
+
+.range-info {
+  background: #f8fafc;
+  border: 1px solid #e2e8f0;
+  border-radius: 8px;
+  padding: 16px;
+  margin-bottom: 24px;
+}
+
+.range-info p {
+  margin: 4px 0;
+  font-size: 14px;
+  color: #4a5568;
+}
+
+.range-info strong {
+  color: #2d3748;
+}
+
+.save-options {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+.save-option-field {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.save-option-field label {
+  font-weight: 600;
+  color: #2d3748;
+  font-size: 14px;
+}
+
+.range-select {
+  padding: 12px 16px;
+  border: 2px solid #e2e8f0;
+  border-radius: 8px;
+  font-size: 14px;
+  background: white;
+  color: #2d3748;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.range-select:focus {
+  outline: none;
+  border-color: #4299e1;
+  box-shadow: 0 0 0 3px rgba(66, 153, 225, 0.1);
+}
+
+.range-select:hover {
+  border-color: #cbd5e0;
+}
+
+.custom-range-field {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  padding: 16px;
+  background: #f0fff4;
+  border: 1px solid #9ae6b4;
+  border-radius: 8px;
+}
+
+.custom-range-field label {
+  font-weight: 600;
+  color: #2d3748;
+  font-size: 14px;
+}
+
+.custom-name-input {
+  padding: 12px 16px;
+  border: 2px solid #9ae6b4;
+  border-radius: 8px;
+  font-size: 14px;
+  background: white;
+  color: #2d3748;
+  transition: all 0.2s;
+}
+
+.custom-name-input:focus {
+  outline: none;
+  border-color: #48bb78;
+  box-shadow: 0 0 0 3px rgba(72, 187, 120, 0.1);
+}
+
+.custom-range-field small {
+  color: #38a169;
+  font-size: 12px;
+  font-style: italic;
+}
+
+.overwrite-warning {
+  padding: 16px;
+  background: #fef5e7;
+  border: 1px solid #f6ad55;
+  border-radius: 8px;
+}
+
+.overwrite-warning p {
+  margin: 4px 0;
+  font-size: 14px;
+  color: #744210;
+}
+
+.save-range-modal-actions {
+  display: flex;
+  gap: 12px;
+  justify-content: flex-end;
+  padding: 16px 24px 24px 24px;
+  border-top: 1px solid #e2e8f0;
+}
+
+.cancel-button, .confirm-save-button {
+  padding: 12px 24px;
+  border: none;
+  border-radius: 8px;
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s;
+  min-width: 100px;
+}
+
+.cancel-button {
+  background: #edf2f7;
+  color: #4a5568;
+  border: 1px solid #e2e8f0;
+}
+
+.cancel-button:hover {
+  background: #e2e8f0;
+  border-color: #cbd5e0;
+}
+
+.confirm-save-button {
+  background: linear-gradient(135deg, #10b981, #059669);
+  color: white;
+}
+
+.confirm-save-button:hover:not(:disabled) {
+  background: linear-gradient(135deg, #059669, #047857);
+  transform: translateY(-1px);
+  box-shadow: 0 4px 12px rgba(16, 185, 129, 0.3);
+}
+
+.confirm-save-button:disabled {
+  background: #9ca3af;
+  cursor: not-allowed;
+  transform: none;
+  box-shadow: none;
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+  .save-range-modal {
+    width: 95%;
+    margin: 20px;
+  }
+  
+  .save-range-modal-header {
+    padding: 20px 20px 12px 20px;
+  }
+  
+  .save-range-modal-content {
+    padding: 20px;
+  }
+  
+  .save-range-modal-actions {
+    padding: 12px 20px 20px 20px;
+    flex-direction: column;
+  }
+  
+  .cancel-button, .confirm-save-button {
+    width: 100%;
+  }
+}

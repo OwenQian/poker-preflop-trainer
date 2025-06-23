@@ -47,6 +47,29 @@
   border: 1px dashed #ddd;
 }
 
+.bet-sizing-guidance {
+  background: #e8f4fd;
+  border: 1px solid #2196f3;
+  border-radius: 6px;
+  padding: 12px 16px;
+  margin: 12px 0;
+  font-size: 14px;
+  color: #1565c0;
+}
+
+.bet-sizing-guidance strong {
+  color: #0d47a1;
+}
+
+.bet-sizing-guidance ul {
+  margin: 8px 0 0 0;
+  padding-left: 20px;
+}
+
+.bet-sizing-guidance li {
+  margin: 4px 0;
+}
+
 /* Responsive layout for multiple ranges */
 @media (min-width: 1200px) {
   .multi-range-display {

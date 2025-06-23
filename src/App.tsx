@@ -16,13 +16,16 @@ import PositionSelector from './components/PositionSelector/PositionSelector';
 import Quiz from './components/Quiz/Quiz';
 import RangeTabSelector, { RangeCategory } from './components/RangeTabSelector/RangeTabSelector';
 import MultiRangeDisplay from './components/MultiRangeDisplay/MultiRangeDisplay';
+import RangeBuilder from './components/RangeBuilder/RangeBuilder';
+import QuizSettings from './components/QuizSettings/QuizSettings';
+import PostflopVisualizer from './components/PostflopVisualizer/PostflopVisualizer';
 
 import './App.css';
 
-type AppState = 'setup' | 'quiz' | 'results';
+type AppState = 'home' | 'quiz-settings' | 'quiz' | 'results' | 'range-builder' | 'postflop' | 'setup';
 
 const App: React.FC = () => {
-  const [appState, setAppState] = useState<AppState>('setup');
+  const [appState, setAppState] = useState<AppState>('home');
   const [heroPosition, setHeroPosition] = useState<Position | null>(null);
   const [opponentPositions, setOpponentPositions] = useState<Position[]>([]);
   const [gradingMode, setGradingMode] = useState<GradingMode>('lax');
@@ -165,7 +168,7 @@ const App: React.FC = () => {
   };
 
   const handleBackToSetup = () => {
-    setAppState('setup');
+    setAppState('home');
     setCurrentQuestion(null);
   };
 
@@ -178,6 +181,99 @@ const App: React.FC = () => {
       </header>
 
       <main className="app-main">
+        {appState === 'home' && (
+          <div className="home-screen">
+            <div className="home-content">
+              <div className="main-content">
+                <div className="position-section">
+                  <h2>Position Selection</h2>
+                  <PositionSelector
+                    heroPosition={heroPosition}
+                    opponentPositions={opponentPositions}
+                    onHeroPositionChange={setHeroPosition}
+                    onOpponentPositionsChange={setOpponentPositions}
+                  />
+                </div>
+
+                <div className="range-preview">
+                  <h2>Range Explorer</h2>
+                  <RangeTabSelector
+                    activeCategory={rangeCategory}
+                    onCategoryChange={setRangeCategory}
+                  />
+                  {heroPosition ? (
+                    <MultiRangeDisplay
+                      heroPosition={heroPosition}
+                      opponentPositions={opponentPositions}
+                      rangeCategory={rangeCategory}
+                    />
+                  ) : (
+                    <div className="select-position-message">
+                      <p>Select your position to see range charts</p>
+                    </div>
+                  )}
+                </div>
+              </div>
+
+              <div className="navigation-section">
+                <h2>Training Modules</h2>
+                <div className="module-buttons">
+                  <button
+                    className="module-button quiz-button disabled"
+                    disabled
+                  >
+                    <div className="module-icon">🧠</div>
+                    <div className="module-info">
+                      <h3>Spaced Repetition Quiz</h3>
+                      <p>Coming Soon - Practice preflop decisions with adaptive learning</p>
+                    </div>
+                  </button>
+                  <button
+                    className="module-button postflop-button disabled"
+                    disabled
+                  >
+                    <div className="module-icon">🎯</div>
+                    <div className="module-info">
+                      <h3>Postflop Visualizer</h3>
+                      <p>Coming Soon - Analyze hand strength and equity on different boards</p>
+                    </div>
+                  </button>
+                  <button
+                    className="module-button dev-button"
+                    onClick={() => setAppState('range-builder')}
+                  >
+                    <div className="module-icon">🔧</div>
+                    <div className="module-info">
+                      <h3>Range Builder (Dev Tool)</h3>
+                      <p>Development tool for creating and editing ranges</p>
+                    </div>
+                  </button>
+                </div>
+              </div>
+            </div>
+          </div>
+        )}
+
+        {appState === 'quiz-settings' && (
+          <QuizSettings
+            heroPosition={heroPosition}
+            opponentPositions={opponentPositions}
+            gradingMode={gradingMode}
+            rangeCategory={rangeCategory}
+            onHeroPositionChange={setHeroPosition}
+            onOpponentPositionsChange={setOpponentPositions}
+            onGradingModeChange={setGradingMode}
+            onRangeCategoryChange={setRangeCategory}
+            onStartQuiz={startQuiz}
+            onBackToHome={() => setAppState('home')}
+          />
+        )}
+
+        {appState === 'postflop' && (
+          <PostflopVisualizer onBackToHome={() => setAppState('home')} />
+        )}
+
+        {/* Legacy setup screen - can be removed later */}
         {appState === 'setup' && (
           <div className="setup-screen">
             <div className="main-setup-content">
@@ -212,60 +308,10 @@ const App: React.FC = () => {
             <div className="start-section">
               <button
                 className="start-quiz-button"
-                onClick={startQuiz}
-                disabled={true}
+                onClick={() => setAppState('quiz-settings')}
               >
-                Start Quiz (Coming Soon)
+                Go to Quiz Settings
               </button>
-            </div>
-
-            <div className="settings-section">
-              <h2>Quiz Settings</h2>
-              
-              <div className="grading-mode-selector">
-                <h3>Grading Mode</h3>
-                <div className="mode-options">
-                  <label className="mode-option">
-                    <input
-                      type="radio"
-                      name="gradingMode"
-                      value="strict"
-                      checked={gradingMode === 'strict'}
-                      onChange={(e) => setGradingMode(e.target.value as GradingMode)}
-                    />
-                    <div className="mode-content">
-                      <span className="mode-title">Strict</span>
-                      <span className="mode-desc">Must select ALL correct actions</span>
-                    </div>
-                  </label>
-                  <label className="mode-option">
-                    <input
-                      type="radio"
-                      name="gradingMode"
-                      value="lax"
-                      checked={gradingMode === 'lax'}
-                      onChange={(e) => setGradingMode(e.target.value as GradingMode)}
-                    />
-                    <div className="mode-content">
-                      <span className="mode-title">Lax</span>
-                      <span className="mode-desc">At least ONE correct action</span>
-                    </div>
-                  </label>
-                  <label className="mode-option">
-                    <input
-                      type="radio"
-                      name="gradingMode"
-                      value="randomizer"
-                      checked={gradingMode === 'randomizer'}
-                      onChange={(e) => setGradingMode(e.target.value as GradingMode)}
-                    />
-                    <div className="mode-content">
-                      <span className="mode-title">Randomizer</span>
-                      <span className="mode-desc">Based on frequency percentages</span>
-                    </div>
-                  </label>
-                </div>
-              </div>
             </div>
           </div>
         )}
@@ -291,6 +337,17 @@ const App: React.FC = () => {
               onToggleMatrix={() => setShowMatrix(!showMatrix)}
               rangeCategory={rangeCategory}
             />
+          </div>
+        )}
+
+        {appState === 'range-builder' && (
+          <div className="range-builder-screen">
+            <div className="range-builder-header">
+              <button className="back-button" onClick={() => setAppState('home')}>
+                ← Back to Home
+              </button>
+            </div>
+            <RangeBuilder />
           </div>
         )}
       </main>

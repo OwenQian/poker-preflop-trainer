@@ -115,6 +115,39 @@ A React-based training application that helps poker players learn and memorize p
 - **Dynamic scenarios**: System randomly samples from selected opponent combinations
 - **Example**: Hero = BB, Opponents = [LJ, BU] creates scenarios where BB faces various preflop actions from LJ and BU
 
+### 2.6 Range Builder
+- Ability to build new preflop ranges and edit existing ones
+- Load existing range into the range builder for easy editing
+- Save ranges as new custom range with a name, or overwrite existing one
+
+### 2.7 Postflop Visualizer
+**Description**: Interactive postflop analysis and visualization tool
+- **Navigation**: Dedicated button on home page leading to separate postflop visualizer page
+- **Flop Selection**: Choose from 95 representative flop subsets from PIOSolver research
+  - Data source: `piosolver-flop-subsets/95-flop-subset.txt`
+  - Each flop includes relative frequency weighting
+  - Format: board texture (e.g., "2s2d4c") with frequency value
+- **Percentile vs Percentile Overlay**: 
+  - X-axis: Hand strength percentile within range
+  - Y-axis: Equity against opponent's range
+  - Visual overlay to compare range strength distributions
+- **Hand Breakdown Classification - this is subject to change**:
+  - **Group 1a** (Very Strong): Two pair and better
+  - **Group 1b**: Top pair
+  - **Group 2a** (Medium - Non-pocket pairs): Middle pair, bottom pair
+  - **Group 2b** (Medium - Pocket pairs): Pocket pairs below top pair
+  - **Group 3a** (Strong Draws): Flush draws, 8-out straight draws, combo draws
+  - **Group 3b** (Medium Draws): 4-out straight draws
+  - **Group 3c** (Weak Draws): 2 overcards, 3-card flush, 3-card straight
+  - **Group 4** (Air): None of the above categories
+
+### 2.8 Home Page Restructure
+**Description**: Redesigned home page focused on range visualization rather than quiz entry
+- **Primary Purpose**: Viewing and exploring preflop ranges
+- **Quiz Access**: "Spaced Repetition Quiz" button redirects to dedicated quiz settings page
+- **Range Display**: Full-featured range matrix display with all range categories
+- **Navigation Hub**: Central access point to postflop visualizer and quiz modules
+
 ## 3. Technical Requirements
 
 ### 3.1 Frontend Framework
@@ -152,6 +185,7 @@ A React-based training application that helps poker players learn and memorize p
 ### 4.2 Quiz Session
 1. Display hole cards with visual representation
 2. Show/hide 2D grid with current hand highlighted
+   - once you answer it’ll keep your hand highlighted but also reveal the rest of your range
 3. Present multiple choice options (Raise, Call, Fold)
 4. Allow multiple selections based on grading mode
 5. Provide immediate feedback with explanation
@@ -162,6 +196,8 @@ A React-based training application that helps poker players learn and memorize p
    - "Easy" - Got it right effortlessly
 7. **Schedule Next Review**: FSRS-4 algorithm calculates optimal next review time
 8. **Progress Tracking**: Update difficulty, stability, and card state
+9. In quiz mode be able to see your opponents range. Also show/hideable.
+   - E.g., in a CO (hero) vs BU 3bet spot, display what the BU 3bet range looks like
 
 ### 4.3 Progress Tracking
 1. Display session statistics
@@ -211,44 +247,27 @@ A React-based training application that helps poker players learn and memorize p
 }
 ```
 
-## 6. Future Enhancements
+### 5.3 State export and import
+Because there is no backend database and the data is stored in local storage, there needs to be a way to export the current state.
+The state includes:
+* the users spaced reptition status for every hand/range
 
-### 6.1 Phase 2 Features
-- Custom range builder
-- Import/export ranges
-- Community-shared ranges
-- Advanced statistics dashboard
+## 6. Success Criteria
 
-### 6.2 Phase 3 Features
-- Postflop training modules
-- Tournament vs. cash game modes
-- Multiplayer challenges
-- Integration with poker tracking software
-
-## 7. Success Criteria
-
-### 7.1 MVP Success Metrics
+### 6.1 MVP Success Metrics
 - Successfully implement spaced repetition algorithm
 - Achieve 90%+ accuracy in hand combination representation
 - Support all three grading modes
 - Responsive design across mobile and desktop
 
-### 7.2 User Engagement Metrics
-- Average session length > 10 minutes
-- User retention > 60% after 1 week
-- Daily active users growth
-- Positive user feedback scores
+## 7. Technical Constraints
 
-## 8. Technical Constraints
-
-### 8.1 Performance Requirements
+### 7.1 Performance Requirements
 - App load time < 3 seconds
 - Quiz response time < 500ms
 - Smooth animations and transitions
 - Minimal memory footprint
 
-### 8.2 Compatibility Requirements
+### 7.2 Compatibility Requirements
 - Modern browsers (Chrome, Firefox, Safari, Edge)
 - Mobile devices (iOS Safari, Android Chrome)
-- Tablet optimization
-- Progressive Web App capabilities

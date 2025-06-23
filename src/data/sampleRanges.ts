@@ -33,6 +33,17 @@ export const getRangeData = (positionCombo: string, rangeCategory: RangeCategory
 
 // Helper function to get all available position combos for a range category
 export const getAvailablePositionCombos = (rangeCategory: RangeCategory): string[] => {
-  const categoryRanges = ALL_RANGES[rangeCategory];
-  return categoryRanges.map(range => range.positionCombo);
+  try {
+    const categoryRanges = ALL_RANGES[rangeCategory];
+    if (!categoryRanges || !Array.isArray(categoryRanges)) {
+      console.warn(`No ranges found for category: ${rangeCategory}`);
+      return [];
+    }
+    // Remove duplicates using Set
+    const uniquePositions = Array.from(new Set(categoryRanges.map(range => range.positionCombo)));
+    return uniquePositions;
+  } catch (error) {
+    console.error('Error in getAvailablePositionCombos:', error);
+    return [];
+  }
 };

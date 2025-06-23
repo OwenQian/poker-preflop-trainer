@@ -1,0 +1,147 @@
+.interactive-hand-matrix {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.hand-matrix-table {
+  border-collapse: collapse;
+  background: white;
+  border-radius: 8px;
+  overflow: hidden;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+}
+
+.hand-cell {
+  width: 45px;
+  height: 45px;
+  border: 1px solid #e2e8f0;
+  text-align: center;
+  vertical-align: middle;
+  cursor: pointer;
+  position: relative;
+  transition: all 0.2s ease;
+  font-size: 11px;
+  font-weight: 600;
+}
+
+.hand-cell:hover {
+  transform: scale(1.05);
+  z-index: 10;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
+}
+
+.hand-name {
+  display: block;
+  line-height: 1;
+}
+
+.frequency-label {
+  display: block;
+  font-size: 8px;
+  font-weight: 400;
+  margin-top: 1px;
+}
+
+.frequency-label.call {
+  color: #8BC34A;
+}
+
+/* Action-based colors */
+.always-raise {
+  background: #ff9500;
+  color: white;
+}
+
+.mixed-frequency {
+  /* Background will be set via inline styles for gradient effect */
+  color: black;
+}
+
+.always-call {
+  background: #8BC34A;
+  color: white;
+}
+
+.always-fold {
+  background: #6b7280;
+  color: white;
+}
+
+.default-fold {
+  background: #f8fafc;
+  color: #374151;
+}
+
+/* Hover effects based on selected tool */
+.tool-always-raise .hand-cell:hover {
+  background: #ff9500 !important;
+  color: white !important;
+}
+
+.tool-mixed-frequency .hand-cell:hover {
+  /* Don't override background - let gradient show through */
+  opacity: 0.8;
+  color: black !important;
+}
+
+.tool-always-call .hand-cell:hover {
+  background: #8BC34A !important;
+  color: white !important;
+}
+
+.tool-always-fold .hand-cell:hover {
+  background: #6b7280 !important;
+  color: white !important;
+}
+
+/* Drag selection styles */
+.interactive-hand-matrix.dragging {
+  user-select: none;
+  -webkit-user-select: none;
+  -moz-user-select: none;
+  -ms-user-select: none;
+}
+
+.interactive-hand-matrix.dragging .hand-cell {
+  cursor: crosshair;
+}
+
+.hand-cell.drag-selected {
+  box-shadow: 0 0 0 3px #3b82f6 !important;
+  transform: scale(1.05) !important;
+  z-index: 100 !important;
+}
+
+.hand-cell.drag-selected.always-raise {
+  box-shadow: 0 0 0 3px #ff9500 !important;
+}
+
+.hand-cell.drag-selected.mixed-frequency {
+  box-shadow: 0 0 0 3px #ffeb3b !important;
+}
+
+.hand-cell.drag-selected.always-call {
+  box-shadow: 0 0 0 3px #8BC34A !important;
+}
+
+.hand-cell.drag-selected.always-fold {
+  box-shadow: 0 0 0 3px #6b7280 !important;
+}
+
+/* Responsive design */
+@media (max-width: 768px) {
+  .hand-cell {
+    width: 35px;
+    height: 35px;
+    font-size: 10px;
+  }
+  
+  .frequency-label {
+    font-size: 7px;
+  }
+
+  .hand-cell.drag-selected {
+    box-shadow: 0 0 0 2px #3b82f6 !important;
+  }
+}

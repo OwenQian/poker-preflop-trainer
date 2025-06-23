@@ -43,6 +43,13 @@ const MultiRangeDisplay: React.FC<MultiRangeDisplayProps> = ({
       <div className="multi-range-display">
         <div className="range-section">
           <h3>Preflop {rangeCategory} Range - {heroPosition}</h3>
+          <div className="bet-sizing-guidance">
+            <strong>Bet Sizing:</strong>
+            <ul>
+              <li><strong>Live poker:</strong> Raise to 3-4bb</li>
+              <li><strong>Online poker:</strong> Raise to 2.5bb from everywhere except SB where you raise to 3bb</li>
+            </ul>
+          </div>
           <HandMatrix
             rangeData={rangeData?.hands || {}}
             rangeCategory={rangeCategory}
@@ -93,6 +100,16 @@ const MultiRangeDisplay: React.FC<MultiRangeDisplayProps> = ({
           return (
             <div key={`${opponentPosition}-${index}`} className="range-section">
               <h3>{heroPosition} {rangeCategory} vs {opponentPosition}</h3>
+              {rangeCategory === 'vs RFI' && (
+                <div className="bet-sizing-guidance">
+                  <strong>3-bet Sizing:</strong> 3x their total bet size if you are IP, 4x if OOP
+                </div>
+              )}
+              {rangeCategory === 'RFI vs 3bet' && (
+                <div className="bet-sizing-guidance">
+                  <strong>4-bet Sizing:</strong> 2.5x their total bet size
+                </div>
+              )}
               <HandMatrix
                 rangeData={rangeData.hands}
                 rangeCategory={rangeCategory}
@@ -115,11 +132,16 @@ const MultiRangeDisplay: React.FC<MultiRangeDisplayProps> = ({
       return (
         <div className="multi-range-display">
           <div className="range-section">
-            <h3>{heroPosition} vs Limp (6bb)</h3>
+            <h3>{heroPosition} vs Limp</h3>
+            <div className="bet-sizing-guidance">
+              <strong>Isolation Sizing:</strong> 6bb (4bb + 2×limpers) - assume single limper
+              <br />
+              <strong>Range Construction:</strong> Range should be strong - between RFI and vs-RFI 3betting range
+              <br />
+              <strong>Multiple Limpers:</strong> Tighten range by removing bluffier hands (suited connectors, weaker Ax). Keep premium hands at same frequencies, fold most 50% frequency hands against 2+ limpers.
+            </div>
             <div className="no-range-data">
               Range data not yet available for this position.
-              <br />
-              <small>Note: Raise size is 6bb (4bb + 2×1 limper)</small>
             </div>
           </div>
         </div>
@@ -129,20 +151,20 @@ const MultiRangeDisplay: React.FC<MultiRangeDisplayProps> = ({
     return (
       <div className="multi-range-display">
         <div className="range-section">
-          <h3>{heroPosition} vs Limp (6bb raise)</h3>
+          <h3>{heroPosition} vs Limp</h3>
+          <div className="bet-sizing-guidance">
+            <strong>Isolation Sizing:</strong> 6bb (4bb + 2×limpers) - assume single limper
+            <br />
+            <strong>Range Construction:</strong> Range should be strong - between RFI and vs-RFI 3betting range
+            <br />
+            <strong>Multiple Limpers:</strong> Tighten range by removing bluffier hands (suited connectors, weaker Ax). Keep premium hands at same frequencies, fold most 50% frequency hands against 2+ limpers.
+          </div>
           <HandMatrix
             rangeData={rangeData.hands}
             rangeCategory={rangeCategory}
             currentHand={currentHand}
             visible={true}
           />
-          <div className="range-notes">
-            <small>
-              <strong>Strategy:</strong> Assume single limper. Raise size: 6bb (4bb + 2×limpers).
-              <br />
-              Range should be strong - between RFI and vs-RFI 3betting range.
-            </small>
-          </div>
         </div>
       </div>
     );

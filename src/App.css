@@ -195,6 +195,10 @@
 
 .start-section {
   text-align: center;
+  display: flex;
+  gap: 15px;
+  justify-content: center;
+  flex-wrap: wrap;
 }
 
 .start-quiz-button {
@@ -208,6 +212,24 @@
   cursor: pointer;
   transition: all 0.2s ease;
   box-shadow: 0 4px 8px rgba(72, 187, 120, 0.3);
+}
+
+.dev-tool-button {
+  background: linear-gradient(135deg, #667eea, #764ba2);
+  color: white;
+  border: none;
+  padding: 18px 40px;
+  border-radius: 10px;
+  font-size: 1.2rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  box-shadow: 0 4px 8px rgba(102, 126, 234, 0.3);
+}
+
+.dev-tool-button:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 6px 12px rgba(102, 126, 234, 0.4);
 }
 
 .start-quiz-button:hover:not(:disabled) {
@@ -334,4 +356,206 @@
     width: 100%;
     max-width: 300px;
   }
+}
+
+/* Home Screen */
+.home-screen {
+  display: flex;
+  flex-direction: column;
+  gap: 40px;
+}
+
+.home-content {
+  display: flex;
+  flex-direction: column;
+  gap: 40px;
+}
+
+.home-content .main-content {
+  display: flex;
+  gap: 40px;
+  align-items: flex-start;
+}
+
+.home-content .position-section {
+  flex: 0 0 auto;
+  min-width: 500px;
+  background: white;
+  padding: 25px;
+  border-radius: 12px;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+}
+
+.home-content .position-section h2 {
+  color: #2d3748;
+  margin: 0 0 20px 0;
+  font-size: 1.8rem;
+}
+
+.home-content .range-preview {
+  flex: 1;
+  min-width: 600px;
+  max-width: 800px;
+}
+
+.navigation-section {
+  background: white;
+  padding: 30px;
+  border-radius: 12px;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+}
+
+.navigation-section h2 {
+  color: #2d3748;
+  margin: 0 0 25px 0;
+  font-size: 1.8rem;
+}
+
+.module-buttons {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+  gap: 20px;
+}
+
+.module-button {
+  display: flex;
+  align-items: center;
+  gap: 20px;
+  padding: 25px;
+  background: white;
+  border: 2px solid #e2e8f0;
+  border-radius: 12px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  text-align: left;
+}
+
+.module-button:hover {
+  border-color: #3182ce;
+  transform: translateY(-2px);
+  box-shadow: 0 6px 20px rgba(0, 0, 0, 0.1);
+}
+
+.module-icon {
+  font-size: 2.5rem;
+  flex-shrink: 0;
+}
+
+.module-info {
+  flex: 1;
+}
+
+.module-info h3 {
+  margin: 0 0 8px 0;
+  color: #2d3748;
+  font-size: 1.2rem;
+  font-weight: 600;
+}
+
+.module-info p {
+  margin: 0;
+  color: #4a5568;
+  font-size: 0.95rem;
+  line-height: 1.4;
+}
+
+.quiz-button:hover {
+  border-color: #48bb78;
+}
+
+.quiz-button:hover .module-info h3 {
+  color: #48bb78;
+}
+
+.postflop-button:hover {
+  border-color: #ed8936;
+}
+
+.postflop-button:hover .module-info h3 {
+  color: #ed8936;
+}
+
+.dev-button:hover {
+  border-color: #667eea;
+}
+
+.dev-button:hover .module-info h3 {
+  color: #667eea;
+}
+
+.home-content .range-preview {
+  margin: 0;
+}
+
+.home-content .range-preview h2 {
+  color: #2d3748;
+  margin: 0 0 25px 0;
+  font-size: 1.8rem;
+}
+
+@media (max-width: 1300px) {
+  .home-content .main-content {
+    flex-direction: column;
+    gap: 30px;
+  }
+  
+  .home-content .position-section,
+  .home-content .range-preview {
+    min-width: auto;
+    max-width: none;
+    width: 100%;
+  }
+}
+
+@media (max-width: 768px) {
+  .module-buttons {
+    grid-template-columns: 1fr;
+  }
+  
+  .module-button {
+    gap: 15px;
+    padding: 20px;
+  }
+  
+  .module-icon {
+    font-size: 2rem;
+  }
+  
+  .module-info h3 {
+    font-size: 1.1rem;
+  }
+  
+  .module-info p {
+    font-size: 0.9rem;
+  }
+  
+  .home-content .main-content {
+    gap: 20px;
+  }
+  
+  .home-content .position-section {
+    min-width: auto;
+    padding: 20px;
+  }
+}
+
+/* Disabled module buttons */
+.module-button.disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+  background: #f7fafc;
+}
+
+.module-button.disabled:hover {
+  border-color: #e2e8f0;
+  transform: none;
+  box-shadow: none;
+}
+
+.module-button.disabled .module-info h3 {
+  color: #a0aec0 !important;
+}
+
+.module-button.disabled .module-info p {
+  color: #a0aec0;
 }
