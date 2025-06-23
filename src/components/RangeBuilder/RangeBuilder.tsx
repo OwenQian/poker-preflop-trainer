@@ -28,7 +28,7 @@ const RangeBuilder: React.FC = () => {
     fold: 25
   });
 
-  const getActionFrequencies = (action: string): HandFrequencies => {
+  const getActionFrequencies = (action: string): HandFrequencies | null => {
     switch (action) {
       case 'always-raise':
         return { raise: 100, call: 0, fold: 0 };
@@ -37,6 +37,9 @@ const RangeBuilder: React.FC = () => {
       case 'always-call':
         return { raise: 0, call: 100, fold: 0 };
       case 'always-fold':
+        return { raise: 0, call: 0, fold: 100 };
+      case 'not-in-range':
+        return null; // null indicates hand should be removed from range
       default:
         return { raise: 0, call: 0, fold: 100 };
     }
@@ -90,9 +93,17 @@ const RangeBuilder: React.FC = () => {
 
   const isHandMatchingAction = (handName: HandName, action: string): boolean => {
     const currentFreqs = rangeData[handName];
+    
+    if (action === 'not-in-range') {
+      // Hand matches "not-in-range" if it's not in the range data
+      return !currentFreqs;
+    }
+    
     if (!currentFreqs) return false;
     
     const targetFreqs = getActionFrequencies(action);
+    if (!targetFreqs) return false;
+    
     return (
       currentFreqs.raise === targetFreqs.raise &&
       currentFreqs.call === targetFreqs.call &&
@@ -104,14 +115,23 @@ const RangeBuilder: React.FC = () => {
     // If clicking the same action that's already applied, deselect (set to Always Fold)
     const shouldDeselect = isHandMatchingAction(handName, selectedAction);
     
-    const newFrequencies: HandFrequencies = shouldDeselect 
-      ? { raise: 0, call: 0, fold: 100 } // Always Fold (deselected)
-      : getActionFrequencies(selectedAction);
+    const actionFrequencies = getActionFrequencies(selectedAction);
+    
+    let newRangeData;
+    if (selectedAction === 'not-in-range' || actionFrequencies === null) {
+      // Remove hand from range entirely
+      const { [handName]: removed, ...rest } = rangeData;
+      newRangeData = rest;
+    } else {
+      const newFrequencies: HandFrequencies = shouldDeselect 
+        ? { raise: 0, call: 0, fold: 100 } // Always Fold (deselected)
+        : actionFrequencies;
 
-    const newRangeData = {
-      ...rangeData,
-      [handName]: newFrequencies
-    };
+      newRangeData = {
+        ...rangeData,
+        [handName]: newFrequencies
+      };
+    }
 
     setRangeData(newRangeData);
     addToHistory(newRangeData);
@@ -131,12 +151,22 @@ const RangeBuilder: React.FC = () => {
   const handleMouseUp = () => {
     if (isDragging && draggedHands.size > 1) {
       // Apply selected action to all dragged hands
-      const newFrequencies = getActionFrequencies(selectedAction);
+      const actionFrequencies = getActionFrequencies(selectedAction);
       
-      const newRangeData = { ...rangeData };
-      draggedHands.forEach(handName => {
-        newRangeData[handName] = newFrequencies;
-      });
+      let newRangeData = { ...rangeData };
+      
+      if (selectedAction === 'not-in-range' || actionFrequencies === null) {
+        // Remove hands from range entirely
+        draggedHands.forEach(handName => {
+          const { [handName]: removed, ...rest } = newRangeData;
+          newRangeData = rest;
+        });
+      } else {
+        // Set frequencies for each hand
+        draggedHands.forEach(handName => {
+          newRangeData[handName] = actionFrequencies;
+        });
+      }
       
       setRangeData(newRangeData);
       addToHistory(newRangeData);
@@ -185,11 +215,10 @@ const RangeBuilder: React.FC = () => {
   };
 
   const handleCopyToClipboard = async () => {
-    const nonEmptyHands = Object.entries(rangeData).filter(([_, frequencies]) => 
-      frequencies.raise > 0 || frequencies.call > 0
-    );
+    // Include all hands in rangeData, even those with 100% fold
+    const allHandsInRange = Object.entries(rangeData);
 
-    if (nonEmptyHands.length === 0) {
+    if (allHandsInRange.length === 0) {
       alert('No hands in range to copy!');
       return;
     }
@@ -206,7 +235,7 @@ const RangeBuilder: React.FC = () => {
     const tsOutput = `const CUSTOM_RANGE = {
   positionCombo: 'CUSTOM_RANGE',
   hands: {
-${nonEmptyHands.map(([handName, frequencies]) => 
+${allHandsInRange.map(([handName, frequencies]) => 
   `    '${handName}': { raise: ${frequencies.raise}, call: ${frequencies.call}, fold: ${frequencies.fold} }`
 ).join(',\n')}
   }
@@ -230,11 +259,10 @@ ${nonEmptyHands.map(([handName, frequencies]) =>
   };
 
   const handleSaveRange = () => {
-    const nonEmptyHands = Object.entries(rangeData).filter(([_, frequencies]) => 
-      frequencies.raise > 0 || frequencies.call > 0
-    );
+    // Include all hands in rangeData, even those with 100% fold
+    const allHandsInRange = Object.entries(rangeData);
 
-    if (nonEmptyHands.length === 0) {
+    if (allHandsInRange.length === 0) {
       alert('No hands in range to save!');
       return;
     }
@@ -437,6 +465,12 @@ ${nonEmptyHands.map(([handName, frequencies]) =>
               onClick={() => setSelectedAction('always-fold')}
             >
               Always Fold
+            </button>
+            <button 
+              className={selectedAction === 'not-in-range' ? 'active' : ''}
+              onClick={() => setSelectedAction('not-in-range')}
+            >
+              Not in Range
             </button>
           </div>
           

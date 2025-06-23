@@ -54,11 +54,10 @@ const RangeViewModal: React.FC<RangeViewModalProps> = ({
   };
 
   const generateRangeOutput = () => {
-    const nonEmptyHands = Object.entries(rangeData).filter(([_, frequencies]) => 
-      frequencies.raise > 0 || frequencies.call > 0
-    );
+    // Include all hands in rangeData, even those with 100% fold
+    const allHandsInRange = Object.entries(rangeData);
 
-    if (nonEmptyHands.length === 0) {
+    if (allHandsInRange.length === 0) {
       return {
         typescript: '// Empty range - no hands selected',
         json: '{}',
@@ -70,7 +69,7 @@ const RangeViewModal: React.FC<RangeViewModalProps> = ({
     const tsOutput = `const CUSTOM_RANGE = {
   positionCombo: 'CUSTOM_RANGE',
   hands: {
-${nonEmptyHands.map(([handName, frequencies]) => 
+${allHandsInRange.map(([handName, frequencies]) => 
   `    '${handName}': { raise: ${frequencies.raise}, call: ${frequencies.call}, fold: ${frequencies.fold} }`
 ).join(',\n')}
   }
@@ -78,7 +77,7 @@ ${nonEmptyHands.map(([handName, frequencies]) =>
 
     // JSON format
     const jsonOutput = JSON.stringify(
-      Object.fromEntries(nonEmptyHands), 
+      Object.fromEntries(allHandsInRange), 
       null, 
       2
     );
@@ -104,21 +103,27 @@ ${nonEmptyHands.map(([handName, frequencies]) =>
     };
 
     // Summary stats using combinations
-    const totalCombinations = nonEmptyHands.reduce((sum, [handName]) => 
+    const totalCombinations = allHandsInRange.reduce((sum, [handName]) => 
       sum + getHandCombinations(handName), 0
     );
     
     const totalPossibleCombinations = 1326; // 52 choose 2 = 52*51/2 = 1326
     
-    const raiseOnlyHands = nonEmptyHands.filter(([_, f]) => f.raise === 100).length;
-    const callOnlyHands = nonEmptyHands.filter(([_, f]) => f.call === 100).length;
-    const mixedHands = nonEmptyHands.filter(([_, f]) => f.raise > 0 && f.raise < 100 || f.call > 0 && f.call < 100).length;
+    const raiseOnlyHands = allHandsInRange.filter(([_, f]) => f.raise === 100).length;
+    const callOnlyHands = allHandsInRange.filter(([_, f]) => f.call === 100).length;
+    const foldOnlyHands = allHandsInRange.filter(([_, f]) => f.fold === 100).length;
+    const mixedHands = allHandsInRange.filter(([_, f]) => 
+      (f.raise > 0 && f.raise < 100) || 
+      (f.call > 0 && f.call < 100) ||
+      (f.fold > 0 && f.fold < 100)
+    ).length;
 
     const summary = `Range Summary:
 • Total combinations: ${totalCombinations}/${totalPossibleCombinations} (${((totalCombinations/totalPossibleCombinations) * 100).toFixed(1)}%)
-• Hand types: ${nonEmptyHands.length}/169 unique hands
+• Hand types: ${allHandsInRange.length}/169 unique hands
 • Always raise: ${raiseOnlyHands} hands
 • Always call: ${callOnlyHands} hands  
+• Always fold: ${foldOnlyHands} hands
 • Mixed frequency: ${mixedHands} hands`;
 
     return { typescript: tsOutput, json: jsonOutput, summary };

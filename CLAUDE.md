@@ -272,3 +272,6 @@ switch (rangeCategory) {
 - **Multiplayer**: Real-time practice sessions
 
 This architecture supports the core learning loop: Question Generation → User Input → Grading → FSRS Update → Next Question, with full persistence and customizable difficulty modes. 
+
+## Verifying Changes
+After making a change verify that the feature works as expected using the puppeteer MCP. The server is running locally at http://localhost:3000. You do not need to run the server. It is already running in another tab with `npm start`

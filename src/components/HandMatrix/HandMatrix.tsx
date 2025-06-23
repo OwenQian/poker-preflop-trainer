@@ -37,44 +37,57 @@ const HandMatrix: React.FC<HandMatrixProps> = ({
   const [showMixedStrategy, setShowMixedStrategy] = React.useState(true);
   
   const calculateCombos = () => {
-    let totalCombos = 0;
+    let raiseCombos = 0;
+    let callCombos = 0;
+    let foldCombos = 0;
+    let rangeCombos = 0; // Total combinations in the range (excluding hands with 0% action)
     
     Object.entries(rangeData).forEach(([handName, frequencies]) => {
-      // For range categories other than RFI, count both raise and call actions
-      const actionFreq = rangeCategory === 'RFI' 
-        ? frequencies.raise / 100 
-        : (frequencies.raise + frequencies.call) / 100;
-      
       if (handName.length >= 2) {
         const rank1 = handName[0];
         const rank2 = handName[1];
         
-        // Pocket pairs have 6 combinations
+        // Determine number of combinations for this hand
+        let handCombos = 0;
         if (rank1 === rank2) {
-          totalCombos += 6 * actionFreq;
+          handCombos = 6; // Pocket pairs
+        } else if (handName.endsWith('s')) {
+          handCombos = 4; // Suited hands
+        } else if (handName.endsWith('o')) {
+          handCombos = 12; // Offsuit hands
         }
-        // Suited hands have 4 combinations
-        else if (handName.endsWith('s')) {
-          totalCombos += 4 * actionFreq;
-        }
-        // Offsuit hands have 12 combinations
-        else if (handName.endsWith('o')) {
-          totalCombos += 12 * actionFreq;
-        }
+        
+        // All hands in the range data are considered "in range" 
+        // (including hands that fold 100% - they're in the starting range but fold in this spot)
+        rangeCombos += handCombos;
+        
+        // Calculate weighted combinations for each action
+        raiseCombos += handCombos * (frequencies.raise / 100);
+        callCombos += handCombos * (frequencies.call / 100);
+        foldCombos += handCombos * (frequencies.fold / 100);
       }
     });
     
+    // For range categories other than RFI, total active combos include both raise and call
+    const activeCombos = rangeCategory === 'RFI' ? raiseCombos : (raiseCombos + callCombos);
+    
     return {
-      combos: Math.round(totalCombos * 10) / 10, // Round to 1 decimal place
-      percentage: Math.round((totalCombos / 1326) * 1000) / 10 // Round to 1 decimal place
+      combos: Math.round(activeCombos * 10) / 10,
+      percentage: Math.round((activeCombos / 1326) * 1000) / 10,
+      // New statistics relative to the range
+      rangeCombos: Math.round(rangeCombos * 10) / 10,
+      raisePercentage: rangeCombos > 0 ? Math.round((raiseCombos / rangeCombos) * 1000) / 10 : 0,
+      callPercentage: rangeCombos > 0 ? Math.round((callCombos / rangeCombos) * 1000) / 10 : 0,
+      foldPercentage: rangeCombos > 0 ? Math.round((foldCombos / rangeCombos) * 1000) / 10 : 0
     };
   };
 
-  const { combos, percentage } = calculateCombos();
+  const { combos, percentage, rangeCombos, raisePercentage, callPercentage, foldPercentage } = calculateCombos();
   
   const getMixedFrequencyStyle = (hand: HandName): React.CSSProperties => {
     const frequencies = rangeData[hand];
-    if (!frequencies) return { backgroundColor: '#9e9e9e' };
+    // Hand not in range data = not in starting range (darker gray)
+    if (!frequencies) return { backgroundColor: '#606060' };
 
     const { raise, call, fold } = frequencies;
     
@@ -136,11 +149,14 @@ const HandMatrix: React.FC<HandMatrixProps> = ({
   
   const getHandColor = (hand: HandName): string => {
     const frequencies = rangeData[hand];
-    if (!frequencies) return 'gray';
+    
+    // Hand not in range data = not in starting range (darker gray)
+    if (!frequencies) return '#606060';
 
     const { raise, call, fold } = frequencies;
     
-    if (fold === 100 || (raise === 0 && call === 0)) return 'gray';
+    // Hand in range but folds = in range but should fold (lighter gray)
+    if (fold === 100 || (raise === 0 && call === 0)) return '#9e9e9e';
     
     // Different color schemes based on range category
     switch (rangeCategory) {
@@ -150,17 +166,17 @@ const HandMatrix: React.FC<HandMatrixProps> = ({
         return 'gray';
         
       case 'vs RFI':
-        if (raise === 100) return 'red'; // 3-bet
+        if (raise === 100) return '#f44336'; // 3-bet (use same color as mixed strategy)
         if (raise > 0 && call === 0) return 'orange'; // Pure mixed 3-bet
-        if (call === 100) return 'blue'; // Call
+        if (call === 100) return '#2196F3'; // Call (use same color as mixed strategy)
         if (call > 0 && raise === 0) return 'lightblue'; // Pure mixed call
         if (raise > 0 && call > 0) return 'purple'; // Mixed 3-bet/call
         return 'gray';
         
       case 'RFI vs 3bet':
-        if (raise === 100) return 'darkred'; // 4-bet
+        if (raise === 100) return '#c62828'; // 4-bet (use same color as mixed strategy)
         if (raise > 0 && call === 0) return 'red'; // Pure mixed 4-bet
-        if (call === 100) return 'green'; // Call
+        if (call === 100) return '#4CAF50'; // Call (use same color as mixed strategy)
         if (call > 0 && raise === 0) return 'lightgreen'; // Pure mixed call
         if (raise > 0 && call > 0) return 'olive'; // Mixed 4-bet/call
         return 'gray';
@@ -194,26 +210,49 @@ const HandMatrix: React.FC<HandMatrixProps> = ({
     const frequencies = rangeData[hand];
     if (!frequencies) return '';
 
-    const { raise, call } = frequencies;
+    const { raise, call, fold } = frequencies;
     
-    // Different action labels based on range category
-    const raiseLabel = (() => {
+    // If in mixed strategy mode, show percentages as before
+    if (showMixedStrategy) {
+      // Different action labels based on range category
+      const raiseLabel = (() => {
+        switch (rangeCategory) {
+          case 'RFI': return 'RFI';
+          case 'vs RFI': return '3B';
+          case 'RFI vs 3bet': return '4B';
+          case 'vs Limp': return 'R';
+          default: return 'R';
+        }
+      })();
+      
+      const callLabel = 'C';
+      
+      const parts = [];
+      if (raise > 0) parts.push(`${raiseLabel} ${raise}%`);
+      if (call > 0) parts.push(`${callLabel} ${call}%`);
+      
+      return parts.join('\n');
+    }
+    
+    // If not in mixed strategy mode, show action labels
+    const actions = [];
+    
+    // Get action names based on range category
+    const raiseActionName = (() => {
       switch (rangeCategory) {
-        case 'RFI': return 'RFI';
-        case 'vs RFI': return '3B';
-        case 'RFI vs 3bet': return '4B';
-        case 'vs Limp': return 'R';
-        default: return 'R';
+        case 'RFI': return 'raise';
+        case 'vs RFI': return '3bet';
+        case 'RFI vs 3bet': return '4bet';
+        case 'vs Limp': return 'raise';
+        default: return 'raise';
       }
     })();
     
-    const callLabel = 'C';
+    if (raise > 0) actions.push(raiseActionName);
+    if (call > 0) actions.push('call');
+    if (fold > 0) actions.push('fold');
     
-    const parts = [];
-    if (raise > 0) parts.push(`${raiseLabel} ${raise}%`);
-    if (call > 0) parts.push(`${callLabel} ${call}%`);
-    
-    return parts.join('\n');
+    return actions.join('/');
   };
 
   if (!visible) return null;
@@ -230,10 +269,16 @@ const HandMatrix: React.FC<HandMatrixProps> = ({
                 checked={showMixedStrategy}
                 onChange={(e) => setShowMixedStrategy(e.target.checked)}
               />
-              <span>Mixed Strategy View</span>
+              <span>Frequency View</span>
             </label>
             <div className="range-stats">
               <span className="combo-count">{combos}/1326 combos ({percentage}%)</span>
+              <span className="range-breakdown">
+                Range: {rangeCombos} combos | 
+                Raise: {raisePercentage}% | 
+                Call: {callPercentage}% | 
+                Fold: {foldPercentage}%
+              </span>
             </div>
           </div>
         </div>
@@ -246,7 +291,7 @@ const HandMatrix: React.FC<HandMatrixProps> = ({
               </div>
               <div className="legend-item">
                 <div className="legend-color yellow"></div>
-                <span>Mixed frequency raise</span>
+                <span>{showMixedStrategy ? 'Mixed frequency raise' : 'raise/fold'}</span>
               </div>
             </>
           )}
@@ -270,15 +315,15 @@ const HandMatrix: React.FC<HandMatrixProps> = ({
                 <>
                   <div className="legend-item">
                     <div className="legend-color orange"></div>
-                    <span>Mixed 3-bet only</span>
+                    <span>raise/fold</span>
                   </div>
                   <div className="legend-item">
                     <div className="legend-color lightblue"></div>
-                    <span>Mixed call only</span>
+                    <span>call/fold</span>
                   </div>
                   <div className="legend-item">
                     <div className="legend-color purple"></div>
-                    <span>Mixed 3-bet/Call</span>
+                    <span>raise/call/fold</span>
                   </div>
                 </>
               )}
@@ -304,15 +349,15 @@ const HandMatrix: React.FC<HandMatrixProps> = ({
                 <>
                   <div className="legend-item">
                     <div className="legend-color red"></div>
-                    <span>Mixed 4-bet only</span>
+                    <span>raise/fold</span>
                   </div>
                   <div className="legend-item">
                     <div className="legend-color lightgreen"></div>
-                    <span>Mixed call only</span>
+                    <span>call/fold</span>
                   </div>
                   <div className="legend-item">
                     <div className="legend-color olive"></div>
-                    <span>Mixed 4-bet/Call</span>
+                    <span>raise/call/fold</span>
                   </div>
                 </>
               )}
@@ -326,13 +371,17 @@ const HandMatrix: React.FC<HandMatrixProps> = ({
               </div>
               <div className="legend-item">
                 <div className="legend-color yellow"></div>
-                <span>Mixed frequency raise</span>
+                <span>{showMixedStrategy ? 'Mixed frequency raise' : 'raise/fold'}</span>
               </div>
             </>
           )}
           <div className="legend-item">
             <div className="legend-color gray"></div>
-            <span>Fold</span>
+            <span>Fold (in range)</span>
+          </div>
+          <div className="legend-item">
+            <div className="legend-color darkgray"></div>
+            <span>Not in range</span>
           </div>
         </div>
       </div>

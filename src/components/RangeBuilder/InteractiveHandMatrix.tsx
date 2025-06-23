@@ -29,8 +29,11 @@ const HAND_MATRIX: HandName[][] = [
   ['A2o', 'K2o', 'Q2o', 'J2o', 'T2o', '92o', '82o', '72o', '62o', '52o', '42o', '32o', '22']
 ];
 
-const getHandColor = (handName: HandName, frequencies: HandFrequencies): string => {
+const getHandColor = (handName: HandName, frequencies: HandFrequencies, isInRange: boolean): string => {
   const { raise, call, fold } = frequencies;
+  
+  // Hand not in range (darker gray)
+  if (!isInRange) return 'not-in-range';
   
   // Always actions (100%)
   if (raise === 100) return 'always-raise';
@@ -121,10 +124,12 @@ const InteractiveHandMatrix: React.FC<InteractiveHandMatrixProps> = ({
           {HAND_MATRIX.map((row, rowIndex) => (
             <tr key={rowIndex}>
               {row.map((handName, colIndex) => {
-                const frequencies = rangeData[handName] || { raise: 0, call: 0, fold: 100 };
-                const colorClass = getHandColor(handName, frequencies);
+                const frequencies = rangeData[handName];
+                const isInRange = !!frequencies;
+                const actualFrequencies = frequencies || { raise: 0, call: 0, fold: 100 };
+                const colorClass = getHandColor(handName, actualFrequencies, isInRange);
                 const isDraggedCell = draggedHands.has(handName);
-                const mixedStyle = getMixedFrequencyStyle(frequencies);
+                const mixedStyle = getMixedFrequencyStyle(actualFrequencies);
                 
                 return (
                   <td
@@ -134,14 +139,14 @@ const InteractiveHandMatrix: React.FC<InteractiveHandMatrixProps> = ({
                     onClick={(e) => handleCellClick(handName, e)}
                     onMouseDown={(e) => handleCellMouseDown(handName, e)}
                     onMouseEnter={() => handleCellMouseEnter(handName)}
-                    title={`${handName}: R${frequencies.raise}% C${frequencies.call}% F${frequencies.fold}%`}
+                    title={`${handName}: ${isInRange ? `R${actualFrequencies.raise}% C${actualFrequencies.call}% F${actualFrequencies.fold}%` : 'Not in range'}`}
                   >
                     <span className="hand-name">{handName}</span>
-                    {frequencies.raise > 0 && frequencies.raise < 100 && (
-                      <span className="frequency-label">{frequencies.raise}%</span>
+                    {isInRange && actualFrequencies.raise > 0 && actualFrequencies.raise < 100 && (
+                      <span className="frequency-label">{actualFrequencies.raise}%</span>
                     )}
-                    {frequencies.call > 0 && frequencies.call < 100 && (
-                      <span className="frequency-label call">{frequencies.call}%</span>
+                    {isInRange && actualFrequencies.call > 0 && actualFrequencies.call < 100 && (
+                      <span className="frequency-label call">{actualFrequencies.call}%</span>
                     )}
                   </td>
                 );

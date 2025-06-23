@@ -4,7 +4,8 @@
 
 ### High Priority
 - [x] **Build Range Builder Dev Tool** - Create interactive range creation and editing tool for developers
-- [ ] **Redesign Home Page** - Restructure home page to focus on range viewing with separate quiz page access
+- [ ] **Organize and Unify Range Data Structure** - Reorganize range files into proper folder structure
+- [ ] **Redesign Home Page For Range Viewing** - Restructure home page to focus on range viewing
 - [ ] **Audit and fix ranges in non-RFI tabs** - Review and correct range data for vs RFI, RFI vs 3bet, and vs Limp categories
 - [ ] **Create Postflop Visualizer** - Build dedicated postflop analysis page with flop selection and equity visualization
 
@@ -36,26 +37,62 @@
   - [x] ✅ Add preset loading (import existing ranges for editing)
   - [x] ✅ Implement undo/redo functionality
   - [x] ✅ Enable deselection on repeated clicks (set to Always Fold) and implement click-and-drag multi-cell selection
+  - [x] ✅ Add "Not in Range" action support with visual distinction (darker gray for hands not in starting range)
+  - [x] ✅ Copy to clipboard and view range should correctly show hands that are 100% folds as opposed to not in range.
+  - [ ] Factor in frequencies that hands are in the previous range. E.g., if a hand is RFI 50% then in the RFI vs 3bet range it's only there 50% of the time not 100% which should be reflected in the combo count. It should reflect in the total number of combos in the subrange, and if a 50% frequency hand is 50% raise, 50% call, then that should end up as 25% raise, 25% call when counting the number of combos in the subrange that raise and call respectively.
   - [ ] 🔄 NEXT: Add range comparison mode
   - [ ] Create export formats (JSON, CSV, TypeScript interface)
 
-### Implementation Details for Quiz Feature
-- [ ] Fix quiz question generation logic
-- [ ] Implement proper card display in quiz mode
-- [ ] Connect FSRS (spaced repetition) system
-- [ ] Add answer evaluation and feedback
-- [ ] Test quiz flow with all position combinations
-- [ ] Re-enable the "Start Quiz" button once functionality is working
+### Range Data Organization Implementation Plan
+- [ ] **Phase 1: Analysis & Planning** 
+  - [ ] Analyze current range file structure (jonLittleRanges.ts, ranges/*, sampleRanges.ts, zenithRanges.ts)
+  - [ ] Map out which ranges belong in which categories (RFI, vs RFI, RFI vs 3bet, vs Limp)
+  - [ ] Identify files that import/export ranges and will need updates
+
+- [ ] **Phase 2: Create New Folder Structure**
+  - [ ] Create `src/data/ranges/RFI/` folder for all RFI ranges (UTG, UTG+1, LJ, HJ, CO, BU, SB)
+  - [ ] Create `src/data/ranges/vsRFI/` folder for defending against RFI ranges (BB vs UTG, SB vs CO, etc.)
+  - [ ] Create `src/data/ranges/RFI-vs-3bet/` folder for 4bet/call ranges when facing 3bets
+  - [ ] Create `src/data/ranges/vsLimp/` folder for isolation ranges against limpers
+
+- [ ] **Phase 3: Move and Reorganize Range Files**
+  - [ ] Move position-specific RFI ranges from `ranges/` to `ranges/RFI/`
+  - [ ] Extract vs RFI ranges from `jonLittleRanges.ts` to separate files in `ranges/vsRFI/`
+  - [ ] Extract RFI vs 3bet ranges from `jonLittleRanges.ts` to separate files in `ranges/RFI-vs-3bet/`
+  - [ ] Move vs Limp ranges to `ranges/vsLimp/` folder
+  - [ ] Create unified index files for each category
+
+- [ ] **Phase 4: Update Import/Export System**
+  - [ ] Update `sampleRanges.ts` to import from new structure
+  - [ ] Update all components that import range data
+  - [ ] Create category-specific aggregation files (e.g., `ranges/RFI/index.ts`)
+  - [ ] Ensure backward compatibility during transition
+
+- [ ] **Phase 5: Testing & Verification**
+  - [ ] Test build compilation after reorganization
+  - [ ] Verify all range categories display correctly in UI
+  - [ ] Ensure quiz generation works with new structure
+  - [ ] Test range builder dev tool with new organization
 
 ### Range Data Audit Tasks
 - [x] **Add RFI bet sizing guidance** - Add bet sizing information to Range Explorer under RFI tab
   - Live poker: raise to 3-4bb
   - Online poker: raise to 2.5bb from everywhere except the SB where you raise to 3bb
-- [ ] **vs RFI ranges** - Verify 3bet/call frequencies and position-specific adjustments
-- [ ] **RFI vs 3bet ranges** - Validate 4bet/call ranges when facing 3bets
-- [ ] **vs Limp ranges** - Cross-check extracted PNG data with strategic guidelines
+- [x] **Separate Fold vs not in range** - change the data structure to store what the initial starting range is and visually distinguish between hands that are in the range and should fold vs hands that weren't in the range in the first place.
+  - ✅ **Implemented visual distinction**: Hands not in range show as darker gray (#606060), hands in range that fold show as lighter gray (#9e9e9e)
+  - ✅ **Updated legend**: Added separate legend items for "Fold (in range)" and "Not in range"
+  - ✅ **Enhanced Range Builder**: Added "Not in Range" action button to remove hands from range entirely
+- [x] **Show total frequency of each action as % of range** - currently we show x/1326 as the total number of hands that are not folding, I also want to see more stats, where the denominator is the total number of combinations in the range. I want call%, raise%, fold%.
+  - ✅ **Enhanced statistics display**: Added range breakdown showing "Range: X combos | Raise: X% | Call: X% | Fold: X%"
+  - ✅ **Maintained backward compatibility**: Still shows traditional "X/1326 combos (X%)" alongside new range-based statistics
+  - ✅ **Dynamic calculation**: Percentages calculated relative to hands actually in the range, not all 1326 possible combinations
 - [ ] Test all range categories display correctly in HandMatrix
 - [ ] Ensure color coding matches range category expectations
+
+#### To be done manually
+- [ ] **vs RFI ranges** - Verify 3bet/call frequencies and position-specific adjustments
+- [ ] **RFI vs 3bet ranges** - Validate 4bet/call ranges when facing 3bets
+- [x] **vs Limp ranges** - Cross-check extracted PNG data with strategic guidelines
 
 ### Critical Range Data Fixes Needed
 - [ ] **Completely rebuild Jon Little range conversion** - The ranges for vs RFI, and vs 3bet are incorrect
@@ -93,17 +130,25 @@
   - [ ] Add responsive design for mobile/desktop
   - [ ] Test equity calculations and hand classifications
 
+
+### Implementation Details for Quiz Feature
+- [ ] Fix quiz question generation logic
+- [ ] Implement proper card display in quiz mode
+- [ ] Connect FSRS (spaced repetition) system
+- [ ] Add answer evaluation and feedback
+- [ ] Test quiz flow with all position combinations
+- [ ] Re-enable the "Start Quiz" button once functionality is working
+
 ### Home Page Restructure Implementation Plan
 - [ ] **Phase 1: Navigation Changes**
-  - [ ] Change "Start Quiz" button to "Spaced Repetition Quiz"
-  - [ ] Create separate quiz settings page with routing
-  - [ ] Move quiz settings from bottom of current page to dedicated page
+  - [x] Change "Start Quiz" button to "Spaced Repetition Quiz"
+  - [x] Create separate quiz settings page with routing
+  - [x] Move quiz settings from bottom of current page to dedicated page
   
 - [ ] **Phase 2: Home Page Focus**
-  - [ ] Remove quiz-related elements from home page
   - [ ] Expand range visualization as primary feature
-  - [ ] Add postflop visualizer navigation button
-  - [ ] Enhance range matrix display for home page viewing
+  - [x] Add postflop visualizer navigation button
+  - [ ] Enhance range matrix display for home page viewing, especially for mobile
 
 ### Notes
 - Quiz settings UI is complete and positioned at bottom of page

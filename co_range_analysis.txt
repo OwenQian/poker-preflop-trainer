@@ -1,0 +1,77 @@
+CO RFI vs SB 3BET Range Analysis
+=====================================
+
+CO RFI Range Hands (from lines 122-143):
+-----------------------------------------
+Pocket pairs: AA, KK, QQ, JJ, TT, 99, 88, 77, 66, 55, 44, 33, 22
+
+Suited Aces: AKs, AQs, AJs, ATs, A9s, A8s, A7s, A6s, A5s, A4s, A3s, A2s
+
+Offsuit Aces: AKo, AQo, AJo, ATo, A9o, A8o, A7o, A6o, A5o
+
+Suited Kings: KQs, KJs, KTs, K9s, K8s, K7s, K6s, K5s, K4s
+
+Offsuit Kings: KQo, KJo, KTo, K9o, K8o, K7o
+
+Suited Queens: QJs, QTs, Q9s, Q8s, Q7s, Q6s, Q5s, Q4s
+
+Offsuit Queens: QJo, QTo, Q9o, Q8o, Q7o
+
+Suited Jacks: JTs, J9s, J8s, J7s, J6s, J5s, J4s
+
+Offsuit Jacks: JTo, J9o, J8o, J7o
+
+Suited Tens: T9s, T8s, T7s, T6s, T5s, T4s
+
+Offsuit Tens: T9o, T8o, T7o
+
+Other suited: 98s, 97s, 96s, 95s, 94s, 93s, 87s, 86s, 85s, 84s, 83s, 82s, 76s, 75s, 74s, 73s, 72s, 65s, 64s, 63s, 62s, 54s, 53s, 52s, 43s, 42s, 32s
+
+Other offsuit: 98o, 97o, 87o
+
+CO_RFI_vs_SB_3BET Range Hands (from lines 320-358):
+---------------------------------------------------
+22, 33, 44, 55, 66, 77, 88, 99, TT, JJ, QQ, KK, AA, AKo, AQo, A5s, KJs, KTs, ATs, A9s, AQs, KQs, AJs, JTs, QJs, QTs, AKs, KQo, AJo, ATo, A4s, K9s, A8s, 76s, 65s, T9s
+
+HANDS MISSING FROM CO_RFI_vs_SB_3BET RANGE:
+===========================================
+
+Suited Aces:
+- A7s, A6s, A3s, A2s
+
+Offsuit Aces:
+- A9o, A8o, A7o, A6o, A5o
+
+Suited Kings:
+- K8s, K7s, K6s, K5s, K4s
+
+Offsuit Kings:
+- KJo, KTo, K9o, K8o, K7o
+
+Suited Queens:
+- Q9s, Q8s, Q7s, Q6s, Q5s, Q4s
+
+Offsuit Queens:
+- QJo, QTo, Q9o, Q8o, Q7o
+
+Suited Jacks:
+- J9s, J8s, J7s, J6s, J5s, J4s
+
+Offsuit Jacks:
+- JTo, J9o, J8o, J7o
+
+Suited Tens:
+- T8s, T7s, T6s, T5s, T4s
+
+Offsuit Tens:
+- T9o, T8o, T7o
+
+Other suited:
+- 98s, 97s, 96s, 95s, 94s, 93s, 87s, 86s, 85s, 84s, 83s, 82s, 75s, 74s, 73s, 72s, 64s, 63s, 62s, 54s, 53s, 52s, 43s, 42s, 32s
+
+Other offsuit:
+- 98o, 97o, 87o
+
+COMPLETE LIST OF MISSING HANDS (97 hands total):
+===============================================
+A7s, A6s, A3s, A2s, A9o, A8o, A7o, A6o, A5o, K8s, K7s, K6s, K5s, K4s, KJo, KTo, K9o, K8o, K7o, Q9s, Q8s, Q7s, Q6s, Q5s, Q4s, QJo, QTo, Q9o, Q8o, Q7o, J9s, J8s, J7s, J6s, J5s, J4s, JTo, J9o, J8o, J7o, T8s, T7s, T6s, T5s, T4s, T9o, T8o, T7o, 98s, 97s, 96s, 95s, 94s, 93s, 87s, 86s, 85s, 84s, 83s, 82s, 75s, 74s, 73s, 72s, 64s, 63s, 62s, 54s, 53s, 52s, 43s, 42s, 32s, 98o, 97o, 87o

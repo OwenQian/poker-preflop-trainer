@@ -74,9 +74,7 @@ const SaveRangeModal: React.FC<SaveRangeModalProps> = ({
     onClose();
   };
 
-  const nonEmptyHands = Object.entries(rangeData).filter(([_, frequencies]) => 
-    frequencies.raise > 0 || frequencies.call > 0
-  );
+  const allHandsInRange = Object.entries(rangeData);
 
   if (!isOpen) return null;
 
@@ -92,8 +90,8 @@ const SaveRangeModal: React.FC<SaveRangeModalProps> = ({
 
         <div className="save-range-modal-content">
           <div className="range-info">
-            <p><strong>Hands in range:</strong> {nonEmptyHands.length}</p>
-            <p><strong>Sample hands:</strong> {nonEmptyHands.slice(0, 5).map(([hand]) => hand).join(', ')}{nonEmptyHands.length > 5 ? '...' : ''}</p>
+            <p><strong>Hands in range:</strong> {allHandsInRange.length}</p>
+            <p><strong>Sample hands:</strong> {allHandsInRange.slice(0, 5).map(([hand]) => hand).join(', ')}{allHandsInRange.length > 5 ? '...' : ''}</p>
           </div>
 
           <div className="save-options">
