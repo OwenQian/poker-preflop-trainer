@@ -122,6 +122,7 @@ const MultiRangeDisplay: React.FC<MultiRangeDisplayProps> = ({
               <HandMatrix
                 rangeData={rangeData.hands}
                 rangeCategory={rangeCategory}
+                missingHandTreatment={rangeData.missingHandTreatment}
                 currentHand={currentHand}
                 visible={true}
                 dependencyRangeData={dependencyRangeData}

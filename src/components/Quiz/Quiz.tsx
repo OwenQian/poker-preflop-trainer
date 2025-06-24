@@ -111,6 +111,7 @@ const Quiz: React.FC<QuizProps> = ({
             rangeCategory={rangeCategory}
             currentHand={question.handName}
             visible={showMatrix}
+            missingHandTreatment="not-in-range"
           />
         )}
 

@@ -45,44 +45,88 @@ const RangeBuilder: React.FC = () => {
     }
   };
 
+  const roundTo25 = (value: number): number => {
+    return Math.round(value / 25) * 25;
+  };
+
   const updateCustomFrequency = (type: 'raise' | 'call' | 'fold', value: number) => {
     setCustomFrequencies(prev => {
       const updated = { ...prev, [type]: value };
       
-      // Auto-adjust other frequencies to sum to 100%
-      const total = updated.raise + updated.call + updated.fold;
-      if (total !== 100) {
-        const diff = 100 - total;
-        // Distribute difference proportionally to other actions
+      // Simple approach: adjust the other two values to maintain 100% total
+      // while keeping everything in 25% increments
+      const excess = updated.raise + updated.call + updated.fold - 100;
+      
+      if (excess !== 0) {
         if (type === 'raise') {
-          const remaining = updated.call + updated.fold;
-          if (remaining > 0) {
-            const callRatio = updated.call / remaining;
-            const foldRatio = updated.fold / remaining;
-            updated.call = Math.round(updated.call + (diff * callRatio));
-            updated.fold = 100 - updated.raise - updated.call;
-          } else {
-            updated.fold = 100 - updated.raise;
+          // Distribute excess between call and fold
+          const halfExcess = excess / 2;
+          updated.call = Math.max(0, roundTo25(updated.call - halfExcess));
+          updated.fold = Math.max(0, roundTo25(updated.fold - halfExcess));
+          
+          // Ensure total is exactly 100%
+          const currentTotal = updated.raise + updated.call + updated.fold;
+          const remaining = 100 - currentTotal;
+          if (remaining !== 0) {
+            // Add remaining to fold (or call if fold is 0)
+            if (updated.fold > 0 || updated.call === 0) {
+              updated.fold = Math.max(0, updated.fold + remaining);
+            } else {
+              updated.call = Math.max(0, updated.call + remaining);
+            }
           }
         } else if (type === 'call') {
-          const remaining = updated.raise + updated.fold;
-          if (remaining > 0) {
-            const raiseRatio = updated.raise / remaining;
-            const foldRatio = updated.fold / remaining;
-            updated.raise = Math.round(updated.raise + (diff * raiseRatio));
-            updated.fold = 100 - updated.raise - updated.call;
-          } else {
-            updated.fold = 100 - updated.call;
+          // Distribute excess between raise and fold
+          const halfExcess = excess / 2;
+          updated.raise = Math.max(0, roundTo25(updated.raise - halfExcess));
+          updated.fold = Math.max(0, roundTo25(updated.fold - halfExcess));
+          
+          // Ensure total is exactly 100%
+          const currentTotal = updated.raise + updated.call + updated.fold;
+          const remaining = 100 - currentTotal;
+          if (remaining !== 0) {
+            // Add remaining to fold (or raise if fold is 0)
+            if (updated.fold > 0 || updated.raise === 0) {
+              updated.fold = Math.max(0, updated.fold + remaining);
+            } else {
+              updated.raise = Math.max(0, updated.raise + remaining);
+            }
           }
         } else { // fold
-          const remaining = updated.raise + updated.call;
-          if (remaining > 0) {
-            const raiseRatio = updated.raise / remaining;
-            const callRatio = updated.call / remaining;
-            updated.raise = Math.round(updated.raise + (diff * raiseRatio));
-            updated.call = 100 - updated.raise - updated.fold;
-          } else {
-            updated.raise = 100 - updated.fold;
+          // Distribute excess between raise and call
+          const halfExcess = excess / 2;
+          updated.raise = Math.max(0, roundTo25(updated.raise - halfExcess));
+          updated.call = Math.max(0, roundTo25(updated.call - halfExcess));
+          
+          // Ensure total is exactly 100%
+          const currentTotal = updated.raise + updated.call + updated.fold;
+          const remaining = 100 - currentTotal;
+          if (remaining !== 0) {
+            // Add remaining to raise (or call if raise is 0)
+            if (updated.raise > 0 || updated.call === 0) {
+              updated.raise = Math.max(0, updated.raise + remaining);
+            } else {
+              updated.call = Math.max(0, updated.call + remaining);
+            }
+          }
+        }
+        
+        // Final safety check to ensure all values are multiples of 25
+        updated.raise = roundTo25(updated.raise);
+        updated.call = roundTo25(updated.call);
+        updated.fold = roundTo25(updated.fold);
+        
+        // One final adjustment to ensure 100% total
+        const finalTotal = updated.raise + updated.call + updated.fold;
+        if (finalTotal !== 100) {
+          const diff = 100 - finalTotal;
+          // Add difference to the largest non-changed value
+          if (type !== 'fold' && updated.fold >= Math.max(updated.raise, updated.call)) {
+            updated.fold += diff;
+          } else if (type !== 'raise' && updated.raise >= Math.max(updated.call, updated.fold)) {
+            updated.raise += diff;
+          } else if (type !== 'call') {
+            updated.call += diff;
           }
         }
       }
@@ -397,6 +441,7 @@ ${allHandsInRange.map(([handName, frequencies]) =>
               type="range"
               min="0"
               max="100"
+              step="25"
               value={frequencies.raise}
               onChange={(e) => updateCustomFrequency('raise', parseInt(e.target.value))}
               className="slider raise-slider"
@@ -408,6 +453,7 @@ ${allHandsInRange.map(([handName, frequencies]) =>
               type="range"
               min="0"
               max="100"
+              step="25"
               value={frequencies.call}
               onChange={(e) => updateCustomFrequency('call', parseInt(e.target.value))}
               className="slider call-slider"
@@ -419,6 +465,7 @@ ${allHandsInRange.map(([handName, frequencies]) =>
               type="range"
               min="0"
               max="100"
+              step="25"
               value={frequencies.fold}
               onChange={(e) => updateCustomFrequency('fold', parseInt(e.target.value))}
               className="slider fold-slider"
