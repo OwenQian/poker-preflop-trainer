@@ -101,7 +101,7 @@
 }
 
 .legend-color.lightgreen {
-  background-color: #8BC34A;
+  background-color: #4FC3F7;
 }
 
 .legend-color.red {
@@ -129,7 +129,11 @@
 }
 
 .legend-color.olive {
-  background-color: #827717;
+  background-color: #FF9800;
+}
+
+.legend-color.purple {
+  background-color: #9C27B0;
 }
 
 .legend-color.teal {

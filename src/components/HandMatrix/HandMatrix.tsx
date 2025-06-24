@@ -11,6 +11,8 @@ interface HandMatrixProps {
   visible?: boolean;
   // Optional dependency range for frequency weighting
   dependencyRangeData?: Record<HandName, HandFrequencies>;
+  // Missing hand treatment - how to handle hands not in rangeData
+  missingHandTreatment?: 'not-in-range' | 'fold';
 }
 
 const HAND_MATRIX: HandName[][] = [
@@ -29,13 +31,17 @@ const HAND_MATRIX: HandName[][] = [
   ['A2o', 'K2o', 'Q2o', 'J2o', 'T2o', '92o', '82o', '72o', '62o', '52o', '42o', '32o', '22']
 ];
 
+// Flatten the matrix to get all 169 possible hands
+const ALL_HANDS: HandName[] = HAND_MATRIX.flat();
+
 const HandMatrix: React.FC<HandMatrixProps> = ({
   rangeData,
   rangeCategory,
   currentHand,
   onHandSelect,
   visible = true,
-  dependencyRangeData
+  dependencyRangeData,
+  missingHandTreatment = 'not-in-range'
 }) => {
   const [showMixedStrategy, setShowMixedStrategy] = React.useState(true);
   
@@ -43,9 +49,12 @@ const HandMatrix: React.FC<HandMatrixProps> = ({
     let raiseCombos = 0;
     let callCombos = 0;
     let foldCombos = 0;
-    let rangeCombos = 0; // Total combinations in the range (excluding hands with 0% action)
+    let rangeCombos = 0; // Total combinations in the range
     
-    Object.entries(rangeData).forEach(([handName, frequencies]) => {
+    // Determine which hands to iterate through
+    const handsToProcess = missingHandTreatment === 'fold' ? ALL_HANDS : Object.keys(rangeData);
+    
+    handsToProcess.forEach((handName) => {
       if (handName.length >= 2) {
         const rank1 = handName[0];
         const rank2 = handName[1];
@@ -60,10 +69,24 @@ const HandMatrix: React.FC<HandMatrixProps> = ({
           handCombos = 12; // Offsuit hands
         }
         
+        // Get frequencies for this hand (use default fold:100 for missing hands when treatment is 'fold')
+        let frequencies = rangeData[handName];
+        const isHandInRange = !!frequencies;
+        
+        if (!frequencies && missingHandTreatment === 'fold') {
+          frequencies = { raise: 0, call: 0, fold: 100 };
+        }
+        
+        // Skip hands that don't exist when treatment is 'not-in-range'
+        if (!frequencies) {
+          return;
+        }
+        
         // Calculate frequency weighting if dependency range is provided
         let frequencyWeight = 1.0; // Default to 100% if no dependency
         
-        if (dependencyRangeData && dependencyRangeData[handName]) {
+        // Only apply dependency weighting to hands that are actually in the original range
+        if (dependencyRangeData && dependencyRangeData[handName] && isHandInRange) {
           const dependencyFreq = dependencyRangeData[handName];
           // For RFI dependency, the weight is the raise frequency (how often we RFI this hand)
           // For other dependencies, we might need different logic
@@ -84,12 +107,27 @@ const HandMatrix: React.FC<HandMatrixProps> = ({
           }
         }
         
-        // Calculate effective combos considering frequency weighting
-        const effectiveHandCombos = handCombos * frequencyWeight;
+        // For hands not in range when treatment is 'fold', don't apply dependency weighting
+        if (!isHandInRange && missingHandTreatment === 'fold') {
+          frequencyWeight = 1.0;
+        }
         
-        // All hands in the range data are considered "in range" 
-        // (including hands that fold 100% - they're in the starting range but fold in this spot)
-        rangeCombos += effectiveHandCombos;
+        // Calculate base combos (before frequency weighting for actions)
+        const baseCombos = handCombos; // Don't apply frequency weight to base combos
+        
+        // For range total calculation - this should always be the full combo count
+        if (missingHandTreatment === 'fold') {
+          // When treatment is 'fold', ALL hands are in the range (should total 1326)
+          rangeCombos += baseCombos;
+        } else {
+          // When treatment is 'not-in-range', only hands that exist in rangeData are in range
+          if (rangeData[handName]) {
+            rangeCombos += baseCombos;
+          }
+        }
+        
+        // Apply frequency weighting for action calculations only
+        const effectiveHandCombos = baseCombos * frequencyWeight;
         
         // Calculate weighted combinations for each action with frequency weighting applied
         raiseCombos += effectiveHandCombos * (frequencies.raise / 100);
@@ -101,14 +139,17 @@ const HandMatrix: React.FC<HandMatrixProps> = ({
     // For range categories other than RFI, total active combos include both raise and call
     const activeCombos = rangeCategory === 'RFI' ? raiseCombos : (raiseCombos + callCombos);
     
+    // Calculate total action combos for percentage calculation
+    const totalActionCombos = raiseCombos + callCombos + foldCombos;
+    
     return {
       combos: Math.round(activeCombos * 10) / 10,
       percentage: Math.round((activeCombos / 1326) * 1000) / 10,
       // New statistics relative to the range
       rangeCombos: Math.round(rangeCombos * 10) / 10,
-      raisePercentage: rangeCombos > 0 ? Math.round((raiseCombos / rangeCombos) * 1000) / 10 : 0,
-      callPercentage: rangeCombos > 0 ? Math.round((callCombos / rangeCombos) * 1000) / 10 : 0,
-      foldPercentage: rangeCombos > 0 ? Math.round((foldCombos / rangeCombos) * 1000) / 10 : 0
+      raisePercentage: totalActionCombos > 0 ? Math.round((raiseCombos / totalActionCombos) * 1000) / 10 : 0,
+      callPercentage: totalActionCombos > 0 ? Math.round((callCombos / totalActionCombos) * 1000) / 10 : 0,
+      foldPercentage: totalActionCombos > 0 ? Math.round((foldCombos / totalActionCombos) * 1000) / 10 : 0
     };
   };
 
@@ -116,8 +157,16 @@ const HandMatrix: React.FC<HandMatrixProps> = ({
   
   const getMixedFrequencyStyle = (hand: HandName): React.CSSProperties => {
     const frequencies = rangeData[hand];
-    // Hand not in range data = not in starting range (darker gray)
-    if (!frequencies) return { backgroundColor: '#606060' };
+    // Handle missing hands based on treatment setting
+    if (!frequencies) {
+      if (missingHandTreatment === 'fold') {
+        // Treat as fold: 100 (lighter gray)
+        return { backgroundColor: '#9e9e9e' };
+      } else {
+        // Treat as not in range (darker gray)
+        return { backgroundColor: '#606060' };
+      }
+    }
 
     const { raise, call, fold } = frequencies;
     
@@ -136,7 +185,7 @@ const HandMatrix: React.FC<HandMatrixProps> = ({
       raise: (() => {
         switch (rangeCategory) {
           case 'RFI': return '#ff9500'; // orange
-          case 'vs RFI': return '#f44336'; // red
+          case 'vs RFI': return '#c62828'; // dark red (same as RFI vs 3bet)
           case 'RFI vs 3bet': return '#c62828'; // dark red
           case 'vs Limp': return '#ff9500'; // orange
           default: return '#ff9500';
@@ -144,7 +193,7 @@ const HandMatrix: React.FC<HandMatrixProps> = ({
       })(),
       call: (() => {
         switch (rangeCategory) {
-          case 'vs RFI': return '#2196F3'; // blue
+          case 'vs RFI': return '#4CAF50'; // green (same as RFI vs 3bet)
           case 'RFI vs 3bet': return '#4CAF50'; // green
           default: return '#8BC34A'; // light green
         }
@@ -180,8 +229,16 @@ const HandMatrix: React.FC<HandMatrixProps> = ({
   const getHandColor = (hand: HandName): string => {
     const frequencies = rangeData[hand];
     
-    // Hand not in range data = not in starting range (darker gray)
-    if (!frequencies) return '#606060';
+    // Handle missing hands based on treatment setting
+    if (!frequencies) {
+      if (missingHandTreatment === 'fold') {
+        // Treat as fold: 100 (lighter gray)
+        return '#9e9e9e';
+      } else {
+        // Treat as not in range (darker gray)
+        return '#606060';
+      }
+    }
 
     const { raise, call, fold } = frequencies;
     
@@ -196,19 +253,21 @@ const HandMatrix: React.FC<HandMatrixProps> = ({
         return 'gray';
         
       case 'vs RFI':
-        if (raise === 100) return '#f44336'; // 3-bet (use same color as mixed strategy)
-        if (raise > 0 && call === 0) return 'orange'; // Pure mixed 3-bet
-        if (call === 100) return '#2196F3'; // Call (use same color as mixed strategy)
-        if (call > 0 && raise === 0) return 'lightblue'; // Pure mixed call
-        if (raise > 0 && call > 0) return 'purple'; // Mixed 3-bet/call
+        if (raise === 100) return '#c62828'; // 3-bet (same as RFI vs 3bet)
+        if (raise > 0 && call === 0) return 'red'; // Pure mixed 3-bet
+        if (call === 100) return '#4CAF50'; // Call (same as RFI vs 3bet)
+        if (call > 0 && raise === 0) return '#4FC3F7'; // Pure mixed call (light blue)
+        if (raise > 0 && call > 0 && fold === 0) return '#9C27B0'; // Raise/call (never fold) (purple)
+        if (raise > 0 && call > 0) return '#FF9800'; // Mixed 3-bet/call/fold (orange)
         return 'gray';
         
       case 'RFI vs 3bet':
         if (raise === 100) return '#c62828'; // 4-bet (use same color as mixed strategy)
         if (raise > 0 && call === 0) return 'red'; // Pure mixed 4-bet
         if (call === 100) return '#4CAF50'; // Call (use same color as mixed strategy)
-        if (call > 0 && raise === 0) return 'lightgreen'; // Pure mixed call
-        if (raise > 0 && call > 0) return 'olive'; // Mixed 4-bet/call
+        if (call > 0 && raise === 0) return '#4FC3F7'; // Pure mixed call (light blue)
+        if (raise > 0 && call > 0 && fold === 0) return '#9C27B0'; // Raise/call (never fold) (purple)
+        if (raise > 0 && call > 0) return '#FF9800'; // Mixed 4-bet/call/fold (orange)
         return 'gray';
         
       case 'vs Limp':
@@ -328,32 +387,36 @@ const HandMatrix: React.FC<HandMatrixProps> = ({
           {rangeCategory === 'vs RFI' && (
             <>
               <div className="legend-item">
-                <div className="legend-color red"></div>
-                <span>3-bet (100%)</span>
+                <div className="legend-color darkred"></div>
+                <span>Raise</span>
               </div>
               <div className="legend-item">
-                <div className="legend-color blue"></div>
-                <span>Call (100%)</span>
+                <div className="legend-color green"></div>
+                <span>Call</span>
               </div>
               {showMixedStrategy && (
                 <div className="legend-item">
-                  <div className="legend-color" style={{ background: 'linear-gradient(to right, #f44336 50%, #2196F3 50%)' }}></div>
-                  <span>Mixed 3bet/Call</span>
+                  <div className="legend-color" style={{ background: 'linear-gradient(to right, #c62828 50%, #4CAF50 50%)' }}></div>
+                  <span>Mixed Raise/Call</span>
                 </div>
               )}
               {!showMixedStrategy && (
                 <>
                   <div className="legend-item">
-                    <div className="legend-color orange"></div>
+                    <div className="legend-color purple"></div>
+                    <span>raise/call</span>
+                  </div>
+                  <div className="legend-item">
+                    <div className="legend-color olive"></div>
+                    <span>raise/call/fold</span>
+                  </div>
+                  <div className="legend-item">
+                    <div className="legend-color red"></div>
                     <span>raise/fold</span>
                   </div>
                   <div className="legend-item">
-                    <div className="legend-color lightblue"></div>
+                    <div className="legend-color lightgreen"></div>
                     <span>call/fold</span>
-                  </div>
-                  <div className="legend-item">
-                    <div className="legend-color purple"></div>
-                    <span>raise/call/fold</span>
                   </div>
                 </>
               )}
@@ -363,20 +426,28 @@ const HandMatrix: React.FC<HandMatrixProps> = ({
             <>
               <div className="legend-item">
                 <div className="legend-color darkred"></div>
-                <span>4-bet (100%)</span>
+                <span>Raise</span>
               </div>
               <div className="legend-item">
                 <div className="legend-color green"></div>
-                <span>Call (100%)</span>
+                <span>Call</span>
               </div>
               {showMixedStrategy && (
                 <div className="legend-item">
                   <div className="legend-color" style={{ background: 'linear-gradient(to right, #c62828 50%, #4CAF50 50%)' }}></div>
-                  <span>Mixed 4bet/Call</span>
+                  <span>Mixed Raise/Call</span>
                 </div>
               )}
               {!showMixedStrategy && (
                 <>
+                  <div className="legend-item">
+                    <div className="legend-color purple"></div>
+                    <span>raise/call</span>
+                  </div>
+                  <div className="legend-item">
+                    <div className="legend-color olive"></div>
+                    <span>raise/call/fold</span>
+                  </div>
                   <div className="legend-item">
                     <div className="legend-color red"></div>
                     <span>raise/fold</span>
@@ -384,10 +455,6 @@ const HandMatrix: React.FC<HandMatrixProps> = ({
                   <div className="legend-item">
                     <div className="legend-color lightgreen"></div>
                     <span>call/fold</span>
-                  </div>
-                  <div className="legend-item">
-                    <div className="legend-color olive"></div>
-                    <span>raise/call/fold</span>
                   </div>
                 </>
               )}
