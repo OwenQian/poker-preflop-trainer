@@ -3,6 +3,7 @@ import { RangeData } from '../../../types';
 // PLACEHOLDER: Using BU vs HJ range data as placeholder for BU vs UTG+1
 const BU_vs_UTG2_RFI: RangeData = {
   positionCombo: 'BU_vs_UTG+1_RFI',
+  missingHandTreatment: 'fold',
   hands: {
     '22': { raise: 0, call: 50, fold: 50 },
     '33': { raise: 0, call: 50, fold: 50 },

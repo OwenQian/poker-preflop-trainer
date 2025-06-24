@@ -6,6 +6,7 @@ import { RangeData } from '../../../types';
 
 const range: RangeData = {
   positionCombo: 'BB_vs_SB_RFI',
+  missingHandTreatment: 'fold',
   hands: {
     '22': { raise: 0, call: 100, fold: 0 },
     '33': { raise: 0, call: 100, fold: 0 },

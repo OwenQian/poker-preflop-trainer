@@ -3,6 +3,7 @@ import { RangeData } from '../../../types';
 // BU vs HJ RFI to 2.5bb
 const BU_vs_HJ_RFI: RangeData = {
   positionCombo: 'BU_vs_HJ_RFI',
+  missingHandTreatment: 'fold',
   hands: {
     '22': { raise: 0, call: 50, fold: 50 },
     '33': { raise: 0, call: 50, fold: 50 },
