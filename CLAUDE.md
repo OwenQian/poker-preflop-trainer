@@ -25,9 +25,15 @@ src/
 │   ├── RangeTabSelector/ # Tab interface for range categories
 │   └── MultiRangeDisplay/ # Multi-range chart display component
 ├── data/                # Poker strategy data
-│   ├── zenithRanges.ts  # Original complete poker ranges (988 lines)
-│   ├── jonLittleRanges.ts # Jon Little extracted ranges with multiple categories
-│   └── sampleRanges.ts  # Range data interface and aggregation
+│   ├── ranges/          # Organized range data by category
+│   │   ├── RFI/         # Raise First In ranges (7 position files)
+│   │   ├── vsRFI/       # Defending against RFI ranges (9 position files)
+│   │   ├── RFI-vs-3bet/ # Responding to 3-bets (4 position files)
+│   │   ├── vsLimp/      # Isolating limpers (7 position files)
+│   │   └── index.ts     # Master export for all range categories
+│   ├── sampleRanges.ts  # Range data interface and aggregation (central hub)
+│   ├── zenithRanges.ts  # Legacy compatibility layer
+│   └── jonLittleRanges.ts # Legacy file (data moved to ranges/ folder)
 ├── types/               # TypeScript type definitions
 │   └── index.ts         # All application types
 ├── utils/               # Utility functions and algorithms
@@ -70,33 +76,50 @@ The app uses React hooks for state management with three main states:
 - `currentQuestion`: Active quiz question
 - `sessionStats`: Current session performance metrics
 
-### 3. Range System (src/data/)
+### 3. Range System (src/data/ranges/)
+
+**New Organized Structure:**
+The range system has been completely reorganized into a modular, category-based structure for better maintainability and scalability.
 
 **Range Data Structure:**
 ```typescript
 {
-  positionCombo: string,  // e.g., "LJ_RFI", "BB_vs_BU"
+  positionCombo: string,  // e.g., "LJ_RFI", "BB_vs_BU_RFI"
   hands: Record<HandName, HandFrequencies>
 }
 ```
 
-**Range Categories:**
+**Organized Range Categories:**
 
-1. **RFI (Raise First In)**:
-   - UTG_RFI, UTG+1_RFI, LJ_RFI, HJ_RFI, CO_RFI, BU_RFI, SB_RFI
-   - Note: BB_RFI doesn't exist (BB is forced bet, not RFI)
+1. **RFI (Raise First In)** - `src/data/ranges/RFI/`
+   - **7 individual files**: UTG.ts, UTG1.ts, LJ.ts, HJ.ts, CO.ts, BU.ts, SB.ts
+   - **Position Combos**: UTG_RFI, UTG+1_RFI, LJ_RFI, HJ_RFI, CO_RFI, BU_RFI, SB_RFI
+   - **Note**: BB_RFI doesn't exist (BB is forced bet, not RFI)
+   - **Source**: Consolidated from zenith ranges (detailed mixed frequencies)
 
-2. **vs RFI (Defending against RFI)**:
-   - BB_vs_[position]_RFI, SB_vs_[position]_RFI, BU_vs_CO_RFI, CO_vs_HJ_RFI
-   - Includes 3bet and call ranges for each opponent position
+2. **vs RFI (Defending against RFI)** - `src/data/ranges/vsRFI/`
+   - **9 individual files**: BB-vs-UTG.ts, BB-vs-UTG2.ts, BB-vs-CO.ts, BB-vs-BU.ts, BB-vs-SB.ts, SB-vs-UTG.ts, SB-vs-BU.ts, BU-vs-CO.ts, CO-vs-HJ.ts
+   - **Position Combos**: BB_vs_[position]_RFI, SB_vs_[position]_RFI, etc.
+   - **Contains**: 3bet and call ranges for each opponent position
+   - **Source**: Extracted from jonLittleRanges.ts
 
-3. **RFI vs 3bet (Responding to 3-bets)**:
-   - UTG_RFI_vs_3BET, BU_RFI_vs_3BET
-   - 4bet and call ranges when facing 3-bets
+3. **RFI vs 3bet (Responding to 3-bets)** - `src/data/ranges/RFI-vs-3bet/`
+   - **4 individual files**: UTG-vs-3bet.ts, BU-vs-3bet.ts, CO-vs-SB-3bet.ts, CO-vs-BU-3bet.ts
+   - **Position Combos**: UTG_RFI_vs_3BET, BU_RFI_vs_3BET, CO_RFI_vs_SB_3BET, CO_RFI_vs_BU_3BET
+   - **Contains**: 4bet and call ranges when facing 3-bets
+   - **Source**: Extracted from jonLittleRanges.ts
 
-4. **vs Limp (Isolating Limpers)**:
-   - [position]_vs_LIMP for UTG+1, LJ, HJ, CO, BU, SB, BB
-   - 6bb raise sizing (4bb + 2×limpers)
+4. **vs Limp (Isolating Limpers)** - `src/data/ranges/vsLimp/`
+   - **7 individual files**: UTG1-vs-limp.ts, LJ-vs-limp.ts, HJ-vs-limp.ts, CO-vs-limp.ts, BU-vs-limp.ts, SB-vs-limp.ts, BB-vs-limp.ts
+   - **Position Combos**: [position]_vs_LIMP for UTG+1, LJ, HJ, CO, BU, SB, BB
+   - **Sizing**: 6bb raise sizing (4bb + 2×limpers)
+   - **Source**: Extracted from jonLittleRanges.ts
+
+**Import System:**
+- **Central Hub**: `sampleRanges.ts` imports from organized structure
+- **Category Indexes**: Each folder has index.ts for clean imports
+- **Master Index**: `ranges/index.ts` exports all categories
+- **Backward Compatibility**: Maintained through `sampleRanges.ts` public API
 
 ### 4. Quiz Generation (src/utils/handGenerator.ts)
 
@@ -167,6 +190,40 @@ New Card → Learning → Review (with lapses back to Learning)
   - **RFI vs 3bet**: Dark Red (4-bet), Light Blue (call), Gray (fold)
   - **vs Limp**: Orange (raise), Gray (fold)
 
+#### Missing Hand Treatment (`missingHandTreatment`)
+The HandMatrix component handles missing hands differently based on the `missingHandTreatment` prop:
+
+**Two Treatment Modes:**
+1. **`'not-in-range'`** (default): Missing hands are excluded from calculations
+   - Used for: Quiz display, basic range visualization
+   - Range total: Only hands explicitly in range data
+   - Percentages: Relative to hands in range only
+
+2. **`'fold'`**: Missing hands treated as 100% fold
+   - Used for: Complete strategy ranges (vs RFI, RFI vs 3bet)
+   - Range total: Always 1,326 combos (all possible hands)
+   - Percentages: Actions calculated relative to total action combos, ensuring they sum to 100%
+
+**Frequency Calculation Logic:**
+```typescript
+// For hands explicitly in range data
+frequencies = rangeData[handName];
+
+// For missing hands when treatment is 'fold'
+if (!frequencies && missingHandTreatment === 'fold') {
+  frequencies = { raise: 0, call: 0, fold: 100 };
+}
+
+// Percentage calculation uses total action combos as denominator
+const totalActionCombos = raiseCombos + callCombos + foldCombos;
+raisePercentage = (raiseCombos / totalActionCombos) * 100;
+```
+
+**Dependency Range Weighting:**
+- Applied only to hands explicitly in the original range data
+- Missing hands (when treatment is 'fold') get full weight (1.0)
+- Used for conditional ranges like "RFI vs 3bet" where action depends on prior RFI decision
+
 ### PositionSelector Component
 - **Interactive Table**: Visual 8-player poker table with clickable positions
 - **Seat Order**: Clockwise from BU: BU → SB → BB → UTG → UTG+1 → LJ → HJ → CO
@@ -197,21 +254,45 @@ New Card → Learning → Review (with lapses back to Learning)
 
 ### Adding New Ranges
 
-1. **Define Range Data**: Add to appropriate file in `src/data/`
-   - **RFI ranges**: Add to `jonLittleRanges.ts` RFI section
-   - **vs RFI ranges**: Add to `jonLittleRanges.ts` FACING_RFI section
-   - **vs Limp ranges**: Add to UPSWING_VS_LIMP_RANGES section
+**NEW ORGANIZED APPROACH:**
+
+1. **Create Individual Range File**: Add to appropriate category folder in `src/data/ranges/`
+   - **RFI ranges**: Create new file in `src/data/ranges/RFI/` (e.g., `MP_RFI.ts`)
+   - **vs RFI ranges**: Create new file in `src/data/ranges/vsRFI/` (e.g., `BB-vs-MP.ts`)
+   - **RFI vs 3bet ranges**: Create new file in `src/data/ranges/RFI-vs-3bet/`
+   - **vs Limp ranges**: Create new file in `src/data/ranges/vsLimp/`
 
 ```typescript
-{
-  positionCombo: 'UTG_RFI',
-  hands: convertHandArrayToRange(['AA', 'KK', 'QQ', /* ... */])
-}
+// Example: src/data/ranges/RFI/MP.ts
+import { RangeData } from '../../../types';
+
+const MP_RFI: RangeData = {
+  positionCombo: 'MP_RFI',
+  hands: {
+    'AA': { raise: 100, call: 0, fold: 0 },
+    'KK': { raise: 100, call: 0, fold: 0 },
+    // ... rest of hands
+  }
+};
+
+export default MP_RFI;
 ```
 
-2. **Update Range Aggregation**: Ensure new ranges are included in `ALL_RANGES` object in `sampleRanges.ts`
+2. **Update Category Index**: Add export to appropriate `index.ts` file
+```typescript
+// src/data/ranges/RFI/index.ts
+export { default as MP_RFI } from './MP';
+```
 
-3. **Update Position Logic**: Ensure range lookup works in `handGenerator.ts`
+3. **Automatic Integration**: The new range will be automatically included in `sampleRanges.ts` through the organized import system
+
+4. **Testing**: Verify range appears in UI and quiz generation works
+
+**Benefits of New Structure:**
+- **Individual files** are easier to maintain and review
+- **Automatic aggregation** through organized imports
+- **Type safety** with individual file exports
+- **Clear organization** by strategic category
 
 ### Modifying Hand Matrix Colors
 
@@ -252,10 +333,21 @@ switch (rangeCategory) {
 
 ## File Modification Patterns
 
-**For Range Updates**: Focus on `src/data/zenithRanges.ts`
+**For Range Updates**: 
+- **NEW**: Individual files in `src/data/ranges/[category]/` folders
+- **Central Hub**: `src/data/sampleRanges.ts` for import system changes
+- **Legacy**: `src/data/zenithRanges.ts` and `src/data/jonLittleRanges.ts` (now compatibility layers)
+
 **For UI Changes**: Component-specific files in `src/components/`
 **For Logic Changes**: Utility files in `src/utils/`
 **For Type Changes**: `src/types/index.ts` (affects multiple files)
+
+**Range Data Architecture:**
+- **Individual Range Files**: `src/data/ranges/[RFI|vsRFI|RFI-vs-3bet|vsLimp]/[position].ts`
+- **Category Indexes**: `src/data/ranges/[category]/index.ts` 
+- **Master Index**: `src/data/ranges/index.ts`
+- **Aggregation Hub**: `src/data/sampleRanges.ts` (central import point)
+- **Component Access**: All components import from `sampleRanges.ts` for consistent API
 
 ## Testing Entry Points
 
@@ -271,7 +363,42 @@ switch (rangeCategory) {
 - **Advanced FSRS**: Custom parameters per user
 - **Multiplayer**: Real-time practice sessions
 
-This architecture supports the core learning loop: Question Generation → User Input → Grading → FSRS Update → Next Question, with full persistence and customizable difficulty modes. 
+This architecture supports the core learning loop: Question Generation → User Input → Grading → FSRS Update → Next Question, with full persistence and customizable difficulty modes.
+
+## Range Data Reorganization (2024)
+
+### Architecture Improvements
+
+The range data system was completely reorganized from a monolithic structure to a modular, category-based architecture:
+
+**Before:**
+- **2 large files**: `zenithRanges.ts` (988 lines), `jonLittleRanges.ts` (835 lines)
+- **Mixed categories**: All range types bundled together
+- **Difficult maintenance**: Hard to find and modify specific ranges
+- **Import complexity**: Manual aggregation in multiple places
+
+**After:**
+- **27 individual files**: Organized by category and position
+- **Clear separation**: RFI, vs RFI, RFI vs 3bet, vs Limp in separate folders
+- **Easy maintenance**: Individual files for each range scenario
+- **Automatic aggregation**: Organized import system through indexes
+
+### Benefits Achieved
+
+1. **Better Organization**: Ranges grouped by strategic purpose
+2. **Easier Maintenance**: Individual files are simpler to find and edit  
+3. **Scalability**: Easy to add new positions or range categories
+4. **Type Safety**: Each file has proper TypeScript exports
+5. **Data Integrity**: All original hand frequencies preserved exactly
+6. **Backward Compatibility**: Existing components unchanged through `sampleRanges.ts` API
+7. **Clear Structure**: File names clearly indicate range type and positions
+
+### File Count Summary
+- **RFI**: 7 files (UTG through SB)
+- **vs RFI**: 9 files (BB vs positions, SB vs positions, etc.)
+- **RFI vs 3bet**: 4 files (responses to 3-bets)
+- **vs Limp**: 7 files (isolation ranges)
+- **Total**: 27 range files + 5 index files + 1 master aggregator 
 
 ## Verifying Changes
 After making a change verify that the feature works as expected using the puppeteer MCP. The server is running locally at http://localhost:3000. You do not need to run the server. It is already running in another tab with `npm start`
