@@ -1,46 +1,53 @@
-# Getting Started with Create React App
+# Poker Preflop Trainer
 
-This project was bootstrapped with [Create React App](https://github.com/facebook/create-react-app).
+A React-based training application for mastering poker preflop decisions using spaced repetition learning. Practice optimal preflop strategies across different positions and scenarios with immediate feedback and long-term progress tracking.
 
-## Available Scripts
+## Features
 
-In the project directory, you can run:
+### 🎯 Interactive Training
+- **Spaced Repetition Learning**: Uses FSRS-4 algorithm to optimize practice sessions based on your performance
+- **Position-Based Practice**: Train from all table positions (UTG through Button) with position-specific strategies
+- **Multiple Range Categories**: Practice RFI ranges, defending against RFI, responding to 3-bets, and isolation plays against limpers
+- **Immediate Feedback**: Get instant evaluation of your decisions with detailed explanations
 
-### `npm start`
+### 📊 Range Visualization
+- **Interactive Hand Matrix**: 13x13 grid showing optimal play frequencies for each starting hand
+- **Mixed Strategy Support**: Visualize and practice mixed strategies with percentage-based decisions
+- **Color-Coded Actions**: Clear visual distinction between raising, calling, and folding scenarios
+- **Combo Calculations**: Real-time combination counting and percentage analysis
 
-Runs the app in the development mode.\
-Open [http://localhost:3000](http://localhost:3000) to view it in the browser.
+### 🎮 Flexible Practice Modes
+- **Multiple Grading Systems**: Choose between strict, lenient, or randomized evaluation modes
+- **Confidence Rating**: Rate your certainty on each decision to improve learning efficiency
+- **Session Tracking**: Monitor your progress with detailed performance statistics
+- **Custom Scenarios**: Practice specific position combinations and opponent configurations
 
-The page will reload if you make edits.\
-You will also see any lint errors in the console.
+### 🔧 Development Tools
+- **Range Builder**: Interactive tool for creating and editing custom poker ranges
+- **Range Explorer**: Browse and analyze existing ranges across different categories
+- **Export/Import**: Backup and restore your training progress and custom ranges
 
-### `npm test`
+## Quick Start
 
-Launches the test runner in the interactive watch mode.\
-See the section about [running tests](https://facebook.github.io/create-react-app/docs/running-tests) for more information.
+```bash
+# Install dependencies
+npm install
 
-### `npm run build`
+# Start development server
+npm start
 
-Builds the app for production to the `build` folder.\
-It correctly bundles React in production mode and optimizes the build for the best performance.
+# Open http://localhost:3000 in your browser
+```
 
-The build is minified and the filenames include the hashes.\
-Your app is ready to be deployed!
+## Project Status
 
-See the section about [deployment](https://facebook.github.io/create-react-app/docs/deployment) for more information.
-
-### `npm run eject`
-
-**Note: this is a one-way operation. Once you `eject`, you can’t go back!**
-
-If you aren’t satisfied with the build tool and configuration choices, you can `eject` at any time. This command will remove the single build dependency from your project.
-
-Instead, it will copy all the configuration files and the transitive dependencies (webpack, Babel, ESLint, etc) right into your project so you have full control over them. All of the commands except `eject` will still work, but they will point to the copied scripts so you can tweak them. At this point you’re on your own.
-
-You don’t have to ever use `eject`. The curated feature set is suitable for small and middle deployments, and you shouldn’t feel obligated to use this feature. However we understand that this tool wouldn’t be useful if you couldn’t customize it when you are ready for it.
+🚧 **In Active Development** - This project is continuously evolving with new features, range data improvements, and enhanced training capabilities. Core functionality is stable and ready for training use.
 
 ## Learn More
 
-You can learn more in the [Create React App documentation](https://facebook.github.io/create-react-app/docs/getting-started).
+- **Poker Strategy**: Practice ranges are based on modern GTO (Game Theory Optimal) principles
+- **Spaced Repetition**: Uses scientifically-backed memory techniques for efficient learning
 
-To learn React, check out the [React documentation](https://reactjs.org/).
+---
+
+*Improve your preflop game through deliberate practice and data-driven learning.*
