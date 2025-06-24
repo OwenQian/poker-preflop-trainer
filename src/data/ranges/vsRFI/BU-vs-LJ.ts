@@ -1,0 +1,55 @@
+import { RangeData } from '../../../types';
+
+// PLACEHOLDER: Using BU vs HJ range data as placeholder for BU vs LJ
+const BU_vs_LJ_RFI: RangeData = {
+  positionCombo: 'BU_vs_LJ_RFI',
+  hands: {
+    '22': { raise: 0, call: 50, fold: 50 },
+    '33': { raise: 0, call: 50, fold: 50 },
+    '44': { raise: 0, call: 50, fold: 50 },
+    '55': { raise: 25, call: 75, fold: 0 },
+    '66': { raise: 25, call: 75, fold: 0 },
+    '77': { raise: 25, call: 75, fold: 0 },
+    '88': { raise: 25, call: 75, fold: 0 },
+    '99': { raise: 25, call: 75, fold: 0 },
+    'TT': { raise: 25, call: 75, fold: 0 },
+    'JJ': { raise: 50, call: 50, fold: 0 },
+    'QQ': { raise: 100, call: 0, fold: 0 },
+    'KK': { raise: 100, call: 0, fold: 0 },
+    'AA': { raise: 100, call: 0, fold: 0 },
+    'AKs': { raise: 100, call: 0, fold: 0 },
+    'AKo': { raise: 100, call: 0, fold: 0 },
+    'AQs': { raise: 100, call: 0, fold: 0 },
+    'AJs': { raise: 0, call: 100, fold: 0 },
+    'ATs': { raise: 0, call: 100, fold: 0 },
+    'A9s': { raise: 50, call: 50, fold: 0 },
+    'A8s': { raise: 50, call: 50, fold: 0 },
+    'A7s': { raise: 50, call: 25, fold: 25 },
+    'A6s': { raise: 50, call: 25, fold: 25 },
+    'A5s': { raise: 75, call: 25, fold: 0 },
+    'A4s': { raise: 75, call: 25, fold: 0 },
+    'A3s': { raise: 75, call: 25, fold: 0 },
+    'A2s': { raise: 25, call: 25, fold: 50 },
+    'KQs': { raise: 25, call: 75, fold: 0 },
+    'KJs': { raise: 50, call: 50, fold: 0 },
+    'K9s': { raise: 100, call: 0, fold: 0 },
+    'KTs': { raise: 0, call: 100, fold: 0 },
+    'QJs': { raise: 50, call: 50, fold: 0 },
+    'QTs': { raise: 50, call: 50, fold: 0 },
+    'Q9s': { raise: 50, call: 0, fold: 50 },
+    'JTs': { raise: 50, call: 50, fold: 0 },
+    'T9s': { raise: 50, call: 50, fold: 0 },
+    '54s': { raise: 25, call: 50, fold: 25 },
+    '65s': { raise: 25, call: 50, fold: 25 },
+    '76s': { raise: 25, call: 50, fold: 25 },
+    '87s': { raise: 25, call: 50, fold: 25 },
+    '98s': { raise: 0, call: 25, fold: 75 },
+    'K8s': { raise: 25, call: 0, fold: 75 },
+    'AQo': { raise: 25, call: 75, fold: 0 },
+    'AJo': { raise: 50, call: 25, fold: 25 },
+    'ATo': { raise: 25, call: 0, fold: 75 },
+    'KQo': { raise: 50, call: 50, fold: 0 }
+  }
+};
+
+export default BU_vs_LJ_RFI;
