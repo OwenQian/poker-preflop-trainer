@@ -26,6 +26,7 @@ export interface HandFrequencies {
 export interface RangeData {
   positionCombo: string;
   hands: Record<HandName, HandFrequencies>;
+  missingHandTreatment?: 'not-in-range' | 'fold'; // How to treat hands not explicitly defined
 }
 
 export type GradingMode = 'strict' | 'lax' | 'randomizer';
