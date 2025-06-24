@@ -1,0 +1,39 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 192 192">
+  <!-- Background circle for app icon -->
+  <circle cx="96" cy="96" r="96" fill="#1a1a1a"/>
+  
+  <!-- Outer circle (chip base) -->
+  <circle cx="96" cy="96" r="80" fill="#c41e3a" stroke="#8b0000" stroke-width="4"/>
+  
+  <!-- Edge markings (white stripes) -->
+  <g transform="rotate(0 96 96)">
+    <rect x="90" y="16" width="12" height="32" fill="white"/>
+  </g>
+  <g transform="rotate(45 96 96)">
+    <rect x="90" y="16" width="12" height="32" fill="white"/>
+  </g>
+  <g transform="rotate(90 96 96)">
+    <rect x="90" y="16" width="12" height="32" fill="white"/>
+  </g>
+  <g transform="rotate(135 96 96)">
+    <rect x="90" y="16" width="12" height="32" fill="white"/>
+  </g>
+  <g transform="rotate(180 96 96)">
+    <rect x="90" y="16" width="12" height="32" fill="white"/>
+  </g>
+  <g transform="rotate(225 96 96)">
+    <rect x="90" y="16" width="12" height="32" fill="white"/>
+  </g>
+  <g transform="rotate(270 96 96)">
+    <rect x="90" y="16" width="12" height="32" fill="white"/>
+  </g>
+  <g transform="rotate(315 96 96)">
+    <rect x="90" y="16" width="12" height="32" fill="white"/>
+  </g>
+  
+  <!-- Inner circle -->
+  <circle cx="96" cy="96" r="55" fill="white"/>
+  
+  <!-- Center design - spade symbol -->
+  <path d="M96 50 C76 50, 56 62, 56 80 C56 92, 62 98, 72 98 C78 98, 84 95, 88 89 L88 110 L76 110 L76 120 L116 120 L116 110 L104 110 L104 89 C108 95, 114 98, 120 98 C130 98, 136 92, 136 80 C136 62, 116 50, 96 50 Z" fill="#c41e3a"/>
+</svg> 
