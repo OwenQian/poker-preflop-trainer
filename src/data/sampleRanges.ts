@@ -1,34 +1,42 @@
 import { RangeData } from '../types';
-import { ZENITH_RANGES, getRangeData as getZenithRangeData } from './zenithRanges';
-import { JON_LITTLE_RANGES, UPSWING_RANGES } from './jonLittleRanges';
 import { RangeCategory } from '../components/RangeTabSelector/RangeTabSelector';
 
-// Export Zenith ranges as the main ranges
-export const SAMPLE_RANGES: RangeData[] = ZENITH_RANGES;
+// Import all consolidated ranges from new organized structure
+import * as RFI_RANGES from './ranges/RFI';
+import * as VS_RFI_RANGES from './ranges/vsRFI';
+import * as RFI_VS_3BET_RANGES from './ranges/RFI-vs-3bet';
+import * as VS_LIMP_RANGES from './ranges/vsLimp';
 
-// Combined range data source
+// Convert imported ranges to RangeData arrays
+const rfiRanges = Object.values(RFI_RANGES) as RangeData[];
+const vsRfiRanges = Object.values(VS_RFI_RANGES) as RangeData[];
+const rfiVs3betRanges = Object.values(RFI_VS_3BET_RANGES) as RangeData[];
+const vsLimpRanges = Object.values(VS_LIMP_RANGES) as RangeData[];
+
+// Export consolidated RFI ranges as the main ranges (for backward compatibility)
+export const SAMPLE_RANGES: RangeData[] = rfiRanges;
+
+// Combined range data source using new organized structure
 export const ALL_RANGES = {
-  RFI: [...ZENITH_RANGES, ...JON_LITTLE_RANGES.RFI],
-  'vs RFI': JON_LITTLE_RANGES.FACING_RFI,
-  'RFI vs 3bet': JON_LITTLE_RANGES.RFI_VS_3BET,
-  'vs Limp': UPSWING_RANGES.VS_LIMP
+  RFI: rfiRanges,
+  'vs RFI': vsRfiRanges,
+  'RFI vs 3bet': rfiVs3betRanges,
+  'vs Limp': vsLimpRanges
 };
 
 export const getRangeData = (positionCombo: string, rangeCategory: RangeCategory = 'RFI'): RangeData | undefined => {
-  // First try category-specific ranges
+  // Get ranges for the specified category
   const categoryRanges = ALL_RANGES[rangeCategory];
-  const categoryRange = categoryRanges.find(range => range.positionCombo === positionCombo);
   
-  if (categoryRange) {
-    return categoryRange;
+  if (!categoryRanges || !Array.isArray(categoryRanges)) {
+    console.warn(`No ranges found for category: ${rangeCategory}`);
+    return undefined;
   }
   
-  // Fallback to Zenith ranges for RFI if not found in Jon Little ranges
-  if (rangeCategory === 'RFI') {
-    return getZenithRangeData(positionCombo);
-  }
+  // Find the specific range by position combo
+  const foundRange = categoryRanges.find(range => range.positionCombo === positionCombo);
   
-  return undefined;
+  return foundRange;
 };
 
 // Helper function to get all available position combos for a range category
