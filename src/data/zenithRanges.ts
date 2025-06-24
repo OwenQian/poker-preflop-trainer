@@ -1,17 +1,8 @@
 import { RangeData } from '../types';
-import { UTG_RFI, UTG1_RFI, LJ_RFI, HJ_RFI, CO_RFI, BU_RFI, SB_RFI, BB_RFI } from './ranges';
+import * as RFI_RANGES from './ranges/RFI';
 
-// Zenith Poker ranges - comprehensive preflop ranges for 6-max
-export const ZENITH_RANGES: RangeData[] = [
-  UTG_RFI,
-  UTG1_RFI,
-  LJ_RFI,
-  HJ_RFI,
-  CO_RFI,
-  BU_RFI,
-  SB_RFI,
-  BB_RFI
-];
+// Convert imported ranges to array format (for backward compatibility)
+export const ZENITH_RANGES: RangeData[] = Object.values(RFI_RANGES) as RangeData[];
 
 export const getRangeData = (positionCombo: string): RangeData | undefined => {
   return ZENITH_RANGES.find(range => range.positionCombo === positionCombo);
