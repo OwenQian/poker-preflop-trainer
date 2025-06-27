@@ -5,6 +5,7 @@
 ### High Priority
 - [x] **Build Range Builder Dev Tool** - Create interactive range creation and editing tool for developers
 - [x] **Organize and Unify Range Data Structure** - Reorganize range files into proper folder structure
+- [x] **Add frequency answer bar** - fix it so it doesn't give the answer away, add this to all quiz modes, in randomizer mode indicate on the bar where the rolled number is.
 - [ ] **Redesign Home Page For Range Viewing** - Restructure home page to focus on range viewing
 - [ ] **Audit and fix ranges in non-RFI tabs** - Review and correct range data for vs RFI, RFI vs 3bet, and vs Limp categories
 - [ ] **Create Postflop Visualizer** - Build dedicated postflop analysis page with flop selection and equity visualization

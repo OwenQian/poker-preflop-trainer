@@ -292,7 +292,7 @@ const HandMatrix: React.FC<HandMatrixProps> = ({
       case 'vs Limp':
         if (raise === 100) return 'orange'; // Always raise
         if (raise > 0) return 'yellow'; // Mixed frequency raise
-        if (call === 100) return 'teal'; // Call
+        if (call === 100) return '#8BC34A'; // Call (same light green as mixed frequency)
         if (call > 0) return 'lightteal'; // Mixed call
         return 'gray';
         

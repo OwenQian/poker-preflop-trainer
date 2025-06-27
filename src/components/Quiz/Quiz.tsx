@@ -3,6 +3,7 @@ import { Action, QuizQuestion, QuizAnswer, QuizResult, GradingMode } from '../..
 import { RangeCategory } from '../RangeTabSelector/RangeTabSelector';
 import CardDisplay from '../CardDisplay/CardDisplay';
 import HandMatrix from '../HandMatrix/HandMatrix';
+import ProbabilityBars from '../ProbabilityBars/ProbabilityBars';
 import './Quiz.css';
 
 interface QuizProps {
@@ -142,6 +143,14 @@ const Quiz: React.FC<QuizProps> = ({
           <h3>Your Hand: {question.handName}</h3>
           <CardDisplay cards={[question.hand.card1, question.hand.card2]} size="large" />
         </div>
+
+        {gradingMode === 'randomizer' && showResult && (
+          <ProbabilityBars 
+            frequencies={question.frequencies} 
+            randomNumber={question.randomNumber}
+            showResult={showResult}
+          />
+        )}
 
         {!showResult ? (
           <div className="actions-section">

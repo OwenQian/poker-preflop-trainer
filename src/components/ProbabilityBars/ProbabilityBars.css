@@ -1,0 +1,158 @@
+.probability-bars {
+  margin: 16px 0;
+  padding: 16px;
+  background: #f8f9fa;
+  border-radius: 8px;
+  border: 1px solid #e9ecef;
+}
+
+.probability-title {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 12px;
+}
+
+.probability-title h4 {
+  margin: 0;
+  color: #495057;
+  font-size: 14px;
+  font-weight: 600;
+}
+
+.current-roll {
+  font-size: 14px;
+  font-weight: 500;
+}
+
+.roll-number {
+  background: #007bff;
+  color: white;
+  padding: 2px 6px;
+  border-radius: 4px;
+  font-weight: bold;
+  margin: 0 4px;
+}
+
+.result-action {
+  font-weight: bold;
+  margin-left: 4px;
+}
+
+.result-action.raise {
+  color: #ff9500;
+}
+
+.result-action.call {
+  color: #4CAF50;
+}
+
+.result-action.fold {
+  color: #9e9e9e;
+}
+
+.bars-container {
+  display: flex;
+  height: 60px;
+  border: 1px solid #dee2e6;
+  border-radius: 4px;
+  overflow: hidden;
+  margin-bottom: 8px;
+  position: relative;
+}
+
+.probability-bar {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  position: relative;
+  border-right: 1px solid rgba(255, 255, 255, 0.3);
+  transition: all 0.3s ease;
+  opacity: 0.8;
+}
+
+.probability-bar:last-child {
+  border-right: none;
+}
+
+.probability-bar.active {
+  opacity: 1;
+  box-shadow: inset 0 0 10px rgba(0, 0, 0, 0.2);
+  transform: scale(1.02);
+  z-index: 1;
+}
+
+.bar-content {
+  text-align: center;
+  color: white;
+  font-size: 12px;
+  font-weight: 600;
+  text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.3);
+}
+
+.bar-label {
+  font-size: 13px;
+  margin-bottom: 2px;
+}
+
+.bar-percentage {
+  font-size: 11px;
+  margin-bottom: 1px;
+}
+
+.bar-range {
+  font-size: 10px;
+  opacity: 0.9;
+}
+
+.range-scale {
+  display: flex;
+  justify-content: space-between;
+  font-size: 11px;
+  color: #6c757d;
+  margin-top: 4px;
+}
+
+.random-number-line {
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  width: 2px;
+  background-color: #333;
+  z-index: 10;
+  pointer-events: none;
+}
+
+.line-marker {
+  width: 8px;
+  height: 8px;
+  background-color: #333;
+  border: 2px solid white;
+  border-radius: 50%;
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  box-shadow: 0 0 4px rgba(0, 0, 0, 0.3);
+}
+
+/* Responsive adjustments */
+@media (max-width: 768px) {
+  .probability-title {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 8px;
+  }
+  
+  .bars-container {
+    height: 50px;
+  }
+  
+  .bar-content {
+    font-size: 11px;
+  }
+  
+  .bar-label {
+    font-size: 12px;
+  }
+}

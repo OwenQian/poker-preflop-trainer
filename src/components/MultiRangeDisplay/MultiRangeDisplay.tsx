@@ -147,14 +147,27 @@ const MultiRangeDisplay: React.FC<MultiRangeDisplayProps> = ({
 
   // For vs Limp - single chart based on hero position
   if (rangeCategory === 'vs Limp') {
-    const positionCombo = `${heroPosition}_vs_LIMP`;
-    const rangeData = getRangeData(positionCombo, rangeCategory);
+    // Try specific opponent limp ranges first, then fall back to generic
+    let positionCombo: string = `${heroPosition}_vs_LIMP`; // default
+    let rangeData = null;
+    
+    // For BB, try BB vs SB limp first
+    if (heroPosition === 'BB') {
+      positionCombo = 'BB_vs_SB_LIMP';
+      rangeData = getRangeData(positionCombo, rangeCategory);
+    }
+    
+    // Fallback to generic vs limp if specific range not found
+    if (!rangeData) {
+      positionCombo = `${heroPosition}_vs_LIMP`;
+      rangeData = getRangeData(positionCombo, rangeCategory);
+    }
     
     if (!rangeData || Object.keys(rangeData.hands).length === 0) {
       return (
         <div className="multi-range-display">
           <div className="range-section">
-            <h3>{heroPosition} vs Limp</h3>
+            <h3>{positionCombo === 'BB_vs_SB_LIMP' ? 'BB vs SB Limp' : `${heroPosition} vs Limp`}</h3>
             <div className="bet-sizing-guidance">
               <strong>Isolation Sizing:</strong> 6bb (4bb + 2×limpers) - assume single limper
               <br />
@@ -173,7 +186,7 @@ const MultiRangeDisplay: React.FC<MultiRangeDisplayProps> = ({
     return (
       <div className="multi-range-display">
         <div className="range-section">
-          <h3>{heroPosition} vs Limp</h3>
+          <h3>{positionCombo === 'BB_vs_SB_LIMP' ? 'BB vs SB Limp' : `${heroPosition} vs Limp`}</h3>
           <div className="bet-sizing-guidance">
             <strong>Isolation Sizing:</strong> 6bb (4bb + 2×limpers) - assume single limper
             <br />

@@ -105,8 +105,19 @@ export const generateQuizQuestion = (
         positionCombo = `${heroPosition}_RFI_vs_3BET`;
       }
       break;
+    case '3bet vs 4bet':
+      if (opponentPositions.length > 0) {
+        positionCombo = `${heroPosition}_3BET_vs_${opponentPositions[0]}_4BET`;
+      } else {
+        positionCombo = `${heroPosition}_3BET_vs_4BET`;
+      }
+      break;
     case 'vs Limp':
-      positionCombo = `${heroPosition}_vs_LIMP`;
+      if (opponentPositions.length > 0) {
+        positionCombo = `${heroPosition}_vs_${opponentPositions[0]}_LIMP`;
+      } else {
+        positionCombo = `${heroPosition}_vs_LIMP`;
+      }
       break;
     default:
       positionCombo = `${heroPosition}_RFI`;
@@ -128,18 +139,25 @@ export const generateQuizQuestion = (
         rangeData = getRangeData('BB_vs_BU_RFI', rangeCategory);
         break;
       case 'RFI vs 3bet':
-        // Try generic RFI vs 3bet
-        rangeData = getRangeData('BU_RFI_vs_3BET', rangeCategory);
+        // Try generic RFI vs 3bet fallback
+        rangeData = getRangeData('CO_RFI_vs_SB_3BET', rangeCategory) ||
+                   getRangeData('CO_RFI_vs_BU_3BET', rangeCategory);
+        break;
+      case '3bet vs 4bet':
+        // Try generic 3bet vs 4bet - fallback to any available 3bet vs 4bet range
+        rangeData = getRangeData('BB_3BET_vs_SB_4BET', rangeCategory) ||
+                   getRangeData('SB_3BET_vs_CO_4BET', rangeCategory);
         break;
       case 'vs Limp':
-        // For now, fall back to RFI until limp ranges are added
-        rangeData = getRangeData(`${heroPosition}_RFI`, 'RFI');
+        // Try generic vs limp ranges
+        rangeData = getRangeData(`${heroPosition}_vs_LIMP`, rangeCategory) ||
+                   getRangeData(`${heroPosition}_vs_SB_LIMP`, rangeCategory);
         break;
     }
   }
   
   if (!rangeData) {
-    console.error('No range data available');
+    console.error(`No range data available for ${positionCombo} in category ${rangeCategory}`);
     return null;
   }
   

@@ -1,7 +1,7 @@
 import React from 'react';
 import { Position, GradingMode } from '../../types';
 import { RangeCategory } from '../RangeTabSelector/RangeTabSelector';
-import { getAvailablePositionCombos } from '../../data/sampleRanges';
+import { getAvailablePositionCombos, getRangeData } from '../../data/sampleRanges';
 import './RangeSelector.css';
 
 interface RangeSelectorProps {
@@ -35,10 +35,21 @@ const RangeSelector: React.FC<RangeSelectorProps> = ({
       const parts = positionCombo.split('_');
       const hero = parts[0] as Position;
       return { hero, opponents: [] };
-    } else if (positionCombo.includes('_vs_LIMP')) {
-      // Format: "BB_vs_LIMP" -> hero: BB, opponents: [] (generic vs limp)
+    } else if (positionCombo.includes('_3BET_vs_') && positionCombo.includes('_4BET')) {
+      // Format: "BB_3BET_vs_CO_4BET" -> hero: BB, opponents: [CO]
       const parts = positionCombo.split('_');
       const hero = parts[0] as Position;
+      const opponentIndex = parts.indexOf('vs') + 1;
+      const opponent = parts[opponentIndex] as Position;
+      return { hero, opponents: [opponent] };
+    } else if (positionCombo.includes('_vs_LIMP') || positionCombo.includes('_vs_SB_LIMP')) {
+      // Format: "BB_vs_LIMP" -> hero: BB, opponents: [] (generic vs limp)
+      // Format: "BB_vs_SB_LIMP" -> hero: BB, opponents: [SB] (vs SB limp)
+      const parts = positionCombo.split('_');
+      const hero = parts[0] as Position;
+      if (positionCombo.includes('_vs_SB_LIMP')) {
+        return { hero, opponents: ['SB'] };
+      }
       return { hero, opponents: [] };
     } else if (positionCombo.includes('_RFI')) {
       // Format: "BU_RFI" -> hero: BU, opponents: [] (generic RFI)
@@ -58,6 +69,12 @@ const RangeSelector: React.FC<RangeSelectorProps> = ({
     } else if (positionCombo.includes('_RFI_vs_')) {
       // "BU_RFI_vs_3BET" -> "BU RFI vs 3-bet"
       return positionCombo.replace(/_/g, ' ').replace('3BET', '3-bet');
+    } else if (positionCombo.includes('_3BET_vs_') && positionCombo.includes('_4BET')) {
+      // "BB_3BET_vs_CO_4BET" -> "BB 3-bet vs CO 4-bet"
+      return positionCombo.replace(/_/g, ' ').replace('3BET', '3-bet').replace('4BET', '4-bet');
+    } else if (positionCombo.includes('_vs_SB_LIMP')) {
+      // "BB_vs_SB_LIMP" -> "BB vs SB Limp"
+      return positionCombo.replace(/_/g, ' ').replace('SB LIMP', 'SB Limp');
     } else if (positionCombo.includes('_vs_LIMP')) {
       // "BB_vs_LIMP" -> "BB vs Limp"
       return positionCombo.replace(/_/g, ' ').replace('LIMP', 'Limp');
@@ -76,6 +93,12 @@ const RangeSelector: React.FC<RangeSelectorProps> = ({
     } else if (positionCombo.includes('_RFI_vs_')) {
       const { hero } = parsePositionCombo(positionCombo);
       return `You raised from ${hero} and are facing a 3-bet. Practice your 4-betting and calling ranges.`;
+    } else if (positionCombo.includes('_3BET_vs_') && positionCombo.includes('_4BET')) {
+      const { hero, opponents } = parsePositionCombo(positionCombo);
+      return `You 3-bet from ${hero} and ${opponents[0]} 4-bet you. Practice your 5-bet/call/fold ranges.`;
+    } else if (positionCombo.includes('_vs_SB_LIMP')) {
+      const { hero, opponents } = parsePositionCombo(positionCombo);
+      return `You are in ${hero} and ${opponents[0]} limped. Practice your isolation raising ranges.`;
     } else if (positionCombo.includes('_vs_LIMP')) {
       const { hero } = parsePositionCombo(positionCombo);
       return `You are in ${hero} facing limpers. Practice your isolation raising ranges.`;
@@ -160,7 +183,15 @@ const RangeSelector: React.FC<RangeSelectorProps> = ({
         
         {availableRanges.length === 0 && (
           <div className="no-ranges">
-            <p>No ranges available for {rangeCategory}. Try selecting a different category.</p>
+            <h5>No {rangeCategory} ranges available</h5>
+            <p>This category doesn't have pre-configured ranges yet. Available categories with data:</p>
+            <ul>
+              <li><strong>RFI</strong>: Raise First In ranges for all positions</li>
+              <li><strong>vs RFI</strong>: Defending against raises from various positions</li>
+              <li><strong>RFI vs 3bet</strong>: Some 4-betting ranges when your raise gets 3-bet</li>
+              <li><strong>vs Limp</strong>: Isolation ranges against limpers</li>
+            </ul>
+            <p>Additional {rangeCategory} ranges will be added in future updates.</p>
           </div>
         )}
       </div>

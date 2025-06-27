@@ -237,7 +237,7 @@ const App: React.FC = () => {
   };
 
   const handleBackToSetup = () => {
-    setAppState('home');
+    setAppState('range-select');
     setCurrentQuestion(null);
   };
 
