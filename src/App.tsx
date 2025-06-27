@@ -19,10 +19,12 @@ import MultiRangeDisplay from './components/MultiRangeDisplay/MultiRangeDisplay'
 import RangeBuilder from './components/RangeBuilder/RangeBuilder';
 import QuizSettings from './components/QuizSettings/QuizSettings';
 import PostflopVisualizer from './components/PostflopVisualizer/PostflopVisualizer';
+import StateManager from './components/StateManager/StateManager';
+import RangeSelector from './components/RangeSelector/RangeSelector';
 
 import './App.css';
 
-type AppState = 'home' | 'quiz-settings' | 'quiz' | 'results' | 'range-builder' | 'postflop' | 'setup';
+type AppState = 'home' | 'quiz-settings' | 'quiz' | 'results' | 'range-builder' | 'postflop' | 'setup' | 'range-select' | 'state-manager';
 
 const App: React.FC = () => {
   const [appState, setAppState] = useState<AppState>('home');
@@ -31,6 +33,7 @@ const App: React.FC = () => {
   const [gradingMode, setGradingMode] = useState<GradingMode>('lax');
   const [showMatrix, setShowMatrix] = useState(true);
   const [rangeCategory, setRangeCategory] = useState<RangeCategory>('RFI');
+  const [selectedRange, setSelectedRange] = useState<string | null>(null);
   
   const [currentQuestion, setCurrentQuestion] = useState<QuizQuestion | null>(null);
   const [sessionStats, setSessionStats] = useState({
@@ -64,6 +67,47 @@ const App: React.FC = () => {
       rangeCategory
     });
   }, [heroPosition, opponentPositions, gradingMode, showMatrix, rangeCategory]);
+
+  const handleRangeSelect = (range: string, hero: Position, opponents: Position[]) => {
+    setSelectedRange(range);
+    setHeroPosition(hero);
+    setOpponentPositions(opponents);
+  };
+
+  const startQuizFromRange = () => {
+    if (!heroPosition || !selectedRange) {
+      alert('Please select a range first.');
+      return;
+    }
+
+    const question = generateQuizQuestion(heroPosition, opponentPositions, rangeCategory);
+    if (!question) {
+      alert('Unable to generate quiz question. Please try different range settings.');
+      return;
+    }
+
+    setCurrentQuestion(question);
+    setAppState('quiz');
+    
+    // Reset session stats
+    const newStats = {
+      questionsAnswered: 0,
+      correctAnswers: 0,
+      sessionStartTime: new Date()
+    };
+    setSessionStats(newStats);
+    saveQuizState({ currentSessionStats: newStats });
+  };
+
+  const handleStateImported = () => {
+    // Refresh settings from localStorage after import
+    const settings = getUserSettings();
+    setHeroPosition(settings.heroPosition);
+    setOpponentPositions(settings.opponentPositions);
+    setGradingMode(settings.gradingMode);
+    setShowMatrix(settings.showMatrix);
+    setRangeCategory(settings.rangeCategory || 'RFI');
+  };
 
   const startQuiz = () => {
     if (!heroPosition || opponentPositions.length === 0) {
@@ -219,13 +263,13 @@ const App: React.FC = () => {
                 <h2>Training Modules</h2>
                 <div className="module-buttons">
                   <button
-                    className="module-button quiz-button disabled"
-                    disabled
+                    className="module-button quiz-button"
+                    onClick={() => setAppState('range-select')}
                   >
                     <div className="module-icon">🧠</div>
                     <div className="module-info">
                       <h3>Spaced Repetition Quiz</h3>
-                      <p>Coming Soon - Practice preflop decisions with adaptive learning</p>
+                      <p>Practice preflop decisions with adaptive learning</p>
                     </div>
                   </button>
                   <button
@@ -246,6 +290,16 @@ const App: React.FC = () => {
                     <div className="module-info">
                       <h3>Range Builder (Dev Tool)</h3>
                       <p>Development tool for creating and editing ranges</p>
+                    </div>
+                  </button>
+                  <button
+                    className="module-button state-button"
+                    onClick={() => setAppState('state-manager')}
+                  >
+                    <div className="module-icon">💾</div>
+                    <div className="module-info">
+                      <h3>State Manager</h3>
+                      <p>Export/import your progress and settings</p>
                     </div>
                   </button>
                 </div>
@@ -348,6 +402,60 @@ const App: React.FC = () => {
               </button>
             </div>
             <RangeBuilder />
+          </div>
+        )}
+
+        {appState === 'range-select' && (
+          <div className="range-select-screen">
+            <div className="range-select-header">
+              <button className="back-button" onClick={() => setAppState('home')}>
+                ← Back to Home
+              </button>
+              <h2>Quiz Setup</h2>
+            </div>
+            
+            <div className="range-category-selector">
+              <RangeTabSelector
+                activeCategory={rangeCategory}
+                onCategoryChange={setRangeCategory}
+              />
+            </div>
+
+            <RangeSelector
+              selectedRange={selectedRange}
+              rangeCategory={rangeCategory}
+              onRangeSelect={handleRangeSelect}
+            />
+
+            {selectedRange && (
+              <div className="quiz-start-section">
+                <div className="selected-range-info">
+                  <h3>Selected Range: {selectedRange.replace(/_/g, ' ')}</h3>
+                  <p>Hero Position: {heroPosition}</p>
+                  {opponentPositions.length > 0 && (
+                    <p>Opponent Positions: {opponentPositions.join(', ')}</p>
+                  )}
+                </div>
+                <button 
+                  className="start-quiz-button"
+                  onClick={startQuizFromRange}
+                >
+                  Start Quiz
+                </button>
+              </div>
+            )}
+          </div>
+        )}
+
+        {appState === 'state-manager' && (
+          <div className="state-manager-screen">
+            <div className="state-manager-header">
+              <button className="back-button" onClick={() => setAppState('home')}>
+                ← Back to Home
+              </button>
+              <h2>State Manager</h2>
+            </div>
+            <StateManager onStateImported={handleStateImported} />
           </div>
         )}
       </main>

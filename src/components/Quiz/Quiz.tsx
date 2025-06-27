@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Action, FSRSRating, QuizQuestion, QuizAnswer, GradingMode } from '../../types';
+import { Action, QuizQuestion, QuizAnswer, QuizResult, GradingMode } from '../../types';
 import { RangeCategory } from '../RangeTabSelector/RangeTabSelector';
 import CardDisplay from '../CardDisplay/CardDisplay';
 import HandMatrix from '../HandMatrix/HandMatrix';
@@ -12,6 +12,8 @@ interface QuizProps {
   showMatrix?: boolean;
   onToggleMatrix?: () => void;
   rangeCategory?: RangeCategory;
+  quizResult?: QuizResult | null;
+  onNextQuestion?: () => void;
 }
 
 const Quiz: React.FC<QuizProps> = ({
@@ -20,10 +22,12 @@ const Quiz: React.FC<QuizProps> = ({
   onAnswer,
   showMatrix = true,
   onToggleMatrix,
-  rangeCategory = 'RFI'
+  rangeCategory = 'RFI',
+  quizResult,
+  onNextQuestion
 }) => {
   const [selectedActions, setSelectedActions] = useState<Action[]>([]);
-  const [showConfidenceButtons, setShowConfidenceButtons] = useState(false);
+  const [showResult, setShowResult] = useState(false);
 
   const handleActionToggle = (action: Action) => {
     setSelectedActions(prev => 
@@ -35,19 +39,20 @@ const Quiz: React.FC<QuizProps> = ({
 
   const handleSubmit = () => {
     if (selectedActions.length === 0) return;
-    setShowConfidenceButtons(true);
-  };
-
-  const handleConfidenceSelect = (confidence: FSRSRating) => {
+    
     const answer: QuizAnswer = {
       selectedActions,
-      confidence
+      confidence: 3 // Default confidence - will be overridden by result-based FSRS
     };
     onAnswer(answer);
-    
+    setShowResult(true);
+  };
+
+  const handleNextQuestion = () => {
     // Reset for next question
     setSelectedActions([]);
-    setShowConfidenceButtons(false);
+    setShowResult(false);
+    onNextQuestion?.();
   };
 
   const getActionLabel = (action: Action): string => {
@@ -124,7 +129,7 @@ const Quiz: React.FC<QuizProps> = ({
           </button>
         </div>
 
-        {!showConfidenceButtons ? (
+        {!showResult ? (
           <div className="actions-section">
             <h3>What would you do?</h3>
             <div className="action-buttons">
@@ -154,39 +159,66 @@ const Quiz: React.FC<QuizProps> = ({
               Submit Answer
             </button>
           </div>
-        ) : (
-          <div className="confidence-section">
-            <h3>How confident are you in your answer?</h3>
-            <div className="confidence-buttons">
-              <button
-                className="confidence-button again"
-                onClick={() => handleConfidenceSelect(1)}
-              >
-                Again
-                <span className="confidence-desc">Got it completely wrong</span>
-              </button>
-              <button
-                className="confidence-button hard"
-                onClick={() => handleConfidenceSelect(2)}
-              >
-                Hard
-                <span className="confidence-desc">Eventually got it right but struggled</span>
-              </button>
-              <button
-                className="confidence-button good"
-                onClick={() => handleConfidenceSelect(3)}
-              >
-                Good
-                <span className="confidence-desc">Got it right with normal effort</span>
-              </button>
-              <button
-                className="confidence-button easy"
-                onClick={() => handleConfidenceSelect(4)}
-              >
-                Easy
-                <span className="confidence-desc">Got it right effortlessly</span>
-              </button>
+        ) : quizResult && (
+          <div className="result-section">
+            <div className={`result-header ${quizResult.isCorrect ? 'correct' : 'incorrect'}`}>
+              <h3>{quizResult.isCorrect ? '✓ Correct!' : '✗ Incorrect'}</h3>
             </div>
+            
+            <div className="result-details">
+              <div className="your-answer">
+                <h4>Your Answer:</h4>
+                <div className="answer-actions">
+                  {selectedActions.map(action => (
+                    <span 
+                      key={action}
+                      className="answer-action"
+                      style={{ backgroundColor: getActionColor(action) }}
+                    >
+                      {getActionLabel(action)}
+                    </span>
+                  ))}
+                </div>
+              </div>
+              
+              <div className="correct-answer">
+                <h4>Correct Actions:</h4>
+                <div className="answer-actions">
+                  {question.correctActions.map(action => (
+                    <span 
+                      key={action}
+                      className="answer-action correct"
+                      style={{ backgroundColor: getActionColor(action) }}
+                    >
+                      {getActionLabel(action)}
+                    </span>
+                  ))}
+                </div>
+              </div>
+              
+              <div className="frequencies-display">
+                <h4>Hand Frequencies:</h4>
+                <div className="frequency-breakdown">
+                  <span>Raise: {question.frequencies.raise}%</span>
+                  <span>Call: {question.frequencies.call}%</span>
+                  <span>Fold: {question.frequencies.fold}%</span>
+                </div>
+              </div>
+              
+              {quizResult.explanation && (
+                <div className="explanation">
+                  <h4>Explanation:</h4>
+                  <p>{quizResult.explanation}</p>
+                </div>
+              )}
+            </div>
+            
+            <button 
+              className="next-button"
+              onClick={handleNextQuestion}
+            >
+              Next Question
+            </button>
           </div>
         )}
       </div>

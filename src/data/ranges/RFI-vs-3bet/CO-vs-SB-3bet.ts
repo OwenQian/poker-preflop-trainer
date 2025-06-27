@@ -53,7 +53,7 @@ const range: RangeData = {
     'K9s': { raise: 50, call: 0, fold: 50 },
     'A8s': { raise: 25, call: 0, fold: 75 },
     '76s': { raise: 0, call: 50, fold: 50 },
-    '65s': { raise: 0, call: 50, fold: 50 },
+    '65s': { raise: 0, call: 25, fold: 75 },
     'T9s': { raise: 0, call: 50, fold: 50 },
     
     // Pure fold hands
@@ -90,7 +90,7 @@ const range: RangeData = {
     '87s': { raise: 0, call: 0, fold: 100 },
     '86s': { raise: 0, call: 0, fold: 100 },
     '75s': { raise: 0, call: 0, fold: 100 },
-    '54s': { raise: 0, call: 0, fold: 100 },
+    '54s': { raise: 0, call: 25, fold: 75 },
     'K3s': { raise: 0, call: 0, fold: 100 }
   }
 };

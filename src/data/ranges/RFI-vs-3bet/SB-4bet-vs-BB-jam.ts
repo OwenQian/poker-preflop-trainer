@@ -1,0 +1,49 @@
+import { RangeData } from '../../../types';
+
+const SB_4BET_vs_BB_JAM: RangeData = {
+  positionCombo: 'SB_4BET_vs_BB_JAM',
+  hands: {
+    '55': { raise: 0, call: 75, fold: 25 },
+    '66': { raise: 0, call: 75, fold: 25 },
+    '77': { raise: 0, call: 100, fold: 0 },
+    '88': { raise: 0, call: 100, fold: 0 },
+    '99': { raise: 0, call: 100, fold: 0 },
+    'AA': { raise: 0, call: 100, fold: 0 },
+    'KK': { raise: 0, call: 100, fold: 0 },
+    'QQ': { raise: 0, call: 100, fold: 0 },
+    'JJ': { raise: 0, call: 100, fold: 0 },
+    'TT': { raise: 0, call: 100, fold: 0 },
+    'AKs': { raise: 0, call: 100, fold: 0 },
+    'AKo': { raise: 0, call: 100, fold: 0 },
+    'AQs': { raise: 0, call: 100, fold: 0 },
+    'AQo': { raise: 0, call: 25, fold: 75 },
+    'AJo': { raise: 0, call: 0, fold: 100 },
+    'ATs': { raise: 0, call: 0, fold: 100 },
+    'ATo': { raise: 0, call: 0, fold: 100 },
+    'A9s': { raise: 0, call: 0, fold: 100 },
+    'A8s': { raise: 0, call: 0, fold: 100 },
+    'A7s': { raise: 0, call: 0, fold: 100 },
+    'A6s': { raise: 0, call: 0, fold: 100 },
+    'A5s': { raise: 0, call: 0, fold: 100 },
+    'A4s': { raise: 0, call: 0, fold: 100 },
+    'A3s': { raise: 0, call: 0, fold: 100 },
+    'KQs': { raise: 0, call: 0, fold: 100 },
+    'KQo': { raise: 0, call: 0, fold: 100 },
+    'KJs': { raise: 0, call: 0, fold: 100 },
+    'KJo': { raise: 0, call: 0, fold: 100 },
+    'KTs': { raise: 0, call: 0, fold: 100 },
+    'KTo': { raise: 0, call: 0, fold: 100 },
+    'K9s': { raise: 0, call: 0, fold: 100 },
+    'K8s': { raise: 0, call: 0, fold: 100 },
+    'K6s': { raise: 0, call: 0, fold: 100 },
+    'K5s': { raise: 0, call: 0, fold: 100 },
+    'QJs': { raise: 0, call: 0, fold: 100 },
+    'JTs': { raise: 0, call: 0, fold: 100 },
+    'J9s': { raise: 0, call: 0, fold: 100 },
+    'T8s': { raise: 0, call: 0, fold: 100 },
+    '76s': { raise: 0, call: 0, fold: 100 },
+    '65s': { raise: 0, call: 0, fold: 100 }
+  }
+};
+
+export default SB_4BET_vs_BB_JAM;

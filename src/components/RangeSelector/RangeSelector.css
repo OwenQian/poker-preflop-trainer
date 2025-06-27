@@ -1,0 +1,112 @@
+.range-selector {
+  max-width: 800px;
+  margin: 0 auto;
+  padding: 20px;
+}
+
+.range-selector-header {
+  text-align: center;
+  margin-bottom: 30px;
+}
+
+.range-selector-header h3 {
+  margin: 0 0 10px 0;
+  color: #333;
+  font-size: 24px;
+}
+
+.range-selector-header p {
+  margin: 0;
+  color: #666;
+  font-size: 16px;
+}
+
+.range-categories h4 {
+  margin: 0 0 20px 0;
+  color: #333;
+  font-size: 20px;
+  border-bottom: 2px solid #007bff;
+  padding-bottom: 10px;
+}
+
+.range-options {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
+  gap: 15px;
+}
+
+.range-option {
+  border: 2px solid #ddd;
+  border-radius: 8px;
+  padding: 15px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  background: white;
+}
+
+.range-option:hover {
+  border-color: #007bff;
+  box-shadow: 0 2px 8px rgba(0, 123, 255, 0.1);
+}
+
+.range-option.selected {
+  border-color: #007bff;
+  background: #f8f9ff;
+  box-shadow: 0 2px 8px rgba(0, 123, 255, 0.2);
+}
+
+.range-option-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 8px;
+}
+
+.range-option-header h5 {
+  margin: 0;
+  color: #333;
+  font-size: 16px;
+  font-weight: 600;
+}
+
+.selected-indicator {
+  color: #007bff;
+  font-weight: bold;
+  font-size: 18px;
+}
+
+.range-option-description {
+  margin: 0;
+  color: #666;
+  font-size: 14px;
+  line-height: 1.4;
+}
+
+.no-ranges {
+  text-align: center;
+  padding: 40px;
+  color: #666;
+}
+
+.no-ranges p {
+  margin: 0;
+  font-size: 16px;
+}
+
+@media (max-width: 768px) {
+  .range-options {
+    grid-template-columns: 1fr;
+  }
+  
+  .range-option {
+    padding: 12px;
+  }
+  
+  .range-option-header h5 {
+    font-size: 14px;
+  }
+  
+  .range-option-description {
+    font-size: 13px;
+  }
+}

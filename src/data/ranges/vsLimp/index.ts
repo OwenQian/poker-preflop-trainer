@@ -13,6 +13,7 @@ import CO_vs_LIMP from './CO-vs-limp';
 import BU_vs_LIMP from './BU-vs-limp';
 import SB_vs_LIMP from './SB-vs-limp';
 import BB_vs_LIMP from './BB-vs-limp';
+import BB_vs_SB_LIMP from './BB-vs-SB-limp';
 
 // Re-export ranges
 export { default as UTG1_vs_LIMP } from './UTG1-vs-limp';
@@ -22,6 +23,7 @@ export { default as CO_vs_LIMP } from './CO-vs-limp';
 export { default as BU_vs_LIMP } from './BU-vs-limp';
 export { default as SB_vs_LIMP } from './SB-vs-limp';
 export { default as BB_vs_LIMP } from './BB-vs-limp';
+export { default as BB_vs_SB_LIMP } from './BB-vs-SB-limp';
 
 // Collect all ranges into an array
 export const ALL_VS_LIMP_RANGES = [
@@ -32,4 +34,5 @@ export const ALL_VS_LIMP_RANGES = [
   BU_vs_LIMP,
   SB_vs_LIMP,
   BB_vs_LIMP,
+  BB_vs_SB_LIMP,
 ];

@@ -42,6 +42,15 @@ const PositionSelector: React.FC<PositionSelectorProps> = ({
     return POSITIONS.filter(pos => pos !== heroPosition);
   };
 
+  const handleSelectAllOpponents = () => {
+    const availablePositions = getAvailableOpponentPositions();
+    onOpponentPositionsChange(availablePositions);
+  };
+
+  const handleClearAllOpponents = () => {
+    onOpponentPositionsChange([]);
+  };
+
   return (
     <div className="position-selector">
       <div className="selector-section">
@@ -63,6 +72,22 @@ const PositionSelector: React.FC<PositionSelectorProps> = ({
       <div className="selector-section">
         <h3>Select Opponent Positions</h3>
         <p className="help-text">Choose which positions you want to practice against</p>
+        <div className="selection-controls">
+          <button 
+            className="control-button select-all"
+            onClick={handleSelectAllOpponents}
+            disabled={!heroPosition || getAvailableOpponentPositions().length === opponentPositions.length}
+          >
+            Select All
+          </button>
+          <button 
+            className="control-button clear-all"
+            onClick={handleClearAllOpponents}
+            disabled={opponentPositions.length === 0}
+          >
+            Clear All
+          </button>
+        </div>
         <div className="position-grid">
           {getAvailableOpponentPositions().map(position => (
             <div
@@ -84,7 +109,9 @@ const PositionSelector: React.FC<PositionSelectorProps> = ({
         <div className="summary-item">
           <strong>Opponent Positions:</strong> {
             opponentPositions.length > 0 
-              ? opponentPositions.join(', ') 
+              ? opponentPositions
+                  .sort((a, b) => POSITIONS.indexOf(a) - POSITIONS.indexOf(b))
+                  .join(', ') 
               : 'None selected'
           }
         </div>

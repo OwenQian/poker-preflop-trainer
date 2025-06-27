@@ -559,3 +559,108 @@
 .module-button.disabled .module-info p {
   color: #a0aec0;
 }
+
+/* Range Select Screen */
+.range-select-screen {
+  background: white;
+  padding: 30px;
+  border-radius: 12px;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+  margin: 0 auto;
+  max-width: 1200px;
+}
+
+.range-select-header {
+  display: flex;
+  align-items: center;
+  justify-content: flex-start;
+  margin-bottom: 30px;
+  gap: 20px;
+}
+
+.range-select-header h2 {
+  color: #2d3748;
+  margin: 0;
+  font-size: 1.8rem;
+}
+
+.range-category-selector {
+  margin-bottom: 30px;
+}
+
+.quiz-start-section {
+  margin-top: 30px;
+  padding: 20px;
+  background: #f7fafc;
+  border-radius: 8px;
+  border: 2px solid #007bff;
+}
+
+.selected-range-info {
+  margin-bottom: 20px;
+}
+
+.selected-range-info h3 {
+  color: #2d3748;
+  margin: 0 0 10px 0;
+  font-size: 1.4rem;
+}
+
+.selected-range-info p {
+  color: #4a5568;
+  margin: 5px 0;
+  font-size: 1rem;
+}
+
+.start-quiz-button {
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  color: white;
+  border: none;
+  padding: 15px 30px;
+  border-radius: 8px;
+  font-size: 1.1rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+.start-quiz-button:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 8px 25px rgba(0, 0, 0, 0.15);
+}
+
+/* State Manager Screen */
+.state-manager-screen {
+  background: white;
+  padding: 30px;
+  border-radius: 12px;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+  margin: 0 auto;
+  max-width: 1000px;
+}
+
+.state-manager-header {
+  display: flex;
+  align-items: center;
+  justify-content: flex-start;
+  margin-bottom: 30px;
+  gap: 20px;
+}
+
+.state-manager-header h2 {
+  color: #2d3748;
+  margin: 0;
+  font-size: 1.8rem;
+}
+
+/* State Manager Button Styling */
+.module-button.state-button {
+  background: linear-gradient(135deg, #48bb78 0%, #38a169 100%);
+  color: white;
+}
+
+.module-button.state-button:hover {
+  background: linear-gradient(135deg, #38a169 0%, #2f855a 100%);
+  transform: translateY(-2px);
+  box-shadow: 0 8px 25px rgba(72, 187, 120, 0.3);
+}

@@ -21,16 +21,34 @@ export const ALL_RANGES = {
   RFI: rfiRanges,
   'vs RFI': vsRfiRanges,
   'RFI vs 3bet': rfiVs3betRanges,
+  '3bet vs 4bet': rfiVs3betRanges, // Will filter in getRangeData
   'vs Limp': vsLimpRanges
 };
 
 export const getRangeData = (positionCombo: string, rangeCategory: RangeCategory = 'RFI'): RangeData | undefined => {
   // Get ranges for the specified category
-  const categoryRanges = ALL_RANGES[rangeCategory];
+  let categoryRanges = ALL_RANGES[rangeCategory];
   
   if (!categoryRanges || !Array.isArray(categoryRanges)) {
     console.warn(`No ranges found for category: ${rangeCategory}`);
     return undefined;
+  }
+  
+  // Filter ranges based on category
+  if (rangeCategory === 'RFI vs 3bet') {
+    categoryRanges = categoryRanges.filter(range => 
+      range && range.positionCombo && 
+      range.positionCombo.includes('_RFI_vs_') && 
+      !range.positionCombo.includes('_3BET_vs_') && 
+      !range.positionCombo.includes('_4BET_vs_')
+    );
+  } else if (rangeCategory === '3bet vs 4bet') {
+    categoryRanges = categoryRanges.filter(range => 
+      range && range.positionCombo && (
+        range.positionCombo.includes('_3BET_vs_') || 
+        range.positionCombo.includes('_4BET_vs_')
+      )
+    );
   }
   
   // Find the specific range by position combo
@@ -42,13 +60,31 @@ export const getRangeData = (positionCombo: string, rangeCategory: RangeCategory
 // Helper function to get all available position combos for a range category
 export const getAvailablePositionCombos = (rangeCategory: RangeCategory): string[] => {
   try {
-    const categoryRanges = ALL_RANGES[rangeCategory];
+    let categoryRanges = ALL_RANGES[rangeCategory];
     if (!categoryRanges || !Array.isArray(categoryRanges)) {
       console.warn(`No ranges found for category: ${rangeCategory}`);
       return [];
     }
+    
+    // Filter ranges based on category
+    if (rangeCategory === 'RFI vs 3bet') {
+      categoryRanges = categoryRanges.filter(range => 
+        range && range.positionCombo && 
+        range.positionCombo.includes('_RFI_vs_') && 
+        !range.positionCombo.includes('_3BET_vs_') && 
+        !range.positionCombo.includes('_4BET_vs_')
+      );
+    } else if (rangeCategory === '3bet vs 4bet') {
+      categoryRanges = categoryRanges.filter(range => 
+        range && range.positionCombo && (
+          range.positionCombo.includes('_3BET_vs_') || 
+          range.positionCombo.includes('_4BET_vs_')
+        )
+      );
+    }
+    
     // Remove duplicates using Set
-    const uniquePositions = Array.from(new Set(categoryRanges.map(range => range.positionCombo)));
+    const uniquePositions = Array.from(new Set(categoryRanges.map(range => range.positionCombo).filter(combo => combo)));
     return uniquePositions;
   } catch (error) {
     console.error('Error in getAvailablePositionCombos:', error);

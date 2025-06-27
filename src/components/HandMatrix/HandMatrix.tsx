@@ -96,9 +96,9 @@ const HandMatrix: React.FC<HandMatrixProps> = ({
               frequencyWeight = dependencyFreq.raise / 100;
               break;
             case 'vs RFI':
-              // This is opponent response to RFI - dependency would be opponent's RFI frequency
-              // For now, we'll use the raise frequency as the weight
-              frequencyWeight = dependencyFreq.raise / 100;
+              // For vs RFI ranges, we don't apply dependency weighting for frequency calculations
+              // These are complete strategy ranges showing what to do against all opponent hands
+              frequencyWeight = 1.0;
               break;
             default:
               // For other categories, use full weight
@@ -185,16 +185,18 @@ const HandMatrix: React.FC<HandMatrixProps> = ({
       raise: (() => {
         switch (rangeCategory) {
           case 'RFI': return '#ff9500'; // orange
-          case 'vs RFI': return '#c62828'; // dark red (same as RFI vs 3bet)
+          case 'vs RFI': return '#c62828'; // dark red
           case 'RFI vs 3bet': return '#c62828'; // dark red
+          case '3bet vs 4bet': return '#c62828'; // dark red
           case 'vs Limp': return '#ff9500'; // orange
           default: return '#ff9500';
         }
       })(),
       call: (() => {
         switch (rangeCategory) {
-          case 'vs RFI': return '#4CAF50'; // green (same as RFI vs 3bet)
+          case 'vs RFI': return '#4CAF50'; // green
           case 'RFI vs 3bet': return '#4CAF50'; // green
+          case '3bet vs 4bet': return '#4CAF50'; // green
           default: return '#8BC34A'; // light green
         }
       })(),
@@ -242,6 +244,7 @@ const HandMatrix: React.FC<HandMatrixProps> = ({
 
     const { raise, call, fold } = frequencies;
     
+    
     // Hand in range but folds = in range but should fold (lighter gray)
     if (fold === 100 || (raise === 0 && call === 0)) return '#9e9e9e';
     
@@ -262,12 +265,10 @@ const HandMatrix: React.FC<HandMatrixProps> = ({
         return 'gray';
         
       case 'RFI vs 3bet':
-        if (raise === 100) return '#c62828'; // 4-bet (use same color as mixed strategy)
-        if (raise > 0 && call === 0) return 'red'; // Pure mixed 4-bet
-        if (call === 100) return '#4CAF50'; // Call (use same color as mixed strategy)
-        if (call > 0 && raise === 0) return '#4FC3F7'; // Pure mixed call (light blue)
-        if (raise > 0 && call > 0 && fold === 0) return '#9C27B0'; // Raise/call (never fold) (purple)
-        if (raise > 0 && call > 0) return '#FF9800'; // Mixed 4-bet/call/fold (orange)
+      case '3bet vs 4bet':
+        if (raise > 0 && call > 0) return '#9C27B0'; // Mixed raise/call (purple for mixed strategy)
+        if (raise > 0) return '#c62828'; // Any raise (dark red)
+        if (call > 0) return '#4CAF50'; // Any call (green)
         return 'gray';
         
       case 'vs Limp':
@@ -422,7 +423,7 @@ const HandMatrix: React.FC<HandMatrixProps> = ({
               )}
             </>
           )}
-          {rangeCategory === 'RFI vs 3bet' && (
+          {(rangeCategory === 'RFI vs 3bet' || rangeCategory === '3bet vs 4bet') && (
             <>
               <div className="legend-item">
                 <div className="legend-color darkred"></div>

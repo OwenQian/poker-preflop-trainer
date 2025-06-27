@@ -1,7 +1,7 @@
 import React from 'react';
 import './RangeTabSelector.css';
 
-export type RangeCategory = 'RFI' | 'vs RFI' | 'RFI vs 3bet' | 'vs Limp';
+export type RangeCategory = 'RFI' | 'vs RFI' | 'RFI vs 3bet' | '3bet vs 4bet' | 'vs Limp';
 
 interface RangeTabSelectorProps {
   activeCategory: RangeCategory;
@@ -14,7 +14,7 @@ const RangeTabSelector: React.FC<RangeTabSelectorProps> = ({
   onCategoryChange,
   className = ''
 }) => {
-  const tabs: RangeCategory[] = ['RFI', 'vs RFI', 'RFI vs 3bet', 'vs Limp'];
+  const tabs: RangeCategory[] = ['RFI', 'vs RFI', 'RFI vs 3bet', '3bet vs 4bet', 'vs Limp'];
 
   const getTabDescription = (category: RangeCategory): string => {
     switch (category) {
@@ -24,6 +24,8 @@ const RangeTabSelector: React.FC<RangeTabSelectorProps> = ({
         return 'Facing RFI - 3bet/call/fold vs opponent raises';
       case 'RFI vs 3bet':
         return 'RFI vs 3bet - 4bet/call/fold when your raise gets 3bet';
+      case '3bet vs 4bet':
+        return '3bet vs 4bet - 5bet/call/fold when your 3bet gets 4bet';
       case 'vs Limp':
         return 'vs Limp - Raise/call/fold vs limpers';
       default:
@@ -41,7 +43,7 @@ const RangeTabSelector: React.FC<RangeTabSelectorProps> = ({
             onClick={() => onCategoryChange(tab)}
             title={getTabDescription(tab)}
           >
-            {tab === 'RFI' || tab === 'vs Limp' ? tab : `${tab} (WIP)`}
+            {tab}
           </button>
         ))}
       </div>
