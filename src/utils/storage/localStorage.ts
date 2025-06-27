@@ -47,7 +47,30 @@ export const getHandProgress = (handId: string): HandProgress | null => {
 export const getAllHandProgress = (): Record<string, HandProgress> => {
   try {
     const stored = localStorage.getItem(STORAGE_KEYS.HAND_PROGRESS);
-    return stored ? JSON.parse(stored) : {};
+    if (!stored) return {};
+    
+    const parsed = JSON.parse(stored);
+    
+    // Convert date strings back to Date objects for FSRS cards
+    Object.values(parsed).forEach((progress: any) => {
+      if (progress.fsrsCard) {
+        if (progress.fsrsCard.due) {
+          progress.fsrsCard.due = new Date(progress.fsrsCard.due);
+        }
+        if (progress.fsrsCard.lastReview) {
+          progress.fsrsCard.lastReview = new Date(progress.fsrsCard.lastReview);
+        }
+      }
+      if (progress.reviewHistory) {
+        progress.reviewHistory.forEach((review: any) => {
+          if (review.reviewTime) {
+            review.reviewTime = new Date(review.reviewTime);
+          }
+        });
+      }
+    });
+    
+    return parsed;
   } catch (error) {
     console.error('Failed to get all hand progress:', error);
     return {};

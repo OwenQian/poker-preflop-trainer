@@ -223,9 +223,16 @@ const App: React.FC = () => {
     setCurrentResult(null);
     
     // Generate next question
-    const nextQuestion = generateQuizQuestion(heroPosition!, opponentPositions, rangeCategory);
+    if (!heroPosition) {
+      console.error('No hero position set for next question');
+      return;
+    }
+    
+    const nextQuestion = generateQuizQuestion(heroPosition, opponentPositions, rangeCategory);
     if (nextQuestion) {
       setCurrentQuestion(nextQuestion);
+    } else {
+      console.error('Failed to generate next question');
     }
   };
 
