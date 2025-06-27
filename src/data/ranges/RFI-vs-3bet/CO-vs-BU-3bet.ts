@@ -17,6 +17,7 @@ import { RangeData } from '../../../types';
 
 const range: RangeData = {
   positionCombo: 'CO_RFI_vs_BU_3BET',
+  missingHandTreatment: "not-in-range",
   hands: {
     // Mixed strategy hands with specific frequencies
     '22': { raise: 0, call: 100, fold: 0 },

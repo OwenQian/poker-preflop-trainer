@@ -18,6 +18,7 @@ import { RangeData } from '../../../types';
 
 const range: RangeData = {
   positionCombo: 'BU_RFI_vs_3BET',
+  missingHandTreatment: "not-in-range",
   hands: {
     // 4-bet hands (raise = 100)
     'AA': { raise: 100, call: 0, fold: 0 },

@@ -143,10 +143,27 @@ export const generateQuizQuestion = (
     return null;
   }
   
-  // Get all hands with non-zero frequencies
-  const availableHands = Object.entries(rangeData.hands).filter(
-    ([_, frequencies]) => frequencies.raise + frequencies.call + frequencies.fold > 0
-  );
+  // Check if range data specifies to treat missing hands as fold
+  // If so, sample from ALL possible hands, otherwise only sample explicitly specified hands
+  const shouldSampleAllHands = rangeData?.missingHandTreatment === 'fold';
+  
+  let availableHands: [HandName, any][];
+  
+  if (shouldSampleAllHands) {
+    // Sample from all 169 possible starting hands
+    // Missing hands are treated as 100% fold per the range data setting
+    const allHands = getAllHandNames();
+    availableHands = allHands.map(handName => {
+      const frequencies = rangeData!.hands[handName] || { raise: 0, call: 0, fold: 100 };
+      return [handName, frequencies] as [HandName, any];
+    });
+  } else {
+    // Only sample from hands explicitly specified in the range data
+    // This includes hands with 100% fold if they're explicitly specified
+    availableHands = Object.entries(rangeData!.hands).filter(
+      ([_, frequencies]) => frequencies.raise + frequencies.call + frequencies.fold > 0
+    );
+  }
   
   if (availableHands.length === 0) {
     console.error('No available hands in range data');

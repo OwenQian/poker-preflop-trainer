@@ -186,6 +186,7 @@ const MultiRangeDisplay: React.FC<MultiRangeDisplayProps> = ({
             rangeCategory={rangeCategory}
             currentHand={currentHand}
             visible={true}
+            missingHandTreatment="fold"
           />
         </div>
       </div>

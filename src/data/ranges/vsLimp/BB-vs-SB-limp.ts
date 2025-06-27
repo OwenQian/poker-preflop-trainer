@@ -2,6 +2,7 @@ import { RangeData } from '../../../types';
 
 const BB_vs_SB_LIMP: RangeData = {
   positionCombo: 'BB_vs_SB_LIMP',
+  missingHandTreatment: 'fold',
   hands: {
     '22': { raise: 25, call: 75, fold: 0 },
     '33': { raise: 25, call: 75, fold: 0 },

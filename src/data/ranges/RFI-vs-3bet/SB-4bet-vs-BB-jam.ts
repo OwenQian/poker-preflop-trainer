@@ -2,6 +2,7 @@ import { RangeData } from '../../../types';
 
 const SB_4BET_vs_BB_JAM: RangeData = {
   positionCombo: 'SB_4BET_vs_BB_JAM',
+  missingHandTreatment: "not-in-range",
   hands: {
     '55': { raise: 0, call: 75, fold: 25 },
     '66': { raise: 0, call: 75, fold: 25 },

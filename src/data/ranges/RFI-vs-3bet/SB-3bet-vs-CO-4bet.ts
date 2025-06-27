@@ -15,6 +15,7 @@ import { RangeData } from '../../../types';
 
 const range: RangeData = {
   positionCombo: 'SB_3BET_vs_CO_4BET',
+  missingHandTreatment: "not-in-range",
   hands: {
     '55': { raise: 0, call: 100, fold: 0 },
     '66': { raise: 0, call: 100, fold: 0 },

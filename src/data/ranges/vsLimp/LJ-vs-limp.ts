@@ -19,6 +19,7 @@ import { RangeData } from '../../../types';
 
 const range: RangeData = {
   positionCombo: 'LJ_vs_LIMP',
+  missingHandTreatment: 'fold',
   hands: {
     // Mixed strategy hands (50% raise, 50% fold)
     '55': { raise: 50, call: 0, fold: 50 },
