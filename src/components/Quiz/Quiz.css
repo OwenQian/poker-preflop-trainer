@@ -67,6 +67,30 @@
   font-weight: 500;
 }
 
+.random-number-info {
+  background: #fff3cd;
+  border: 2px solid #ffc107;
+  border-radius: 8px;
+  padding: 10px;
+  margin-top: 10px;
+}
+
+.random-number-info .label {
+  color: #856404;
+  font-weight: bold;
+}
+
+.random-number-info .value.random-number {
+  color: #856404;
+  font-weight: bold;
+  font-size: 18px;
+  background: #ffc107;
+  padding: 4px 8px;
+  border-radius: 4px;
+  color: white;
+  margin-left: 8px;
+}
+
 .cards-section {
   text-align: center;
 }

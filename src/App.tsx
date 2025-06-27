@@ -316,7 +316,7 @@ const App: React.FC = () => {
                   >
                     <div className="module-icon">💾</div>
                     <div className="module-info">
-                      <h3>State Manager</h3>
+                      <h3>State Manager (WIP)</h3>
                       <p>Export/import your progress and settings</p>
                     </div>
                   </button>

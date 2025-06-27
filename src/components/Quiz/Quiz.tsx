@@ -124,6 +124,18 @@ const Quiz: React.FC<QuizProps> = ({
               <span className="value">{question.opponents.join(', ')}</span>
             </div>
           )}
+          {question.rangeCombo && (
+            <div className="range-info">
+              <span className="label">Range:</span>
+              <span className="value">{question.rangeCombo.replace(/_/g, ' ')}</span>
+            </div>
+          )}
+          {gradingMode === 'randomizer' && question.randomNumber && (
+            <div className="random-number-info">
+              <span className="label">Random Number:</span>
+              <span className="value random-number">{question.randomNumber}</span>
+            </div>
+          )}
         </div>
 
         <div className="cards-section">

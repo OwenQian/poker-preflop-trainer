@@ -175,13 +175,18 @@ export const generateQuizQuestion = (
     else correctActions.push('fold');
   }
   
+  // Generate random number for randomizer mode (1-100)
+  const randomNumber = Math.floor(Math.random() * 100) + 1;
+  
   return {
     hand,
     handName,
     position: heroPosition,
     opponents: opponentPositions,
     correctActions,
-    frequencies
+    frequencies,
+    randomNumber,
+    rangeCombo: positionCombo
   };
 };
 

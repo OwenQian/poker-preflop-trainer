@@ -76,6 +76,8 @@ export interface QuizQuestion {
   opponents: Position[];
   correctActions: Action[];
   frequencies: HandFrequencies;
+  randomNumber?: number; // For randomizer mode (1-100)
+  rangeCombo?: string; // The range being practiced
 }
 
 export interface QuizAnswer {

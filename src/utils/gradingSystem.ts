@@ -22,7 +22,7 @@ export const gradeAnswer = (
       return gradeLax(frequencies, selectedActions);
     
     case 'randomizer':
-      return gradeRandomizer(frequencies, selectedActions);
+      return gradeRandomizer(question, selectedActions);
     
     default:
       return {
@@ -68,8 +68,13 @@ const gradeLax = (frequencies: HandFrequencies, selectedActions: Action[]): Grad
   };
 };
 
-const gradeRandomizer = (frequencies: HandFrequencies, selectedActions: Action[]): GradingResult => {
-  const randomNumber = Math.floor(Math.random() * 100) + 1; // 1-100 inclusive
+const gradeRandomizer = (question: QuizQuestion, selectedActions: Action[]): GradingResult => {
+  const { frequencies, randomNumber } = question;
+  
+  if (!randomNumber) {
+    throw new Error('Random number is required for randomizer mode');
+  }
+  
   const correctAction = getRandomizerCorrectAction(frequencies, randomNumber);
   
   const isCorrect = selectedActions.includes(correctAction);
@@ -103,20 +108,20 @@ const getCorrectActions = (frequencies: HandFrequencies): Action[] => {
 };
 
 const getRandomizerCorrectAction = (frequencies: HandFrequencies, randomNumber: number): Action => {
-  const { call, fold } = frequencies;
+  const { raise, call, fold } = frequencies;
   
-  // Fold gets the lowest numbers
-  if (randomNumber <= fold) {
-    return 'fold';
+  // Low roll (1-raise%) = raise
+  if (randomNumber <= raise) {
+    return 'raise';
   }
   
-  // Call gets the middle numbers
-  if (randomNumber <= fold + call) {
+  // Medium roll (raise%+1 to raise%+call%) = call
+  if (randomNumber <= raise + call) {
     return 'call';
   }
   
-  // Raise gets the highest numbers
-  return 'raise';
+  // High roll (raise%+call%+1 to 100) = fold
+  return 'fold';
 };
 
 export const getActionDescription = (action: Action): string => {
