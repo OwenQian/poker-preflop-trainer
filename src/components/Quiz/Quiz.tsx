@@ -14,6 +14,7 @@ interface QuizProps {
   rangeCategory?: RangeCategory;
   quizResult?: QuizResult | null;
   onNextQuestion?: () => void;
+  fullRangeData?: any; // Full range data for showing complete range in results
 }
 
 const Quiz: React.FC<QuizProps> = ({
@@ -24,7 +25,8 @@ const Quiz: React.FC<QuizProps> = ({
   onToggleMatrix,
   rangeCategory = 'RFI',
   quizResult,
-  onNextQuestion
+  onNextQuestion,
+  fullRangeData
 }) => {
   const [selectedActions, setSelectedActions] = useState<Action[]>([]);
   const [showResult, setShowResult] = useState(false);
@@ -82,10 +84,29 @@ const Quiz: React.FC<QuizProps> = ({
     }
   };
 
+  const getGradingModeColor = (): string => {
+    switch (gradingMode) {
+      case 'strict':
+        return '#dc3545'; // Red for strict
+      case 'lax':
+        return '#28a745'; // Green for lax
+      case 'randomizer':
+        return '#007bff'; // Blue for randomizer
+    }
+  };
+
   return (
     <div className="quiz-container">
       <div className="quiz-header">
-        <h2>Preflop Decision</h2>
+        <div className="quiz-title-section">
+          <h2>Preflop Decision</h2>
+          <div 
+            className="strictness-badge"
+            style={{ backgroundColor: getGradingModeColor() }}
+          >
+            {gradingMode.charAt(0).toUpperCase() + gradingMode.slice(1)} Mode
+          </div>
+        </div>
         <div className="grading-mode-info">
           {getGradingModeHelp()}
         </div>
@@ -108,25 +129,6 @@ const Quiz: React.FC<QuizProps> = ({
         <div className="cards-section">
           <h3>Your Hand: {question.handName}</h3>
           <CardDisplay cards={[question.hand.card1, question.hand.card2]} size="large" />
-        </div>
-
-        {showMatrix && (
-          <HandMatrix
-            rangeData={{ [question.handName]: question.frequencies }}
-            rangeCategory={rangeCategory}
-            currentHand={question.handName}
-            visible={showMatrix}
-            missingHandTreatment="not-in-range"
-          />
-        )}
-
-        <div className="matrix-toggle">
-          <button 
-            className="toggle-button"
-            onClick={onToggleMatrix}
-          >
-            {showMatrix ? 'Hide Matrix' : 'Show Matrix'}
-          </button>
         </div>
 
         {!showResult ? (
@@ -220,6 +222,26 @@ const Quiz: React.FC<QuizProps> = ({
               Next Question
             </button>
           </div>
+        )}
+
+        <div className="matrix-toggle">
+          <button 
+            className="toggle-button"
+            onClick={onToggleMatrix}
+          >
+            {showMatrix ? 'Hide Matrix' : 'Show Matrix'}
+          </button>
+        </div>
+
+        {showMatrix && (
+          <HandMatrix
+            rangeData={showResult && fullRangeData ? fullRangeData : {}}
+            rangeCategory={rangeCategory}
+            currentHand={question.handName}
+            visible={showMatrix}
+            missingHandTreatment={showResult && fullRangeData ? "fold" : "not-in-range"}
+            showColors={showResult}
+          />
         )}
       </div>
     </div>

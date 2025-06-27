@@ -1,8 +1,9 @@
 import React, { useState, useEffect } from 'react';
-import { Position, GradingMode, QuizQuestion, QuizAnswer, HandProgress } from './types';
+import { Position, GradingMode, QuizQuestion, QuizAnswer, QuizResult, HandProgress } from './types';
 import { FSRS } from './utils/fsrs/fsrs';
 import { generateQuizQuestion } from './utils/handGenerator';
-import { gradeAnswer } from './utils/gradingSystem';
+import { gradeAnswer, GradingResult } from './utils/gradingSystem';
+import { getRangeData } from './data/sampleRanges';
 import { 
   getUserSettings, 
   saveUserSettings, 
@@ -36,6 +37,7 @@ const App: React.FC = () => {
   const [selectedRange, setSelectedRange] = useState<string | null>(null);
   
   const [currentQuestion, setCurrentQuestion] = useState<QuizQuestion | null>(null);
+  const [currentResult, setCurrentResult] = useState<QuizResult | null>(null);
   const [sessionStats, setSessionStats] = useState({
     questionsAnswered: 0,
     correctAnswers: 0,
@@ -72,6 +74,10 @@ const App: React.FC = () => {
     setSelectedRange(range);
     setHeroPosition(hero);
     setOpponentPositions(opponents);
+  };
+
+  const handleStrictnessChange = (strictness: GradingMode) => {
+    setGradingMode(strictness);
   };
 
   const startQuizFromRange = () => {
@@ -138,19 +144,27 @@ const App: React.FC = () => {
     if (!currentQuestion) return;
 
     // Grade the answer
-    const result = gradeAnswer(currentQuestion, answer, gradingMode);
+    const gradingResult = gradeAnswer(currentQuestion, answer, gradingMode);
+    
+    // Create a proper QuizResult object
+    const quizResult: QuizResult = {
+      question: currentQuestion,
+      answer,
+      isCorrect: gradingResult.isCorrect,
+      explanation: gradingResult.explanation
+    };
     
     // Update session stats
     const newStats = {
       ...sessionStats,
       questionsAnswered: sessionStats.questionsAnswered + 1,
-      correctAnswers: sessionStats.correctAnswers + (result.isCorrect ? 1 : 0)
+      correctAnswers: sessionStats.correctAnswers + (gradingResult.isCorrect ? 1 : 0)
     };
     setSessionStats(newStats);
     saveQuizState({ currentSessionStats: newStats });
 
-    // Update FSRS progress
-    const handId = `${currentQuestion.handName}_${currentQuestion.position}_vs_${currentQuestion.opponents.join('_')}`;
+    // Update FSRS progress with result-based rating (include strictness level for separate tracking)
+    const handId = `${currentQuestion.handName}_${currentQuestion.position}_vs_${currentQuestion.opponents.join('_')}_${gradingMode}`;
     let handProgress = getHandProgress(handId);
     
     if (!handProgress) {
@@ -167,20 +181,21 @@ const App: React.FC = () => {
       };
     }
 
-    // Update FSRS card based on confidence rating
-    const newCard = fsrs.repeat(handProgress.fsrsCard, answer.confidence);
+    // Use result-based FSRS rating: 1 (Again) for incorrect, 3 (Good) for correct
+    const fsrsRating = gradingResult.isCorrect ? 3 : 1;
+    const newCard = fsrs.repeat(handProgress.fsrsCard, fsrsRating);
     
     // Update performance stats
     const newPerformanceStats = {
       totalReviews: handProgress.performanceStats.totalReviews + 1,
-      correctStreak: result.isCorrect 
+      correctStreak: gradingResult.isCorrect 
         ? handProgress.performanceStats.correctStreak + 1 
         : 0,
       accuracyRate: 0 // Will be recalculated
     };
     
     // Calculate new accuracy rate
-    const totalCorrect = handProgress.performanceStats.totalReviews * handProgress.performanceStats.accuracyRate + (result.isCorrect ? 1 : 0);
+    const totalCorrect = handProgress.performanceStats.totalReviews * handProgress.performanceStats.accuracyRate + (gradingResult.isCorrect ? 1 : 0);
     newPerformanceStats.accuracyRate = totalCorrect / newPerformanceStats.totalReviews;
 
     // Update hand progress
@@ -190,7 +205,7 @@ const App: React.FC = () => {
       reviewHistory: [
         ...handProgress.reviewHistory,
         {
-          rating: answer.confidence,
+          rating: fsrsRating,
           reviewTime: new Date()
         }
       ],
@@ -199,16 +214,19 @@ const App: React.FC = () => {
     
     saveHandProgress(handId, updatedProgress);
 
-    // Show results
-    alert(`${result.isCorrect ? 'Correct!' : 'Incorrect!'}\n\n${result.explanation}`);
+    // Show result instead of alert
+    setCurrentResult(quizResult);
+  };
 
+  const handleNextQuestion = () => {
+    // Clear current result
+    setCurrentResult(null);
+    
     // Generate next question
-    setTimeout(() => {
-      const nextQuestion = generateQuizQuestion(heroPosition!, opponentPositions, rangeCategory);
-      if (nextQuestion) {
-        setCurrentQuestion(nextQuestion);
-      }
-    }, 1000);
+    const nextQuestion = generateQuizQuestion(heroPosition!, opponentPositions, rangeCategory);
+    if (nextQuestion) {
+      setCurrentQuestion(nextQuestion);
+    }
   };
 
   const handleBackToSetup = () => {
@@ -390,6 +408,9 @@ const App: React.FC = () => {
               showMatrix={showMatrix}
               onToggleMatrix={() => setShowMatrix(!showMatrix)}
               rangeCategory={rangeCategory}
+              quizResult={currentResult}
+              onNextQuestion={handleNextQuestion}
+              fullRangeData={selectedRange ? getRangeData(selectedRange, rangeCategory)?.hands : undefined}
             />
           </div>
         )}
@@ -424,7 +445,9 @@ const App: React.FC = () => {
             <RangeSelector
               selectedRange={selectedRange}
               rangeCategory={rangeCategory}
+              strictnessLevel={gradingMode}
               onRangeSelect={handleRangeSelect}
+              onStrictnessChange={handleStrictnessChange}
             />
 
             {selectedRange && (
@@ -435,6 +458,7 @@ const App: React.FC = () => {
                   {opponentPositions.length > 0 && (
                     <p>Opponent Positions: {opponentPositions.join(', ')}</p>
                   )}
+                  <p>Strictness Level: <strong>{gradingMode.charAt(0).toUpperCase() + gradingMode.slice(1)}</strong></p>
                 </div>
                 <button 
                   className="start-quiz-button"

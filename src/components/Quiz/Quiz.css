@@ -6,12 +6,30 @@
 
 .quiz-header {
   text-align: center;
-  margin-bottom: 30px;
+  margin-bottom: 20px;
+}
+
+.quiz-title-section {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 15px;
+  margin-bottom: 10px;
 }
 
 .quiz-header h2 {
   color: #333;
-  margin-bottom: 10px;
+  margin: 0;
+}
+
+.strictness-badge {
+  color: white;
+  padding: 6px 12px;
+  border-radius: 20px;
+  font-size: 14px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
 }
 
 .grading-mode-info {
@@ -26,7 +44,7 @@
 .quiz-content {
   display: flex;
   flex-direction: column;
-  gap: 30px;
+  gap: 20px;
 }
 
 .situation-info {
@@ -55,8 +73,8 @@
 
 .cards-section h3 {
   color: #333;
-  margin-bottom: 20px;
-  font-size: 24px;
+  margin-bottom: 15px;
+  font-size: 20px;
 }
 
 .matrix-toggle {
@@ -84,26 +102,26 @@
 
 .actions-section h3 {
   color: #333;
-  margin-bottom: 20px;
-  font-size: 20px;
+  margin-bottom: 15px;
+  font-size: 18px;
 }
 
 .action-buttons {
   display: flex;
-  gap: 20px;
+  gap: 15px;
   justify-content: center;
-  margin-bottom: 30px;
+  margin-bottom: 20px;
 }
 
 .action-button {
-  padding: 15px 30px;
-  border: 3px solid;
-  border-radius: 8px;
-  font-size: 18px;
+  padding: 12px 24px;
+  border: 2px solid;
+  border-radius: 6px;
+  font-size: 16px;
   font-weight: bold;
   cursor: pointer;
   transition: all 0.2s ease;
-  min-width: 120px;
+  min-width: 100px;
 }
 
 .action-button:hover {
@@ -120,9 +138,9 @@
   background: #48bb78;
   color: white;
   border: none;
-  padding: 15px 40px;
-  border-radius: 8px;
-  font-size: 18px;
+  padding: 12px 30px;
+  border-radius: 6px;
+  font-size: 16px;
   font-weight: bold;
   cursor: pointer;
   transition: all 0.2s ease;

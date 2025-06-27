@@ -1,5 +1,5 @@
 import React from 'react';
-import { Position } from '../../types';
+import { Position, GradingMode } from '../../types';
 import { RangeCategory } from '../RangeTabSelector/RangeTabSelector';
 import { getAvailablePositionCombos } from '../../data/sampleRanges';
 import './RangeSelector.css';
@@ -7,13 +7,17 @@ import './RangeSelector.css';
 interface RangeSelectorProps {
   selectedRange: string | null;
   rangeCategory: RangeCategory;
+  strictnessLevel: GradingMode;
   onRangeSelect: (range: string, heroPosition: Position, opponentPositions: Position[]) => void;
+  onStrictnessChange: (strictness: GradingMode) => void;
 }
 
 const RangeSelector: React.FC<RangeSelectorProps> = ({
   selectedRange,
   rangeCategory,
-  onRangeSelect
+  strictnessLevel,
+  onRangeSelect,
+  onStrictnessChange
 }) => {
   const availableRanges = getAvailablePositionCombos(rangeCategory);
 
@@ -93,6 +97,45 @@ const RangeSelector: React.FC<RangeSelectorProps> = ({
       <div className="range-selector-header">
         <h3>Select Range to Practice</h3>
         <p>Choose a specific range scenario for your quiz session</p>
+      </div>
+
+      <div className="strictness-selector">
+        <h4>Quiz Strictness Level</h4>
+        <p>Each strictness level maintains separate progress tracking</p>
+        <div className="strictness-options">
+          <div 
+            className={`strictness-option ${strictnessLevel === 'lax' ? 'selected' : ''}`}
+            onClick={() => onStrictnessChange('lax')}
+          >
+            <div className="strictness-option-header">
+              <h5>Lax Mode</h5>
+              {strictnessLevel === 'lax' && <span className="selected-indicator">✓</span>}
+            </div>
+            <p>Select at least ONE correct action to be marked correct</p>
+          </div>
+          
+          <div 
+            className={`strictness-option ${strictnessLevel === 'strict' ? 'selected' : ''}`}
+            onClick={() => onStrictnessChange('strict')}
+          >
+            <div className="strictness-option-header">
+              <h5>Strict Mode</h5>
+              {strictnessLevel === 'strict' && <span className="selected-indicator">✓</span>}
+            </div>
+            <p>Must select ALL correct actions to be marked correct</p>
+          </div>
+          
+          <div 
+            className={`strictness-option ${strictnessLevel === 'randomizer' ? 'selected' : ''}`}
+            onClick={() => onStrictnessChange('randomizer')}
+          >
+            <div className="strictness-option-header">
+              <h5>Randomizer Mode</h5>
+              {strictnessLevel === 'randomizer' && <span className="selected-indicator">✓</span>}
+            </div>
+            <p>One correct action chosen randomly based on frequencies</p>
+          </div>
+        </div>
       </div>
 
       <div className="range-categories">

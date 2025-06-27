@@ -13,6 +13,8 @@ interface HandMatrixProps {
   dependencyRangeData?: Record<HandName, HandFrequencies>;
   // Missing hand treatment - how to handle hands not in rangeData
   missingHandTreatment?: 'not-in-range' | 'fold';
+  // Whether to show colors based on frequencies
+  showColors?: boolean;
 }
 
 const HAND_MATRIX: HandName[][] = [
@@ -41,7 +43,8 @@ const HandMatrix: React.FC<HandMatrixProps> = ({
   onHandSelect,
   visible = true,
   dependencyRangeData,
-  missingHandTreatment = 'not-in-range'
+  missingHandTreatment = 'not-in-range',
+  showColors = true
 }) => {
   const [showMixedStrategy, setShowMixedStrategy] = React.useState(true);
   
@@ -156,9 +159,16 @@ const HandMatrix: React.FC<HandMatrixProps> = ({
   const { combos, percentage, rangeCombos, raisePercentage, callPercentage, foldPercentage } = calculateCombos();
   
   const getMixedFrequencyStyle = (hand: HandName): React.CSSProperties => {
+    // Always apply getHandColor first (handles current hand highlighting when showColors is false)
+    const baseColor = getHandColor(hand);
+    
     const frequencies = rangeData[hand];
     // Handle missing hands based on treatment setting
     if (!frequencies) {
+      // If colors are disabled and this is the current hand, use yellow
+      if (!showColors && hand === currentHand) {
+        return { backgroundColor: '#ffeb3b' };
+      }
       if (missingHandTreatment === 'fold') {
         // Treat as fold: 100 (lighter gray)
         return { backgroundColor: '#9e9e9e' };
@@ -172,12 +182,12 @@ const HandMatrix: React.FC<HandMatrixProps> = ({
     
     // If mixed strategy view is off, always use solid colors
     if (!showMixedStrategy) {
-      return { backgroundColor: getHandColor(hand) };
+      return { backgroundColor: baseColor };
     }
     
     // If it's a single action (100% or all 0s), use solid colors
     if (raise === 100 || call === 100 || fold === 100 || (raise === 0 && call === 0)) {
-      return { backgroundColor: getHandColor(hand) };
+      return { backgroundColor: baseColor };
     }
     
     // Build gradient for mixed frequencies
@@ -229,6 +239,14 @@ const HandMatrix: React.FC<HandMatrixProps> = ({
   };
   
   const getHandColor = (hand: HandName): string => {
+    // If colors are disabled, show current hand as yellow, others as gray
+    if (!showColors) {
+      if (hand === currentHand) {
+        return '#ffeb3b'; // Yellow for current hand
+      }
+      return '#e0e0e0'; // Light gray for all other hands
+    }
+
     const frequencies = rangeData[hand];
     
     // Handle missing hands based on treatment setting

@@ -177,7 +177,7 @@
   cursor: pointer;
   transition: all 0.2s ease;
   padding: 2px;
-  min-height: 40px;
+  min-height: 30px;
   min-width: 0; /* Allow shrinking */
   position: relative;
   font-size: 10px;
