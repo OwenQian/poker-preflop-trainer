@@ -148,8 +148,8 @@ const HandMatrix: React.FC<HandMatrixProps> = ({
     return {
       combos: Math.round(activeCombos * 10) / 10,
       percentage: Math.round((activeCombos / 1326) * 1000) / 10,
-      // New statistics relative to the range
-      rangeCombos: Math.round(rangeCombos * 10) / 10,
+      // New statistics relative to the range - using frequency-weighted totalActionCombos
+      rangeCombos: Math.round(totalActionCombos * 10) / 10,
       raisePercentage: totalActionCombos > 0 ? Math.round((raiseCombos / totalActionCombos) * 1000) / 10 : 0,
       callPercentage: totalActionCombos > 0 ? Math.round((callCombos / totalActionCombos) * 1000) / 10 : 0,
       foldPercentage: totalActionCombos > 0 ? Math.round((foldCombos / totalActionCombos) * 1000) / 10 : 0
