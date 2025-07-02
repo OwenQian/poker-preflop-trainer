@@ -42,6 +42,13 @@ const RangeSelector: React.FC<RangeSelectorProps> = ({
       const opponentIndex = parts.indexOf('vs') + 1;
       const opponent = parts[opponentIndex] as Position;
       return { hero, opponents: [opponent] };
+    } else if (positionCombo.includes('_4BET_vs_') && positionCombo.includes('_JAM')) {
+      // Format: "CO_4BET_vs_BU_JAM" -> hero: CO, opponents: [BU]
+      const parts = positionCombo.split('_');
+      const hero = parts[0] as Position;
+      const opponentIndex = parts.indexOf('vs') + 1;
+      const opponent = parts[opponentIndex] as Position;
+      return { hero, opponents: [opponent] };
     } else if (positionCombo.includes('_vs_LIMP') || positionCombo.includes('_vs_SB_LIMP')) {
       // Format: "BB_vs_LIMP" -> hero: BB, opponents: [] (generic vs limp)
       // Format: "BB_vs_SB_LIMP" -> hero: BB, opponents: [SB] (vs SB limp)
@@ -72,6 +79,9 @@ const RangeSelector: React.FC<RangeSelectorProps> = ({
     } else if (positionCombo.includes('_3BET_vs_') && positionCombo.includes('_4BET')) {
       // "BB_3BET_vs_CO_4BET" -> "BB 3-bet vs CO 4-bet"
       return positionCombo.replace(/_/g, ' ').replace('3BET', '3-bet').replace('4BET', '4-bet');
+    } else if (positionCombo.includes('_4BET_vs_') && positionCombo.includes('_JAM')) {
+      // "CO_4BET_vs_BU_JAM" -> "CO 4BET vs BU JAM"
+      return positionCombo.replace(/_/g, ' ');
     } else if (positionCombo.includes('_vs_SB_LIMP')) {
       // "BB_vs_SB_LIMP" -> "BB vs SB Limp"
       return positionCombo.replace(/_/g, ' ').replace('SB LIMP', 'SB Limp');
@@ -96,6 +106,9 @@ const RangeSelector: React.FC<RangeSelectorProps> = ({
     } else if (positionCombo.includes('_3BET_vs_') && positionCombo.includes('_4BET')) {
       const { hero, opponents } = parsePositionCombo(positionCombo);
       return `You 3-bet from ${hero} and ${opponents[0]} 4-bet you. Practice your 5-bet/call/fold ranges.`;
+    } else if (positionCombo.includes('_4BET_vs_') && positionCombo.includes('_JAM')) {
+      const { hero, opponents } = parsePositionCombo(positionCombo);
+      return `You 4-bet from ${hero} and ${opponents[0]} jammed (all-in). Practice your call/fold ranges.`;
     } else if (positionCombo.includes('_vs_SB_LIMP')) {
       const { hero, opponents } = parsePositionCombo(positionCombo);
       return `You are in ${hero} and ${opponents[0]} limped. Practice your isolation raising ranges.`;

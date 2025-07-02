@@ -15,6 +15,9 @@ interface FSRSDebugPanelProps {
   onClose: () => void;
 }
 
+type SortColumn = 'hand' | 'state' | 'reviews' | 'accuracy' | 'difficulty' | 'interval' | 'lapses' | 'dueDate';
+type SortDirection = 'asc' | 'desc';
+
 const FSRSDebugPanel: React.FC<FSRSDebugPanelProps> = ({
   heroPosition,
   opponentPositions,
@@ -23,10 +26,22 @@ const FSRSDebugPanel: React.FC<FSRSDebugPanelProps> = ({
   visible,
   onClose
 }) => {
-  const [sortBy, setSortBy] = useState<'reviews' | 'difficulty' | 'interval' | 'lapses'>('reviews');
+  const [sortBy, setSortBy] = useState<SortColumn>('reviews');
+  const [sortDirection, setSortDirection] = useState<SortDirection>('desc');
   const [filterStuck, setFilterStuck] = useState<boolean>(false);
 
   if (!visible) return null;
+
+  const handleColumnClick = (column: SortColumn) => {
+    if (sortBy === column) {
+      // If clicking the same column, toggle direction
+      setSortDirection(sortDirection === 'asc' ? 'desc' : 'asc');
+    } else {
+      // If clicking a new column, set it as sort column with desc as default
+      setSortBy(column);
+      setSortDirection('desc');
+    }
+  };
 
   const allProgress = getAllHandProgress();
   const handIds = getHandIdsForRange(heroPosition, opponentPositions, gradingMode, rangeCategory);
@@ -53,20 +68,47 @@ const FSRSDebugPanel: React.FC<FSRSDebugPanelProps> = ({
 
   // Sort cards
   const sortedCards = [...cardsWithProgress].sort((a, b) => {
-    if (!a.progress?.fsrsCard || !b.progress?.fsrsCard) return 0;
+    let comparison = 0;
     
     switch (sortBy) {
+      case 'hand':
+        comparison = a.handName.localeCompare(b.handName);
+        break;
+      case 'state':
+        if (!a.progress?.fsrsCard || !b.progress?.fsrsCard) return 0;
+        comparison = a.progress.fsrsCard.state.localeCompare(b.progress.fsrsCard.state);
+        break;
       case 'reviews':
-        return b.progress.performanceStats.totalReviews - a.progress.performanceStats.totalReviews;
+        if (!a.progress?.fsrsCard || !b.progress?.fsrsCard) return 0;
+        comparison = a.progress.performanceStats.totalReviews - b.progress.performanceStats.totalReviews;
+        break;
+      case 'accuracy':
+        if (!a.progress?.fsrsCard || !b.progress?.fsrsCard) return 0;
+        comparison = a.progress.performanceStats.accuracyRate - b.progress.performanceStats.accuracyRate;
+        break;
       case 'difficulty':
-        return b.progress.fsrsCard.difficulty - a.progress.fsrsCard.difficulty;
+        if (!a.progress?.fsrsCard || !b.progress?.fsrsCard) return 0;
+        comparison = a.progress.fsrsCard.difficulty - b.progress.fsrsCard.difficulty;
+        break;
       case 'interval':
-        return b.progress.fsrsCard.scheduledDays - a.progress.fsrsCard.scheduledDays;
+        if (!a.progress?.fsrsCard || !b.progress?.fsrsCard) return 0;
+        comparison = a.progress.fsrsCard.scheduledDays - b.progress.fsrsCard.scheduledDays;
+        break;
       case 'lapses':
-        return b.progress.fsrsCard.lapses - a.progress.fsrsCard.lapses;
+        if (!a.progress?.fsrsCard || !b.progress?.fsrsCard) return 0;
+        comparison = a.progress.fsrsCard.lapses - b.progress.fsrsCard.lapses;
+        break;
+      case 'dueDate':
+        if (!a.progress?.fsrsCard || !b.progress?.fsrsCard) return 0;
+        const aDate = a.progress.fsrsCard.due ? a.progress.fsrsCard.due.getTime() : 0;
+        const bDate = b.progress.fsrsCard.due ? b.progress.fsrsCard.due.getTime() : 0;
+        comparison = aDate - bDate;
+        break;
       default:
         return 0;
     }
+    
+    return sortDirection === 'asc' ? comparison : -comparison;
   });
 
   const displayCards = filterStuck ? stuckCards : sortedCards;
@@ -123,6 +165,13 @@ const FSRSDebugPanel: React.FC<FSRSDebugPanelProps> = ({
     }
   };
 
+  const getSortIndicator = (column: SortColumn): string => {
+    if (sortBy === column) {
+      return sortDirection === 'asc' ? ' ↑' : ' ↓';
+    }
+    return '';
+  };
+
   return (
     <div className="fsrs-debug-overlay">
       <div className="fsrs-debug-panel">
@@ -152,16 +201,6 @@ const FSRSDebugPanel: React.FC<FSRSDebugPanelProps> = ({
 
         <div className="debug-controls">
           <div className="control-group">
-            <label>Sort by:</label>
-            <select value={sortBy} onChange={(e) => setSortBy(e.target.value as any)}>
-              <option value="reviews">Total Reviews</option>
-              <option value="difficulty">Difficulty</option>
-              <option value="interval">Scheduled Days</option>
-              <option value="lapses">Lapses</option>
-            </select>
-          </div>
-          
-          <div className="control-group">
             <label>
               <input 
                 type="checkbox" 
@@ -180,18 +219,38 @@ const FSRSDebugPanel: React.FC<FSRSDebugPanelProps> = ({
               Reset All Stuck Cards ({stuckCards.length})
             </button>
           )}
+          
+          <div className="sort-hint">
+            💡 Click column headers to sort
+          </div>
         </div>
 
         <div className="cards-table">
           <div className="table-header">
-            <div>Hand</div>
-            <div>State</div>
-            <div>Reviews</div>
-            <div>Accuracy</div>
-            <div>Difficulty</div>
-            <div>Interval</div>
-            <div>Lapses</div>
-            <div>Due Date</div>
+            <div className="sortable-header" onClick={() => handleColumnClick('hand')}>
+              Hand{getSortIndicator('hand')}
+            </div>
+            <div className="sortable-header" onClick={() => handleColumnClick('state')}>
+              State{getSortIndicator('state')}
+            </div>
+            <div className="sortable-header" onClick={() => handleColumnClick('reviews')}>
+              Reviews{getSortIndicator('reviews')}
+            </div>
+            <div className="sortable-header" onClick={() => handleColumnClick('accuracy')}>
+              Accuracy{getSortIndicator('accuracy')}
+            </div>
+            <div className="sortable-header" onClick={() => handleColumnClick('difficulty')}>
+              Difficulty{getSortIndicator('difficulty')}
+            </div>
+            <div className="sortable-header" onClick={() => handleColumnClick('interval')}>
+              Interval{getSortIndicator('interval')}
+            </div>
+            <div className="sortable-header" onClick={() => handleColumnClick('lapses')}>
+              Lapses{getSortIndicator('lapses')}
+            </div>
+            <div className="sortable-header" onClick={() => handleColumnClick('dueDate')}>
+              Due Date{getSortIndicator('dueDate')}
+            </div>
             <div>Actions</div>
           </div>
           

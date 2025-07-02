@@ -30,7 +30,24 @@ export interface QuizState {
 export const saveHandProgress = (handId: string, progress: HandProgress): void => {
   try {
     const allProgress = getAllHandProgress();
-    allProgress[handId] = progress;
+    
+    // Convert Date objects to epoch milliseconds for consistent storage
+    const progressToStore = { ...progress };
+    if (progressToStore.fsrsCard) {
+      progressToStore.fsrsCard = { ...progressToStore.fsrsCard };
+      if (progressToStore.fsrsCard.due) {
+        progressToStore.fsrsCard.due = progressToStore.fsrsCard.due instanceof Date 
+          ? progressToStore.fsrsCard.due 
+          : new Date(progressToStore.fsrsCard.due);
+      }
+      if (progressToStore.fsrsCard.lastReview) {
+        progressToStore.fsrsCard.lastReview = progressToStore.fsrsCard.lastReview instanceof Date 
+          ? progressToStore.fsrsCard.lastReview 
+          : new Date(progressToStore.fsrsCard.lastReview);
+      }
+    }
+    
+    allProgress[handId] = progressToStore;
     localStorage.setItem(STORAGE_KEYS.HAND_PROGRESS, JSON.stringify(allProgress));
   } catch (error) {
     console.error('Failed to save hand progress:', error);
@@ -54,20 +71,54 @@ export const getAllHandProgress = (): Record<string, HandProgress> => {
     
     const parsed = JSON.parse(stored);
     
-    // Convert date strings back to Date objects for FSRS cards
+    // Convert date strings/numbers back to Date objects for FSRS cards
     Object.values(parsed).forEach((progress: any) => {
       if (progress.fsrsCard) {
         if (progress.fsrsCard.due) {
-          progress.fsrsCard.due = new Date(progress.fsrsCard.due);
+          // Handle both string dates and epoch milliseconds
+          const dueValue = progress.fsrsCard.due;
+          if (typeof dueValue === 'number') {
+            progress.fsrsCard.due = new Date(dueValue);
+          } else if (typeof dueValue === 'string') {
+            progress.fsrsCard.due = new Date(dueValue);
+          }
+          
+          // Validate the date
+          if (isNaN(progress.fsrsCard.due.getTime())) {
+            console.warn('Invalid due date detected, setting to current time:', dueValue);
+            progress.fsrsCard.due = new Date();
+          }
         }
         if (progress.fsrsCard.lastReview) {
-          progress.fsrsCard.lastReview = new Date(progress.fsrsCard.lastReview);
+          const lastReviewValue = progress.fsrsCard.lastReview;
+          if (typeof lastReviewValue === 'number') {
+            progress.fsrsCard.lastReview = new Date(lastReviewValue);
+          } else if (typeof lastReviewValue === 'string') {
+            progress.fsrsCard.lastReview = new Date(lastReviewValue);
+          }
+          
+          // Validate the date
+          if (isNaN(progress.fsrsCard.lastReview.getTime())) {
+            console.warn('Invalid lastReview date detected, setting to current time:', lastReviewValue);
+            progress.fsrsCard.lastReview = new Date();
+          }
         }
       }
       if (progress.reviewHistory) {
         progress.reviewHistory.forEach((review: any) => {
           if (review.reviewTime) {
-            review.reviewTime = new Date(review.reviewTime);
+            const reviewTimeValue = review.reviewTime;
+            if (typeof reviewTimeValue === 'number') {
+              review.reviewTime = new Date(reviewTimeValue);
+            } else if (typeof reviewTimeValue === 'string') {
+              review.reviewTime = new Date(reviewTimeValue);
+            }
+            
+            // Validate the date
+            if (isNaN(review.reviewTime.getTime())) {
+              console.warn('Invalid reviewTime date detected, setting to current time:', reviewTimeValue);
+              review.reviewTime = new Date();
+            }
           }
         });
       }

@@ -165,6 +165,25 @@
   color: #4a5568;
 }
 
+.sortable-header {
+  cursor: pointer;
+  padding: 4px;
+  border-radius: 4px;
+  transition: background-color 0.2s ease;
+  user-select: none;
+}
+
+.sortable-header:hover {
+  background: #d1d9e1;
+  color: #2d3748;
+}
+
+.sort-hint {
+  color: #718096;
+  font-size: 0.75rem;
+  font-style: italic;
+}
+
 .table-body {
   flex: 1;
   overflow-y: auto;

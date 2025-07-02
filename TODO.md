@@ -4,7 +4,7 @@
 - [x] Scan through the codebase for TODO comments and add them to this file as the top of the high priority.
 
 ### High Priority
-- [ ] Fix problems with spaced repetition / FSRS algorithm problems.
+- [x] Fix problems with spaced repetition / FSRS algorithm problems.
 - [x] Handling of missingHandTreatment should be done in `getRangeData()`
 - [x] Setting of missingHandTreatment by grouping. E.g., set in index.ts, then individual files like `CO-vs-SB-3bet.ts` can explicitly set it to override the folder wide setting.
 - [x] Add support for 4bet vs 5bet ranges in A) the home page range explorer, fix bugs where the quiz for these aren't working. CO 3bet vs BU jam is currently in the `RFI-vs-3bet` folder.
@@ -24,8 +24,8 @@
 
 ### Spaced repetition / FSRS problems
 - Bugs
-  - [ ] The remaining cards to review display and the sampler have a discrepancy. The sampler should only be drawing from hands that are due or new but for some reason hands that aren't due are being sampled.
-  - [ ] The 3bet vs 4bet quiz isn't reading the data correctly. When CO 4bet vs BU jam quiz is selected, the `BB 3BET vs SB 4BET` range gets loaded instead.
+  - [x] The remaining cards to review display and the sampler have a discrepancy. The sampler should only be drawing from hands that are due or new but for some reason hands that aren't due are being sampled.
+  - [x] The 3bet vs 4bet quiz isn't reading the data correctly. When CO 4bet vs BU jam quiz is selected, the `BB 3BET vs SB 4BET` range gets loaded instead.
 - UI improvements
   - [ ] spaced repetition sampling should be the default instead of random
   - [ ] FSRS debug panel should be able to sort by any of the columns by clicking on the column title. Clicking once sorts it by descending, clicking it again reverse it to sort by ascending.

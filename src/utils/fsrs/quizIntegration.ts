@@ -33,6 +33,13 @@ export const resolveRangeCombo = (
         rangeCombo = `${heroPosition}_RFI_vs_3BET`;
       }
       break;
+    case '3bet vs 4bet':
+      if (opponentPositions.length > 0) {
+        rangeCombo = `${heroPosition}_3BET_vs_${opponentPositions[0]}_4BET`;
+      } else {
+        rangeCombo = `${heroPosition}_3BET_vs_4BET`;
+      }
+      break;
     case '4bet vs JAM':
       if (opponentPositions.length > 0) {
         rangeCombo = `${heroPosition}_4BET_vs_${opponentPositions[0]}_JAM`;
@@ -198,17 +205,22 @@ export const getDueCardsInfo = (
       // Debug logging for date comparison issues
       const handName = handId.split('_')[0];
       if (handName === 'KTs' || handName === 'A9s' || handName === 'AQs') {
-        console.log(`🔍 Debug ${handName}:`, {
+        const timeDiff = card.due.getTime() - now.getTime();
+        const daysDiff = timeDiff / (1000 * 60 * 60 * 24);
+        console.log(`🔍 FSRS Debug ${handName}:`, {
           handId,
           dueDate: card.due.toISOString(),
           currentTime: now.toISOString(),
           futureDate: futureDate.toISOString(),
           daysAhead,
+          daysDifference: Math.round(daysDiff * 100) / 100,
           isDue,
           isHard,
           hasLapses,
           difficulty: card.difficulty,
-          lapses: card.lapses
+          lapses: card.lapses,
+          state: card.state,
+          reps: card.reps
         });
       }
       
@@ -229,7 +241,7 @@ export const getDueCardsInfo = (
   // All due cards include:
   // 1. New cards (never reviewed) - always need review
   // 2. Actually due cards (due <= futureDate) - scheduled for review
-  // 3. Difficult/lapsed cards (difficulty > 6 OR lapses > 0) - prioritized for review even if not technically "due"
+  // Note: Only include difficult cards if they are actually due, not just because they're difficult
   // This matches the sampling logic in getWeightedHandSelection() for consistency
   const allDueHandIds = [...newHandIds, ...dueHandIds, ...difficultHandIds];
   
@@ -293,15 +305,17 @@ export const getWeightedHandSelection = (
     }
   });
   
-  // Create weighted array: due cards get highest priority, then new, then difficult, then review
+  // Create weighted array: only include cards that should be reviewed
+  // Don't include review cards (not due) as they shouldn't be sampled
   const weightedSelection = [
     ...Array(5).fill(dueCards).flat(),      // Due cards: 5x weight
     ...Array(3).fill(newCards).flat(),      // New cards: 3x weight  
-    ...Array(2).fill(difficultCards).flat(), // Difficult cards: 2x weight
-    ...reviewCards                          // Review cards: 1x weight
+    ...Array(2).fill(difficultCards).flat() // Difficult cards: 2x weight
+    // Removed reviewCards - cards not due shouldn't be sampled
   ].filter(handId => handId); // Remove empty entries
   
-  return weightedSelection.length > 0 ? weightedSelection : allHandIds;
+  // If no cards are due/new/difficult, return empty array to force error handling
+  return weightedSelection;
 };
 
 // Check if a range has any progress data

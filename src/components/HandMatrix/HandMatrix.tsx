@@ -285,6 +285,7 @@ const HandMatrix: React.FC<HandMatrixProps> = ({
         return 'gray';
         
       case 'RFI vs 3bet':
+      case '3bet vs 4bet':
       case '4bet vs JAM':
         if (raise > 0 && call > 0) return '#9C27B0'; // Mixed raise/call (purple for mixed strategy)
         if (raise > 0) return '#c62828'; // Any raise (dark red)

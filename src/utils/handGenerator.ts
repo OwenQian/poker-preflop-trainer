@@ -148,13 +148,22 @@ export const generateQuizQuestion = (
         frequencies
       });
     } else {
-      // TODO: prompt the user if they want to continue. If they choose to continue then proceed with random sampling from the range.
-      // Fallback to random if no weighted selection available
+      // No FSRS-based selection available - all cards are scheduled for future review
+      // This can happen when user is ahead of schedule or has completed recent reviews
+      console.warn('No due/new cards available for FSRS sampling, falling back to random selection');
+      
+      // Fallback to random sampling from available hands
       const [randomHandName, randomFrequencies] = availableHands[
         Math.floor(Math.random() * availableHands.length)
       ];
       handName = randomHandName;
       frequencies = randomFrequencies;
+      
+      console.log('📋 Random fallback used:', {
+        reason: 'No due cards available',
+        selectedHand: randomHandName,
+        totalAvailableHands: availableHands.length
+      });
     }
   } else {
     // Random sampling (original behavior)

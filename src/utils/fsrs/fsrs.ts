@@ -139,8 +139,7 @@ export class FSRS {
       }
     }
 
-    // TODO: make sure all the dates are encoded as seconds since epoch
-    // Display in the browser can convert and show show local time
+    // Calculate due date as milliseconds since epoch for consistent storage
     newCard.due = new Date(now.getTime() + newCard.scheduledDays * 24 * 60 * 60 * 1000);
     return newCard;
   }
