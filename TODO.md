@@ -1,20 +1,20 @@
 # Preflop Trainer - TODO
 
 ## Current Tasks
-- [x] (nit) after hitting the review limit the pop up should only happen once, not on every subsequent review
-- [x] (nit) the 1,2,3 shortcut keys shouldn't hijack modifier keys
+- [x] Scan through the codebase for TODO comments and add them to this file as the top of the high priority.
 
 ### High Priority
 - [ ] Fix problems with spaced repetition / FSRS algorithm problems.
-- [ ] **Create Postflop Visualizer** - Build dedicated postflop analysis page with flop selection and equity visualization
+- [x] Handling of missingHandTreatment should be done in `getRangeData()`
+- [x] Setting of missingHandTreatment by grouping. E.g., set in index.ts, then individual files like `CO-vs-SB-3bet.ts` can explicitly set it to override the folder wide setting.
+- [x] Add support for 4bet vs 5bet ranges in A) the home page range explorer, fix bugs where the quiz for these aren't working. CO 3bet vs BU jam is currently in the `RFI-vs-3bet` folder.
 - [ ] Implement parent range feature so that the sampler will know what the full range is and thus sample hands that are 100% frequency folds.
   - If a hand is in the parent range but doesn't appear in the child range, then the program should treat that as if it's a 100% fold.
   - This behavior is related to the treatment missingHandTreatment: 'fold'. However, instead of treating any of the missing 169 hands as fold, it treats missing hands in the parent range as 100% fold. Since the behavior is related, the implementation should be cohesive between the two.
   - Add a new missingHandTreatment option: "parent". When this is set then the behavior will be to treat hands that are in the parent range but not in the child range as fold:100%. Should also add a field to specify which range is the parent. If no parent is explicitly specified, default to a parent range of 100% of hands (169) in which case the behavior would be equivalent to missingHandTreatment: fold.
-- [ ] Setting of missingHandTreatment by grouping. E.g., set in index.ts, then individual files like `CO-vs-SB-3bet.ts` can explicitly set it to override the folder wide setting.
-- [ ] Handling of missingHandTreatment should be done in `getRangeData()`
-- [ ] Add support for 4bet vs 5bet ranges in A) the home page range explorer, fix bugs where the quiz for these aren't working. CO 3bet vs BU jam is currently in the `RFI-vs-3bet` folder.
-- [ ] If the primary range can't be found in `quizIntegration` then display an error instead of falling back to a range.
+- [x] If the primary range can't be found in `quizIntegration` then display an error instead of falling back to a range.
+- [ ] Create test suite for FSRS spaced repetition to test that it's working correctly.
+- [ ] **Create Postflop Visualizer** - Build dedicated postflop analysis page with flop selection and equity visualization
 
 ### Backlog
 - [ ] **Make the preflop quiz work** - Implement the quiz functionality to allow users to practice preflop decisions with spaced repetition learning

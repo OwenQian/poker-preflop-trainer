@@ -29,6 +29,10 @@ export interface RangeData {
   missingHandTreatment?: 'not-in-range' | 'fold'; // How to treat hands not explicitly defined
 }
 
+export interface RangeCategoryConfig {
+  defaultMissingHandTreatment: 'not-in-range' | 'fold';
+}
+
 export type GradingMode = 'strict' | 'lax' | 'randomizer';
 export type SamplingMode = 'random' | 'spaced-repetition';
 

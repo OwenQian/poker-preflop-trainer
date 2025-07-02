@@ -61,8 +61,8 @@ const MultiRangeDisplay: React.FC<MultiRangeDisplayProps> = ({
     );
   }
 
-  // For vs RFI, RFI vs 3bet, and 3bet vs 4bet, we need separate charts for each opponent
-  if (rangeCategory === 'vs RFI' || rangeCategory === 'RFI vs 3bet' || rangeCategory === '3bet vs 4bet') {
+  // For vs RFI, RFI vs 3bet, 3bet vs 4bet, and 4bet vs JAM, we need separate charts for each opponent
+  if (rangeCategory === 'vs RFI' || rangeCategory === 'RFI vs 3bet' || rangeCategory === '3bet vs 4bet' || rangeCategory === '4bet vs JAM') {
     if (opponentPositions.length === 0) {
       return (
         <div className="multi-range-display">
@@ -91,12 +91,18 @@ const MultiRangeDisplay: React.FC<MultiRangeDisplayProps> = ({
             const heroRfiCombo = `${heroPosition}_RFI`;
             const heroRfiRange = getRangeData(heroRfiCombo, 'RFI');
             dependencyRangeData = heroRfiRange?.hands;
-          } else { // 3bet vs 4bet
+          } else if (rangeCategory === '3bet vs 4bet') {
             positionCombo = `${heroPosition}_3BET_vs_${opponentPosition}_4BET`;
             // For 3bet vs 4bet, the dependency is our own 3bet range
             const hero3betCombo = `${heroPosition}_vs_${opponentPosition}_RFI`;
             const hero3betRange = getRangeData(hero3betCombo, 'vs RFI');
             dependencyRangeData = hero3betRange?.hands;
+          } else { // 4bet vs JAM
+            positionCombo = `${heroPosition}_4BET_vs_${opponentPosition}_JAM`;
+            // For 4bet vs JAM, the dependency is our own 4bet range
+            const hero4betCombo = `${heroPosition}_RFI_vs_${opponentPosition}_3BET`;
+            const hero4betRange = getRangeData(hero4betCombo, 'RFI vs 3bet');
+            dependencyRangeData = hero4betRange?.hands;
           }
           
           const rangeData = getRangeData(positionCombo, rangeCategory);
@@ -125,7 +131,7 @@ const MultiRangeDisplay: React.FC<MultiRangeDisplayProps> = ({
                   <strong>4-bet Sizing:</strong> 2.5x their total bet size
                 </div>
               )}
-              {rangeCategory === '3bet vs 4bet' && (
+              {rangeCategory === '4bet vs JAM' && (
                 <div className="bet-sizing-guidance">
                   <strong>5-bet Sizing:</strong> 2.2x their total bet size or jam
                 </div>

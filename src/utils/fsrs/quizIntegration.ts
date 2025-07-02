@@ -10,7 +10,7 @@ export const resolveRangeCombo = (
   heroPosition: Position,
   opponentPositions: Position[],
   rangeCategory: RangeCategory
-): { rangeCombo: string; effectiveOpponents: Position[] } => {
+): { rangeCombo: string; effectiveOpponents: Position[]; error?: string } => {
   // Generate initial position combination string based on range category
   let rangeCombo: string;
   let effectiveOpponents = [...opponentPositions];
@@ -33,14 +33,13 @@ export const resolveRangeCombo = (
         rangeCombo = `${heroPosition}_RFI_vs_3BET`;
       }
       break;
-    case '3bet vs 4bet':
+    case '4bet vs JAM':
       if (opponentPositions.length > 0) {
-        rangeCombo = `${heroPosition}_3BET_vs_${opponentPositions[0]}_4BET`;
+        rangeCombo = `${heroPosition}_4BET_vs_${opponentPositions[0]}_JAM`;
       } else {
-        rangeCombo = `${heroPosition}_3BET_vs_4BET`;
+        rangeCombo = `${heroPosition}_4BET_vs_JAM`;
       }
       break;
-    // TODO: support 4bet vs ranges
     case 'vs Limp':
       if (opponentPositions.length > 0) {
         rangeCombo = `${heroPosition}_vs_${opponentPositions[0]}_LIMP`;
@@ -53,69 +52,18 @@ export const resolveRangeCombo = (
   }
   
   // Check if primary range exists
-  // TODO: if the range doesn't exist display an error instead of fallback
   let rangeData = getRangeData(rangeCombo, rangeCategory);
   
-  // Apply fallback strategies if primary range doesn't exist
+  // Return error if primary range doesn't exist instead of using fallback
   if (!rangeData) {
-    switch (rangeCategory) {
-      case 'RFI':
-        // Try standard RFI fallbacks
-        rangeData = getRangeData(`${heroPosition}_RFI`, rangeCategory) || 
-                   getRangeData('BU_RFI', rangeCategory);
-        if (rangeData && getRangeData(`${heroPosition}_RFI`, rangeCategory)) {
-          rangeCombo = `${heroPosition}_RFI`;
-        } else if (rangeData) {
-          rangeCombo = 'BU_RFI';
-        }
-        break;
-      case 'vs RFI':
-        // Try with BU as opponent
-        rangeData = getRangeData('BB_vs_BU_RFI', rangeCategory);
-        if (rangeData) {
-          rangeCombo = 'BB_vs_BU_RFI';
-          effectiveOpponents = ['BU'];
-        }
-        break;
-      case 'RFI vs 3bet':
-        // Try specific fallbacks
-        rangeData = getRangeData('CO_RFI_vs_SB_3BET', rangeCategory);
-        if (rangeData) {
-          rangeCombo = 'CO_RFI_vs_SB_3BET';
-          effectiveOpponents = ['SB'];
-        } else {
-          rangeData = getRangeData('CO_RFI_vs_BU_3BET', rangeCategory);
-          if (rangeData) {
-            rangeCombo = 'CO_RFI_vs_BU_3BET';
-            effectiveOpponents = ['BU'];
-          }
-        }
-        break;
-      case '3bet vs 4bet':
-        // TODO: this fallback is why when I select CO 4bet vs BU the BB vs SB range is showing up.
-        rangeData = getRangeData('BB_3BET_vs_SB_4BET', rangeCategory) ||
-                   getRangeData('SB_3BET_vs_CO_4BET', rangeCategory);
-        if (rangeData && getRangeData('BB_3BET_vs_SB_4BET', rangeCategory)) {
-          rangeCombo = 'BB_3BET_vs_SB_4BET';
-          effectiveOpponents = ['SB'];
-        } else if (rangeData) {
-          rangeCombo = 'SB_3BET_vs_CO_4BET';
-          effectiveOpponents = ['CO'];
-        }
-        break;
-      case 'vs Limp':
-        rangeData = getRangeData(`${heroPosition}_vs_LIMP`, rangeCategory) ||
-                   getRangeData(`${heroPosition}_vs_SB_LIMP`, rangeCategory);
-        if (rangeData && getRangeData(`${heroPosition}_vs_LIMP`, rangeCategory)) {
-          rangeCombo = `${heroPosition}_vs_LIMP`;
-        } else if (rangeData) {
-          rangeCombo = `${heroPosition}_vs_SB_LIMP`;
-          effectiveOpponents = ['SB'];
-        }
-        break;
-    }
+    return {
+      rangeCombo,
+      effectiveOpponents,
+      error: `No range data found for ${rangeCombo} in category ${rangeCategory}`
+    };
   }
-  
+
+  // Primary range exists, return successful result
   return { rangeCombo, effectiveOpponents };
 };
 
@@ -144,7 +92,15 @@ export const getHandIdsForRange = (
   rangeCategory: RangeCategory
 ): string[] => {
   // Use centralized range resolution logic to ensure consistency
-  const { rangeCombo, effectiveOpponents } = resolveRangeCombo(heroPosition, opponentPositions, rangeCategory);
+  const resolveResult = resolveRangeCombo(heroPosition, opponentPositions, rangeCategory);
+  
+  // If there's an error resolving the range, return empty array
+  if (resolveResult.error) {
+    console.error('Range resolution error:', resolveResult.error);
+    return [];
+  }
+  
+  const { rangeCombo, effectiveOpponents } = resolveResult;
 
   const rangeData = getRangeData(rangeCombo, rangeCategory);
   if (!rangeData?.hands) {
@@ -212,6 +168,15 @@ export const getDueCardsInfo = (
   
   // Get all possible handIds for this range
   const allHandIds = getHandIdsForRange(heroPosition, opponentPositions, gradingMode, rangeCategory);
+  
+  // If no hand IDs (likely due to range resolution error), return empty result
+  if (allHandIds.length === 0) {
+    return {
+      dueCount: 0,
+      totalCards: 0,
+      dueCards: []
+    };
+  }
   
   // Separate cards by their status (matching getWeightedHandSelection logic)
   const newHandIds: string[] = [];
@@ -290,6 +255,11 @@ export const getWeightedHandSelection = (
   
   // Get all possible handIds for this range
   const allHandIds = getHandIdsForRange(heroPosition, opponentPositions, gradingMode, rangeCategory);
+  
+  // If no hand IDs (likely due to range resolution error), return empty array
+  if (allHandIds.length === 0) {
+    return [];
+  }
   
   // Separate cards by priority
   const dueCards: string[] = [];

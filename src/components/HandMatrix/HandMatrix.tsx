@@ -198,6 +198,7 @@ const HandMatrix: React.FC<HandMatrixProps> = ({
           case 'vs RFI': return '#c62828'; // dark red
           case 'RFI vs 3bet': return '#c62828'; // dark red
           case '3bet vs 4bet': return '#c62828'; // dark red
+          case '4bet vs JAM': return '#c62828'; // dark red
           case 'vs Limp': return '#ff9500'; // orange
           default: return '#ff9500';
         }
@@ -207,6 +208,7 @@ const HandMatrix: React.FC<HandMatrixProps> = ({
           case 'vs RFI': return '#4CAF50'; // green
           case 'RFI vs 3bet': return '#4CAF50'; // green
           case '3bet vs 4bet': return '#4CAF50'; // green
+          case '4bet vs JAM': return '#4CAF50'; // green
           default: return '#8BC34A'; // light green
         }
       })(),
@@ -283,7 +285,7 @@ const HandMatrix: React.FC<HandMatrixProps> = ({
         return 'gray';
         
       case 'RFI vs 3bet':
-      case '3bet vs 4bet':
+      case '4bet vs JAM':
         if (raise > 0 && call > 0) return '#9C27B0'; // Mixed raise/call (purple for mixed strategy)
         if (raise > 0) return '#c62828'; // Any raise (dark red)
         if (call > 0) return '#4CAF50'; // Any call (green)
@@ -441,7 +443,7 @@ const HandMatrix: React.FC<HandMatrixProps> = ({
               )}
             </>
           )}
-          {(rangeCategory === 'RFI vs 3bet' || rangeCategory === '3bet vs 4bet') && (
+          {(rangeCategory === 'RFI vs 3bet' || rangeCategory === '4bet vs JAM') && (
             <>
               <div className="legend-item">
                 <div className="legend-color darkred"></div>

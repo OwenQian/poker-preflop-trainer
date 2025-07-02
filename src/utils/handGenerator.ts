@@ -89,7 +89,15 @@ export const generateQuizQuestion = (
   daysAhead: number = 0
 ): QuizQuestion | null => {
   // Use centralized range resolution to ensure consistency with FSRS visualization
-  const { rangeCombo: positionCombo, effectiveOpponents } = resolveRangeCombo(heroPosition, opponentPositions, rangeCategory);
+  const resolveResult = resolveRangeCombo(heroPosition, opponentPositions, rangeCategory);
+  
+  // If there's an error resolving the range, return null and log the error
+  if (resolveResult.error) {
+    console.error('Range resolution error in quiz generation:', resolveResult.error);
+    return null;
+  }
+  
+  const { rangeCombo: positionCombo, effectiveOpponents } = resolveResult;
   
   // Get range data for the resolved position combination
   const rangeData = getRangeData(positionCombo, rangeCategory);
@@ -99,28 +107,11 @@ export const generateQuizQuestion = (
     return null;
   }
   
-  // Check if range data specifies to treat missing hands as fold
-  // If so, sample from ALL possible hands, otherwise only sample explicitly specified hands
-  // TODO: this should be handled in `getRangeData()` instead of here
-  const shouldSampleAllHands = rangeData?.missingHandTreatment === 'fold';
-  
-  let availableHands: [HandName, any][];
-  
-  if (shouldSampleAllHands) {
-    // Sample from all 169 possible starting hands
-    // Missing hands are treated as 100% fold per the range data setting
-    const allHands = getAllHandNames();
-    availableHands = allHands.map(handName => {
-      const frequencies = rangeData!.hands[handName] || { raise: 0, call: 0, fold: 100 };
-      return [handName, frequencies] as [HandName, any];
-    });
-  } else {
-    // Only sample from hands explicitly specified in the range data
-    // This includes hands with 100% fold if they're explicitly specified
-    availableHands = Object.entries(rangeData!.hands).filter(
-      ([_, frequencies]) => frequencies.raise + frequencies.call + frequencies.fold > 0
-    );
-  }
+  // getRangeData() now handles missingHandTreatment logic
+  // Sample from all hands in the range data (which may include all 169 hands if treatment is 'fold')
+  const availableHands = Object.entries(rangeData.hands).filter(
+    ([_, frequencies]) => frequencies.raise + frequencies.call + frequencies.fold > 0
+  );
   
   if (availableHands.length === 0) {
     console.error('No available hands in range data');
