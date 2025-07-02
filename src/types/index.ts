@@ -96,3 +96,10 @@ export interface QuizResult {
   isCorrect: boolean;
   explanation: string;
 }
+
+export interface QuizGenerationResult {
+  success: boolean;
+  question?: QuizQuestion;
+  error?: 'no-due-cards' | 'no-range-data' | 'no-available-hands';
+  errorDetails?: string;
+}

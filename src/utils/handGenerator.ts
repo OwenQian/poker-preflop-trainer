@@ -1,4 +1,4 @@
-import { Card, Hand, HandName, Position, QuizQuestion, Rank, Suit, Action, SamplingMode, GradingMode } from '../types';
+import { Card, Hand, HandName, Position, QuizQuestion, QuizGenerationResult, Rank, Suit, Action, SamplingMode, GradingMode } from '../types';
 import { getRangeData } from '../data/sampleRanges';
 import { RangeCategory } from '../components/RangeTabSelector/RangeTabSelector';
 import { getWeightedHandSelection, generateHandId, resolveRangeCombo } from './fsrs/quizIntegration';
@@ -80,21 +80,26 @@ export const handNameToHand = (handName: HandName): Hand => {
   };
 };
 
-export const generateQuizQuestion = (
+export const generateQuizQuestionWithResult = (
   heroPosition: Position,
   opponentPositions: Position[],
   rangeCategory: RangeCategory = 'RFI',
   samplingMode: SamplingMode = 'spaced-repetition',
   gradingMode: GradingMode = 'strict',
-  daysAhead: number = 0
-): QuizQuestion | null => {
+  daysAhead: number = 0,
+  sessionCorrectAnswers?: Record<string, number>
+): QuizGenerationResult => {
   // Use centralized range resolution to ensure consistency with FSRS visualization
   const resolveResult = resolveRangeCombo(heroPosition, opponentPositions, rangeCategory);
   
-  // If there's an error resolving the range, return null and log the error
+  // If there's an error resolving the range, return error result
   if (resolveResult.error) {
     console.error('Range resolution error in quiz generation:', resolveResult.error);
-    return null;
+    return {
+      success: false,
+      error: 'no-range-data',
+      errorDetails: resolveResult.error
+    };
   }
   
   const { rangeCombo: positionCombo, effectiveOpponents } = resolveResult;
@@ -104,7 +109,11 @@ export const generateQuizQuestion = (
   
   if (!rangeData) {
     console.error(`No range data available for ${positionCombo} in category ${rangeCategory}`);
-    return null;
+    return {
+      success: false,
+      error: 'no-range-data',
+      errorDetails: `No range data available for ${positionCombo} in category ${rangeCategory}`
+    };
   }
   
   // getRangeData() now handles missingHandTreatment logic
@@ -115,7 +124,11 @@ export const generateQuizQuestion = (
   
   if (availableHands.length === 0) {
     console.error('No available hands in range data');
-    return null;
+    return {
+      success: false,
+      error: 'no-available-hands',
+      errorDetails: 'No available hands in range data'
+    };
   }
   
   // Select hand based on sampling mode
@@ -124,7 +137,7 @@ export const generateQuizQuestion = (
   
   if (samplingMode === 'spaced-repetition') {
     // Use FSRS-based sampling with the effective opponents from range resolution
-    const weightedHandIds = getWeightedHandSelection(heroPosition, effectiveOpponents, gradingMode, rangeCategory, daysAhead);
+    const weightedHandIds = getWeightedHandSelection(heroPosition, effectiveOpponents, gradingMode, rangeCategory, daysAhead, sessionCorrectAnswers);
     
     // Debug logging to track sampling consistency
     console.log('🎯 FSRS Sampling Debug:', {
@@ -150,20 +163,13 @@ export const generateQuizQuestion = (
     } else {
       // No FSRS-based selection available - all cards are scheduled for future review
       // This can happen when user is ahead of schedule or has completed recent reviews
-      console.warn('No due/new cards available for FSRS sampling, falling back to random selection');
+      console.warn('No due/new cards available for FSRS sampling');
       
-      // Fallback to random sampling from available hands
-      const [randomHandName, randomFrequencies] = availableHands[
-        Math.floor(Math.random() * availableHands.length)
-      ];
-      handName = randomHandName;
-      frequencies = randomFrequencies;
-      
-      console.log('📋 Random fallback used:', {
-        reason: 'No due cards available',
-        selectedHand: randomHandName,
-        totalAvailableHands: availableHands.length
-      });
+      return {
+        success: false,
+        error: 'no-due-cards',
+        errorDetails: 'No due/new cards available for spaced repetition. All cards are scheduled for future review.'
+      };
     }
   } else {
     // Random sampling (original behavior)
@@ -195,15 +201,32 @@ export const generateQuizQuestion = (
   const randomNumber = Math.floor(Math.random() * 100) + 1;
   
   return {
-    hand,
-    handName,
-    position: heroPosition,
-    opponents: effectiveOpponents, // Use effective opponents for consistency
-    correctActions,
-    frequencies,
-    randomNumber,
-    rangeCombo: positionCombo
+    success: true,
+    question: {
+      hand,
+      handName,
+      position: heroPosition,
+      opponents: effectiveOpponents, // Use effective opponents for consistency
+      correctActions,
+      frequencies,
+      randomNumber,
+      rangeCombo: positionCombo
+    }
   };
+};
+
+// Backward compatibility function
+export const generateQuizQuestion = (
+  heroPosition: Position,
+  opponentPositions: Position[],
+  rangeCategory: RangeCategory = 'RFI',
+  samplingMode: SamplingMode = 'spaced-repetition',
+  gradingMode: GradingMode = 'strict',
+  daysAhead: number = 0,
+  sessionCorrectAnswers?: Record<string, number>
+): QuizQuestion | null => {
+  const result = generateQuizQuestionWithResult(heroPosition, opponentPositions, rangeCategory, samplingMode, gradingMode, daysAhead, sessionCorrectAnswers);
+  return result.success ? result.question! : null;
 };
 
 export const getAllHandNames = (): HandName[] => {

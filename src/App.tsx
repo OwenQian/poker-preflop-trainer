@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { Position, GradingMode, QuizQuestion, QuizAnswer, QuizResult, HandProgress, SamplingMode } from './types';
 import { FSRS } from './utils/fsrs/fsrs';
-import { generateQuizQuestion } from './utils/handGenerator';
+import { generateQuizQuestionWithResult } from './utils/handGenerator';
 import { gradeAnswer, GradingResult, calculateFSRSRating } from './utils/gradingSystem';
 import { getRangeData } from './data/sampleRanges';
 import { 
@@ -52,6 +52,7 @@ const App: React.FC = () => {
   });
   
   const [sessionHandCounts, setSessionHandCounts] = useState<Record<string, number>>({});
+  const [sessionCorrectAnswers, setSessionCorrectAnswers] = useState<Record<string, number>>({});
   const [showFSRSDebug, setShowFSRSDebug] = useState<boolean>(false);
   const [sessionLimit, setSessionLimit] = useState<number>(50); // Default session limit
   const [sessionLimitWarningShown, setSessionLimitWarningShown] = useState<boolean>(false); // Track if popup shown
@@ -104,13 +105,27 @@ const App: React.FC = () => {
       return;
     }
 
-    const question = generateQuizQuestion(heroPosition, opponentPositions, rangeCategory, samplingMode, gradingMode, daysAhead);
-    if (!question) {
-      alert('Unable to generate quiz question. Please try different range settings.');
-      return;
+    const result = generateQuizQuestionWithResult(heroPosition, opponentPositions, rangeCategory, samplingMode, gradingMode, daysAhead, sessionCorrectAnswers);
+    
+    if (!result.success) {
+      if (result.error === 'no-due-cards') {
+        // Show informational alert about no due cards
+        const daysAheadText = daysAhead > 0 ? ` (within ${daysAhead} days)` : '';
+        alert(
+          `No cards are due for review in spaced repetition mode${daysAheadText}. All cards are scheduled for future review.\n\n` +
+          'To start a quiz, you can:\n' +
+          '• Switch to "Random" sampling mode, or\n' +
+          '• Increase the "Days Ahead" setting to include more cards for review'
+        );
+        return;
+      } else {
+        // Handle other errors
+        alert(`Unable to generate quiz question: ${result.errorDetails || result.error}`);
+        return;
+      }
+    } else {
+      setCurrentQuestion(result.question!);
     }
-
-    setCurrentQuestion(question);
     setAppState('quiz');
     
     // Reset session stats and hand counts
@@ -121,6 +136,7 @@ const App: React.FC = () => {
     };
     setSessionStats(newStats);
     setSessionHandCounts({});
+    setSessionCorrectAnswers({}); // Reset session loop prevention tracking
     setSessionLimitWarningShown(false); // Reset warning flag for new session
     saveQuizState({ currentSessionStats: newStats });
   };
@@ -143,13 +159,27 @@ const App: React.FC = () => {
       return;
     }
 
-    const question = generateQuizQuestion(heroPosition, opponentPositions, rangeCategory, samplingMode, gradingMode, daysAhead);
-    if (!question) {
-      alert('Unable to generate quiz question. Please try different position settings.');
-      return;
+    const result = generateQuizQuestionWithResult(heroPosition, opponentPositions, rangeCategory, samplingMode, gradingMode, daysAhead, sessionCorrectAnswers);
+    
+    if (!result.success) {
+      if (result.error === 'no-due-cards') {
+        // Show informational alert about no due cards
+        const daysAheadText = daysAhead > 0 ? ` (within ${daysAhead} days)` : '';
+        alert(
+          `No cards are due for review in spaced repetition mode${daysAheadText}. All cards are scheduled for future review.\n\n` +
+          'To start a quiz, you can:\n' +
+          '• Switch to "Random" sampling mode, or\n' +
+          '• Increase the "Days Ahead" setting to include more cards for review'
+        );
+        return;
+      } else {
+        // Handle other errors
+        alert(`Unable to generate quiz question: ${result.errorDetails || result.error}`);
+        return;
+      }
+    } else {
+      setCurrentQuestion(result.question!);
     }
-
-    setCurrentQuestion(question);
     setAppState('quiz');
     
     // Reset session stats and hand counts
@@ -160,6 +190,7 @@ const App: React.FC = () => {
     };
     setSessionStats(newStats);
     setSessionHandCounts({});
+    setSessionCorrectAnswers({}); // Reset session loop prevention tracking
     setSessionLimitWarningShown(false); // Reset warning flag for new session
     saveQuizState({ currentSessionStats: newStats });
   };
@@ -193,6 +224,14 @@ const App: React.FC = () => {
       ...prev,
       [handKey]: (prev[handKey] || 0) + 1
     }));
+
+    // Track correct answers per hand for session loop prevention
+    if (gradingResult.isCorrect) {
+      setSessionCorrectAnswers(prev => ({
+        ...prev,
+        [handKey]: (prev[handKey] || 0) + 1
+      }));
+    }
 
     // Update FSRS progress with result-based rating (include strictness level for separate tracking)
     const handId = `${currentQuestion.handName}_${currentQuestion.position}_vs_${currentQuestion.opponents.join('_')}_${gradingMode}`;
@@ -277,11 +316,43 @@ const App: React.FC = () => {
       return;
     }
     
-    const nextQuestion = generateQuizQuestion(heroPosition, opponentPositions, rangeCategory, samplingMode, gradingMode, daysAhead);
-    if (nextQuestion) {
-      setCurrentQuestion(nextQuestion);
+    const result = generateQuizQuestionWithResult(heroPosition, opponentPositions, rangeCategory, samplingMode, gradingMode, daysAhead, sessionCorrectAnswers);
+    if (result.success) {
+      setCurrentQuestion(result.question!);
     } else {
-      console.error('Failed to generate next question');
+      console.error('Failed to generate next question:', result.error, result.errorDetails);
+      // For next question generation, ask user if they want to continue in random mode
+      if (result.error === 'no-due-cards' && samplingMode === 'spaced-repetition') {
+        const daysAheadText = daysAhead > 0 ? ` (within ${daysAhead} days)` : '';
+        const userChoice = window.confirm(
+          `No more cards are due for review in spaced repetition mode${daysAheadText}.\n\n` +
+          'This can happen when cards get rescheduled beyond your current time window.\n\n' +
+          'Would you like to continue the quiz in Random mode?\n\n' +
+          '• Click "OK" to continue with random questions\n' +
+          '• Click "Cancel" to end the quiz'
+        );
+        
+        if (userChoice) {
+          // Continue with random sampling for the rest of this session
+          setSamplingMode('random');
+          const randomResult = generateQuizQuestionWithResult(heroPosition, opponentPositions, rangeCategory, 'random', gradingMode, daysAhead, sessionCorrectAnswers);
+          if (randomResult.success) {
+            setCurrentQuestion(randomResult.question!);
+          } else {
+            console.error('Failed to generate random question:', randomResult.error);
+            alert('Unable to continue quiz. Returning to setup.');
+            setAppState('range-select');
+          }
+        } else {
+          // User chose to end the quiz
+          alert('Quiz completed! All spaced repetition cards have been reviewed.');
+          setAppState('range-select');
+        }
+      } else {
+        // Handle other errors by ending quiz
+        alert(`Unable to continue quiz: ${result.errorDetails || result.error}`);
+        setAppState('range-select');
+      }
     }
   };
 

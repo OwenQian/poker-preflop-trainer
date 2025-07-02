@@ -258,7 +258,9 @@ export const getWeightedHandSelection = (
   opponentPositions: Position[],
   gradingMode: GradingMode,
   rangeCategory: RangeCategory,
-  daysAhead: number = 0
+  daysAhead: number = 0,
+  sessionCorrectAnswers?: Record<string, number>,
+  maxCorrectPerSession: number = 3
 ): string[] => {
   const fsrs = new FSRS();
   const allProgress = getAllHandProgress();
@@ -305,6 +307,34 @@ export const getWeightedHandSelection = (
     }
   });
   
+  // Filter out hands that have been answered correctly too many times in this session
+  if (sessionCorrectAnswers && maxCorrectPerSession > 0) {
+    const filterOverpracticedHands = (handIds: string[]) => {
+      return handIds.filter(handId => {
+        const handName = handId.split('_')[0]; // Extract hand name from handId
+        const correctCount = sessionCorrectAnswers[handName] || 0;
+        return correctCount < maxCorrectPerSession;
+      });
+    };
+    
+    // Apply filter to all categories
+    dueCards.splice(0, dueCards.length, ...filterOverpracticedHands(dueCards));
+    newCards.splice(0, newCards.length, ...filterOverpracticedHands(newCards));
+    difficultCards.splice(0, difficultCards.length, ...filterOverpracticedHands(difficultCards));
+    reviewCards.splice(0, reviewCards.length, ...filterOverpracticedHands(reviewCards));
+    
+    console.log('🚫 Session filtering applied:', {
+      sessionCorrectAnswers,
+      maxCorrectPerSession,
+      filteredCounts: {
+        dueCards: dueCards.length,
+        newCards: newCards.length,
+        difficultCards: difficultCards.length,
+        reviewCards: reviewCards.length
+      }
+    });
+  }
+  
   // Create weighted array: only include cards that should be reviewed
   // Don't include review cards (not due) as they shouldn't be sampled
   const weightedSelection = [
@@ -314,7 +344,7 @@ export const getWeightedHandSelection = (
     // Removed reviewCards - cards not due shouldn't be sampled
   ].filter(handId => handId); // Remove empty entries
   
-  // If no cards are due/new/difficult, return empty array to force error handling
+  // If no cards are due/new/difficult, return empty array to trigger user prompt
   return weightedSelection;
 };
 

@@ -26,6 +26,7 @@
 - Bugs
   - [x] The remaining cards to review display and the sampler have a discrepancy. The sampler should only be drawing from hands that are due or new but for some reason hands that aren't due are being sampled.
   - [x] The 3bet vs 4bet quiz isn't reading the data correctly. When CO 4bet vs BU jam quiz is selected, the `BB 3BET vs SB 4BET` range gets loaded instead.
+  - [ ] After the pop up that ends the quiz, the stats on the page don't reset until the page is refreshed. So if a spaced repetition quiz just ended because there were no more scheduled cards then we go back to the quiz setup page, that page still shows that the 1 card is due for review. Seems to just be a text update problem because trying to start the quiz again does correctly get stopped by the pop up.
 - UI improvements
   - [ ] spaced repetition sampling should be the default instead of random
   - [ ] FSRS debug panel should be able to sort by any of the columns by clicking on the column title. Clicking once sorts it by descending, clicking it again reverse it to sort by ascending.

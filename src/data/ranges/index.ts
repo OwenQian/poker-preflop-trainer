@@ -3,5 +3,6 @@
 export * from './RFI';
 export * from './vsRFI';
 export * from './RFI-vs-3bet';
+export * from './3bet-vs-4bet';
 export * from './4bet-vs-JAM';
 export * from './vsLimp';

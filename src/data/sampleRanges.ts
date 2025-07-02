@@ -5,6 +5,7 @@ import { RangeCategory } from '../components/RangeTabSelector/RangeTabSelector';
 import * as RFI_RANGES from './ranges/RFI';
 import * as VS_RFI_RANGES from './ranges/vsRFI';
 import * as RFI_VS_3BET_RANGES from './ranges/RFI-vs-3bet';
+import * as THREEBET_VS_FOURBET_RANGES from './ranges/3bet-vs-4bet';
 import * as FOURBET_VS_JAM_RANGES from './ranges/4bet-vs-JAM';
 import * as VS_LIMP_RANGES from './ranges/vsLimp';
 
@@ -12,6 +13,7 @@ import * as VS_LIMP_RANGES from './ranges/vsLimp';
 import { RFI_CATEGORY_CONFIG } from './ranges/RFI';
 import { VS_RFI_CATEGORY_CONFIG } from './ranges/vsRFI';
 import { RFI_VS_3BET_CATEGORY_CONFIG } from './ranges/RFI-vs-3bet';
+import { THREEBET_VS_FOURBET_CATEGORY_CONFIG } from './ranges/3bet-vs-4bet';
 import { FOURBET_VS_JAM_CATEGORY_CONFIG } from './ranges/4bet-vs-JAM';
 import { VS_LIMP_CATEGORY_CONFIG } from './ranges/vsLimp';
 
@@ -19,6 +21,7 @@ import { VS_LIMP_CATEGORY_CONFIG } from './ranges/vsLimp';
 const rfiRanges = Object.values(RFI_RANGES) as RangeData[];
 const vsRfiRanges = Object.values(VS_RFI_RANGES) as RangeData[];
 const rfiVs3betRanges = Object.values(RFI_VS_3BET_RANGES) as RangeData[];
+const threebetVsFourbetRanges = Object.values(THREEBET_VS_FOURBET_RANGES) as RangeData[];
 const fourbetVsJamRanges = Object.values(FOURBET_VS_JAM_RANGES) as RangeData[];
 const vsLimpRanges = Object.values(VS_LIMP_RANGES) as RangeData[];
 
@@ -50,7 +53,7 @@ const CATEGORY_CONFIGS = {
   'RFI': RFI_CATEGORY_CONFIG,
   'vs RFI': VS_RFI_CATEGORY_CONFIG,
   'RFI vs 3bet': RFI_VS_3BET_CATEGORY_CONFIG,
-  '3bet vs 4bet': RFI_VS_3BET_CATEGORY_CONFIG, // Uses same config as RFI vs 3bet
+  '3bet vs 4bet': THREEBET_VS_FOURBET_CATEGORY_CONFIG,
   '4bet vs JAM': FOURBET_VS_JAM_CATEGORY_CONFIG,
   'vs Limp': VS_LIMP_CATEGORY_CONFIG
 };
@@ -63,7 +66,7 @@ export const ALL_RANGES = {
   RFI: rfiRanges,
   'vs RFI': vsRfiRanges,
   'RFI vs 3bet': rfiVs3betRanges,
-  '3bet vs 4bet': rfiVs3betRanges, // Will filter in getRangeData
+  '3bet vs 4bet': threebetVsFourbetRanges,
   '4bet vs JAM': fourbetVsJamRanges,
   'vs Limp': vsLimpRanges
 };
@@ -77,32 +80,8 @@ export const getRangeData = (positionCombo: string, rangeCategory: RangeCategory
     return undefined;
   }
   
-  // Filter ranges based on category
-  if (rangeCategory === 'RFI vs 3bet') {
-    // Only include ranges where hero RFI'd and opponent 3bet (4bet/call/fold decision)
-    categoryRanges = categoryRanges.filter(range => 
-      range && range.positionCombo && 
-      range.positionCombo.includes('_RFI_vs_') && 
-      range.positionCombo.includes('_3BET') &&
-      !range.positionCombo.includes('_3BET_vs_') && // Not opponent 3bet facing hero 4bet
-      !range.positionCombo.includes('_4BET_vs_') // Not hero 4bet facing opponent jam
-    );
-  } else if (rangeCategory === '3bet vs 4bet') {
-    // Include ranges where hero 3bet and opponent 4bet (5bet/call/fold decision)
-    categoryRanges = categoryRanges.filter(range => 
-      range && range.positionCombo && 
-      range.positionCombo.includes('_3BET_vs_') && 
-      range.positionCombo.includes('_4BET') &&
-      !range.positionCombo.includes('_JAM')
-    );
-  } else if (rangeCategory === '4bet vs JAM') {
-    // Include ranges where hero 4bet and opponent jammed (call/fold decision)
-    categoryRanges = categoryRanges.filter(range => 
-      range && range.positionCombo && 
-      range.positionCombo.includes('_4BET_vs_') && 
-      range.positionCombo.includes('_JAM')
-    );
-  }
+  // No filtering needed since categories now have their own separate folders
+  // The ranges are already properly separated by category
   
   // Find the specific range by position combo
   const foundRange = categoryRanges.find(range => range.positionCombo === positionCombo);
@@ -158,32 +137,8 @@ export const getAvailablePositionCombos = (rangeCategory: RangeCategory): string
       return [];
     }
     
-    // Filter ranges based on category
-    if (rangeCategory === 'RFI vs 3bet') {
-      // Only include ranges where hero RFI'd and opponent 3bet (4bet/call/fold decision)
-      categoryRanges = categoryRanges.filter(range => 
-        range && range.positionCombo && 
-        range.positionCombo.includes('_RFI_vs_') && 
-        range.positionCombo.includes('_3BET') &&
-        !range.positionCombo.includes('_3BET_vs_') && // Not opponent 3bet facing hero 4bet
-        !range.positionCombo.includes('_4BET_vs_') // Not hero 4bet facing opponent jam
-      );
-    } else if (rangeCategory === '3bet vs 4bet') {
-      // Include ranges where hero 3bet and opponent 4bet (5bet/call/fold decision)
-      categoryRanges = categoryRanges.filter(range => 
-        range && range.positionCombo && 
-        range.positionCombo.includes('_3BET_vs_') && 
-        range.positionCombo.includes('_4BET') &&
-        !range.positionCombo.includes('_JAM')
-      );
-    } else if (rangeCategory === '4bet vs JAM') {
-      // Include ranges where hero 4bet and opponent jammed (call/fold decision)
-      categoryRanges = categoryRanges.filter(range => 
-        range && range.positionCombo && 
-        range.positionCombo.includes('_4BET_vs_') && 
-        range.positionCombo.includes('_JAM')
-      );
-    }
+    // No filtering needed since categories now have their own separate folders
+    // The ranges are already properly separated by category
     
     // Remove duplicates using Set
     const uniquePositions = Array.from(new Set(categoryRanges.map(range => range.positionCombo).filter(combo => combo)));
