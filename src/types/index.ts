@@ -30,6 +30,7 @@ export interface RangeData {
 }
 
 export type GradingMode = 'strict' | 'lax' | 'randomizer';
+export type SamplingMode = 'random' | 'spaced-repetition';
 
 // FSRS-4 Types
 export type FSRSRating = 1 | 2 | 3 | 4; // Again, Hard, Good, Easy

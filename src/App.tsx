@@ -1,8 +1,8 @@
 import React, { useState, useEffect } from 'react';
-import { Position, GradingMode, QuizQuestion, QuizAnswer, QuizResult, HandProgress } from './types';
+import { Position, GradingMode, QuizQuestion, QuizAnswer, QuizResult, HandProgress, SamplingMode } from './types';
 import { FSRS } from './utils/fsrs/fsrs';
 import { generateQuizQuestion } from './utils/handGenerator';
-import { gradeAnswer, GradingResult } from './utils/gradingSystem';
+import { gradeAnswer, GradingResult, calculateFSRSRating } from './utils/gradingSystem';
 import { getRangeData } from './data/sampleRanges';
 import { 
   getUserSettings, 
@@ -12,6 +12,7 @@ import {
   getQuizState,
   saveQuizState 
 } from './utils/storage/localStorage';
+import { getDueCardsInfo } from './utils/fsrs/quizIntegration';
 
 import PositionSelector from './components/PositionSelector/PositionSelector';
 import Quiz from './components/Quiz/Quiz';
@@ -22,6 +23,8 @@ import QuizSettings from './components/QuizSettings/QuizSettings';
 import PostflopVisualizer from './components/PostflopVisualizer/PostflopVisualizer';
 import StateManager from './components/StateManager/StateManager';
 import RangeSelector from './components/RangeSelector/RangeSelector';
+import RemainingCardsOverlay from './components/RemainingCardsOverlay/RemainingCardsOverlay';
+import FSRSDebugPanel from './components/FSRSDebugPanel/FSRSDebugPanel';
 
 import './App.css';
 
@@ -35,6 +38,10 @@ const App: React.FC = () => {
   const [showMatrix, setShowMatrix] = useState(true);
   const [rangeCategory, setRangeCategory] = useState<RangeCategory>('RFI');
   const [selectedRange, setSelectedRange] = useState<string | null>(null);
+  const [samplingMode, setSamplingMode] = useState<SamplingMode>('random');
+  const [daysAhead, setDaysAhead] = useState<number>(0);
+  const [showRemainingOverlay, setShowRemainingOverlay] = useState<boolean>(false);
+  const [remainingCardsKey, setRemainingCardsKey] = useState<number>(0); // Force re-render of remaining count
   
   const [currentQuestion, setCurrentQuestion] = useState<QuizQuestion | null>(null);
   const [currentResult, setCurrentResult] = useState<QuizResult | null>(null);
@@ -43,6 +50,11 @@ const App: React.FC = () => {
     correctAnswers: 0,
     sessionStartTime: new Date()
   });
+  
+  const [sessionHandCounts, setSessionHandCounts] = useState<Record<string, number>>({});
+  const [showFSRSDebug, setShowFSRSDebug] = useState<boolean>(false);
+  const [sessionLimit, setSessionLimit] = useState<number>(50); // Default session limit
+  const [sessionLimitWarningShown, setSessionLimitWarningShown] = useState<boolean>(false); // Track if popup shown
   
   const [fsrs] = useState(new FSRS());
 
@@ -54,6 +66,9 @@ const App: React.FC = () => {
     setGradingMode(settings.gradingMode);
     setShowMatrix(settings.showMatrix);
     setRangeCategory(settings.rangeCategory || 'RFI');
+    setSamplingMode(settings.samplingMode || 'random');
+    setDaysAhead(settings.daysAhead || 0);
+    setSessionLimit(settings.sessionLimit || 50);
 
     const quizState = getQuizState();
     setSessionStats(quizState.currentSessionStats);
@@ -66,9 +81,12 @@ const App: React.FC = () => {
       opponentPositions,
       gradingMode,
       showMatrix,
-      rangeCategory
+      rangeCategory,
+      samplingMode,
+      daysAhead,
+      sessionLimit
     });
-  }, [heroPosition, opponentPositions, gradingMode, showMatrix, rangeCategory]);
+  }, [heroPosition, opponentPositions, gradingMode, showMatrix, rangeCategory, samplingMode, daysAhead, sessionLimit]);
 
   const handleRangeSelect = (range: string, hero: Position, opponents: Position[]) => {
     setSelectedRange(range);
@@ -86,7 +104,7 @@ const App: React.FC = () => {
       return;
     }
 
-    const question = generateQuizQuestion(heroPosition, opponentPositions, rangeCategory);
+    const question = generateQuizQuestion(heroPosition, opponentPositions, rangeCategory, samplingMode, gradingMode, daysAhead);
     if (!question) {
       alert('Unable to generate quiz question. Please try different range settings.');
       return;
@@ -95,13 +113,15 @@ const App: React.FC = () => {
     setCurrentQuestion(question);
     setAppState('quiz');
     
-    // Reset session stats
+    // Reset session stats and hand counts
     const newStats = {
       questionsAnswered: 0,
       correctAnswers: 0,
       sessionStartTime: new Date()
     };
     setSessionStats(newStats);
+    setSessionHandCounts({});
+    setSessionLimitWarningShown(false); // Reset warning flag for new session
     saveQuizState({ currentSessionStats: newStats });
   };
 
@@ -113,6 +133,8 @@ const App: React.FC = () => {
     setGradingMode(settings.gradingMode);
     setShowMatrix(settings.showMatrix);
     setRangeCategory(settings.rangeCategory || 'RFI');
+    setSamplingMode(settings.samplingMode || 'random');
+    setDaysAhead(settings.daysAhead || 0);
   };
 
   const startQuiz = () => {
@@ -121,7 +143,7 @@ const App: React.FC = () => {
       return;
     }
 
-    const question = generateQuizQuestion(heroPosition, opponentPositions, rangeCategory);
+    const question = generateQuizQuestion(heroPosition, opponentPositions, rangeCategory, samplingMode, gradingMode, daysAhead);
     if (!question) {
       alert('Unable to generate quiz question. Please try different position settings.');
       return;
@@ -130,13 +152,15 @@ const App: React.FC = () => {
     setCurrentQuestion(question);
     setAppState('quiz');
     
-    // Reset session stats
+    // Reset session stats and hand counts
     const newStats = {
       questionsAnswered: 0,
       correctAnswers: 0,
       sessionStartTime: new Date()
     };
     setSessionStats(newStats);
+    setSessionHandCounts({});
+    setSessionLimitWarningShown(false); // Reset warning flag for new session
     saveQuizState({ currentSessionStats: newStats });
   };
 
@@ -163,6 +187,13 @@ const App: React.FC = () => {
     setSessionStats(newStats);
     saveQuizState({ currentSessionStats: newStats });
 
+    // Update session hand counts
+    const handKey = currentQuestion.handName;
+    setSessionHandCounts(prev => ({
+      ...prev,
+      [handKey]: (prev[handKey] || 0) + 1
+    }));
+
     // Update FSRS progress with result-based rating (include strictness level for separate tracking)
     const handId = `${currentQuestion.handName}_${currentQuestion.position}_vs_${currentQuestion.opponents.join('_')}_${gradingMode}`;
     let handProgress = getHandProgress(handId);
@@ -181,8 +212,8 @@ const App: React.FC = () => {
       };
     }
 
-    // Use result-based FSRS rating: 1 (Again) for incorrect, 3 (Good) for correct
-    const fsrsRating = gradingResult.isCorrect ? 3 : 1;
+    // Calculate FSRS rating based on answer quality
+    const fsrsRating = calculateFSRSRating(currentQuestion, answer, gradingResult, gradingMode);
     const newCard = fsrs.repeat(handProgress.fsrsCard, fsrsRating);
     
     // Update performance stats
@@ -214,11 +245,29 @@ const App: React.FC = () => {
     
     saveHandProgress(handId, updatedProgress);
 
+    // Force update of remaining cards count
+    setRemainingCardsKey(prev => prev + 1);
+
     // Show result instead of alert
     setCurrentResult(quizResult);
   };
 
   const handleNextQuestion = () => {
+    // Check session limit - only show popup once
+    if (sessionStats.questionsAnswered >= sessionLimit && !sessionLimitWarningShown) {
+      setSessionLimitWarningShown(true); // Mark popup as shown
+      const continueSession = window.confirm(
+        `You've reached your session limit of ${sessionLimit} questions! ` +
+        `You've answered ${sessionStats.questionsAnswered} questions with ${Math.round((sessionStats.correctAnswers / sessionStats.questionsAnswered) * 100)}% accuracy.\n\n` +
+        `Do you want to continue studying? (Click OK to continue, Cancel to stop)`
+      );
+      
+      if (!continueSession) {
+        handleBackToSetup();
+        return;
+      }
+    }
+
     // Clear current result
     setCurrentResult(null);
     
@@ -228,7 +277,7 @@ const App: React.FC = () => {
       return;
     }
     
-    const nextQuestion = generateQuizQuestion(heroPosition, opponentPositions, rangeCategory);
+    const nextQuestion = generateQuizQuestion(heroPosition, opponentPositions, rangeCategory, samplingMode, gradingMode, daysAhead);
     if (nextQuestion) {
       setCurrentQuestion(nextQuestion);
     } else {
@@ -317,16 +366,6 @@ const App: React.FC = () => {
                       <p>Development tool for creating and editing ranges</p>
                     </div>
                   </button>
-                  <button
-                    className="module-button state-button"
-                    onClick={() => setAppState('state-manager')}
-                  >
-                    <div className="module-icon">💾</div>
-                    <div className="module-info">
-                      <h3>State Manager (WIP)</h3>
-                      <p>Export/import your progress and settings</p>
-                    </div>
-                  </button>
                 </div>
               </div>
             </div>
@@ -402,6 +441,31 @@ const App: React.FC = () => {
                 <span>Questions: {sessionStats.questionsAnswered}</span>
                 <span>Correct: {sessionStats.correctAnswers}</span>
                 <span>Accuracy: {sessionStats.questionsAnswered > 0 ? Math.round((sessionStats.correctAnswers / sessionStats.questionsAnswered) * 100) : 0}%</span>
+                {samplingMode === 'spaced-repetition' && heroPosition && (
+                  <span 
+                    className="remaining-cards-indicator"
+                    onMouseEnter={() => setShowRemainingOverlay(true)}
+                    onMouseLeave={() => setShowRemainingOverlay(false)}
+                  >
+                    Remaining: {(() => {
+                      // Use remainingCardsKey to force re-render when cards are answered  
+                      const _forceUpdate = remainingCardsKey; // Reference to trigger re-render
+                      const dueInfo = getDueCardsInfo(heroPosition, opponentPositions, gradingMode, rangeCategory, daysAhead);
+                      return dueInfo.dueCount;
+                    })()}
+                    {showRemainingOverlay && (
+                      <RemainingCardsOverlay
+                        heroPosition={heroPosition}
+                        opponentPositions={opponentPositions}
+                        gradingMode={gradingMode}
+                        rangeCategory={rangeCategory}
+                        daysAhead={daysAhead}
+                        visible={showRemainingOverlay}
+                        sessionHandCounts={sessionHandCounts}
+                      />
+                    )}
+                  </span>
+                )}
               </div>
               <button className="back-button" onClick={handleBackToSetup}>
                 Back to Setup
@@ -440,6 +504,22 @@ const App: React.FC = () => {
                 ← Back to Home
               </button>
               <h2>Quiz Setup</h2>
+              <div className="header-buttons">
+                <button 
+                  className="debug-button"
+                  onClick={() => setShowFSRSDebug(true)}
+                  title="FSRS Debug Panel"
+                >
+                  🔍
+                </button>
+                <button 
+                  className="state-manager-button"
+                  onClick={() => setAppState('state-manager')}
+                  title="Manage your progress data"
+                >
+                  💾
+                </button>
+              </div>
             </div>
             
             <div className="range-category-selector">
@@ -467,6 +547,108 @@ const App: React.FC = () => {
                   )}
                   <p>Strictness Level: <strong>{gradingMode.charAt(0).toUpperCase() + gradingMode.slice(1)}</strong></p>
                 </div>
+
+                <div className="fsrs-settings">
+                  <div className="sampling-mode-selector">
+                    <label>Sampling Mode:</label>
+                    <div className="radio-group">
+                      <label>
+                        <input
+                          type="radio"
+                          value="random"
+                          checked={samplingMode === 'random'}
+                          onChange={(e) => setSamplingMode(e.target.value as SamplingMode)}
+                        />
+                        Random
+                      </label>
+                      <label>
+                        <input
+                          type="radio"
+                          value="spaced-repetition"
+                          checked={samplingMode === 'spaced-repetition'}
+                          onChange={(e) => setSamplingMode(e.target.value as SamplingMode)}
+                        />
+                        Spaced Repetition
+                      </label>
+                    </div>
+                  </div>
+
+                  {samplingMode === 'spaced-repetition' && (
+                    <div className="days-ahead-selector">
+                      <label htmlFor="days-ahead">Days Ahead:</label>
+                      <div className="number-input-group">
+                        <input
+                          id="days-ahead"
+                          type="number"
+                          min="0"
+                          max="365"
+                          value={daysAhead}
+                          onChange={(e) => setDaysAhead(parseInt(e.target.value) || 0)}
+                        />
+                        <div className="number-controls">
+                          <button 
+                            type="button"
+                            onClick={() => setDaysAhead(Math.min(365, daysAhead + 1))}
+                          >
+                            ▲
+                          </button>
+                          <button 
+                            type="button"
+                            onClick={() => setDaysAhead(Math.max(0, daysAhead - 1))}
+                          >
+                            ▼
+                          </button>
+                        </div>
+                      </div>
+                    </div>
+                  )}
+
+                  {heroPosition && samplingMode === 'spaced-repetition' && (
+                    <div className="due-cards-info">
+                      {(() => {
+                        const dueInfo = getDueCardsInfo(heroPosition, opponentPositions, gradingMode, rangeCategory, daysAhead);
+                        return (
+                          <p>
+                            <strong>{dueInfo.dueCount}</strong> cards due for review 
+                            {dueInfo.totalCards > 0 && (
+                              <span> (of {dueInfo.totalCards} total)</span>
+                            )}
+                          </p>
+                        );
+                      })()}
+                    </div>
+                  )}
+
+                  <div className="session-limit-selector">
+                    <label htmlFor="session-limit">Session Limit:</label>
+                    <div className="number-input-group">
+                      <input
+                        id="session-limit"
+                        type="number"
+                        min="10"
+                        max="200"
+                        value={sessionLimit}
+                        onChange={(e) => setSessionLimit(parseInt(e.target.value) || 50)}
+                      />
+                      <div className="number-controls">
+                        <button 
+                          type="button"
+                          onClick={() => setSessionLimit(Math.min(200, sessionLimit + 10))}
+                        >
+                          ▲
+                        </button>
+                        <button 
+                          type="button"
+                          onClick={() => setSessionLimit(Math.max(10, sessionLimit - 10))}
+                        >
+                          ▼
+                        </button>
+                      </div>
+                    </div>
+                    <span className="session-limit-help">questions before break reminder</span>
+                  </div>
+                </div>
+
                 <button 
                   className="start-quiz-button"
                   onClick={startQuizFromRange}
@@ -489,6 +671,16 @@ const App: React.FC = () => {
             <StateManager onStateImported={handleStateImported} />
           </div>
         )}
+
+        {/* FSRS Debug Panel */}
+        <FSRSDebugPanel
+          heroPosition={heroPosition || 'BU'}
+          opponentPositions={opponentPositions}
+          gradingMode={gradingMode}
+          rangeCategory={rangeCategory}
+          visible={showFSRSDebug}
+          onClose={() => setShowFSRSDebug(false)}
+        />
       </main>
     </div>
   );

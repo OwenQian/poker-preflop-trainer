@@ -582,10 +582,174 @@
   color: #2d3748;
   margin: 0;
   font-size: 1.8rem;
+  flex: 1;
+}
+
+.header-buttons {
+  display: flex;
+  gap: 10px;
+  margin-left: auto;
+}
+
+.debug-button {
+  background: #f56565;
+  color: white;
+  border: none;
+  border-radius: 8px;
+  padding: 8px 12px;
+  font-size: 1.2rem;
+  cursor: pointer;
+  transition: background-color 0.2s ease;
+}
+
+.debug-button:hover {
+  background: #e53e3e;
+}
+
+.state-manager-button {
+  background: #4a90e2;
+  color: white;
+  border: none;
+  border-radius: 8px;
+  padding: 8px 12px;
+  font-size: 1.2rem;
+  cursor: pointer;
+  transition: background-color 0.2s ease;
+}
+
+.state-manager-button:hover {
+  background: #357abd;
 }
 
 .range-category-selector {
   margin-bottom: 30px;
+}
+
+.fsrs-settings {
+  margin: 20px 0;
+  padding: 20px;
+  border: 1px solid #e2e8f0;
+  border-radius: 8px;
+  background-color: #f8fafc;
+}
+
+.sampling-mode-selector {
+  margin-bottom: 20px;
+}
+
+.sampling-mode-selector label {
+  display: block;
+  font-weight: 600;
+  margin-bottom: 8px;
+  color: #2d3748;
+}
+
+.radio-group {
+  display: flex;
+  gap: 15px;
+}
+
+.radio-group label {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-weight: normal;
+  margin-bottom: 0;
+  cursor: pointer;
+}
+
+.radio-group input[type="radio"] {
+  margin: 0;
+}
+
+.days-ahead-selector {
+  margin-bottom: 20px;
+}
+
+.days-ahead-selector label {
+  display: block;
+  font-weight: 600;
+  margin-bottom: 8px;
+  color: #2d3748;
+}
+
+.number-input-group {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.number-input-group input[type="number"] {
+  width: 80px;
+  padding: 6px 8px;
+  border: 1px solid #cbd5e0;
+  border-radius: 4px;
+  font-size: 14px;
+}
+
+.number-controls {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.number-controls button {
+  width: 24px;
+  height: 20px;
+  padding: 0;
+  border: 1px solid #cbd5e0;
+  background: white;
+  cursor: pointer;
+  font-size: 10px;
+  line-height: 1;
+  border-radius: 2px;
+}
+
+.number-controls button:hover {
+  background: #f7fafc;
+}
+
+.due-cards-info {
+  padding: 12px;
+  background-color: #e6f3ff;
+  border: 1px solid #3182ce;
+  border-radius: 6px;
+  margin-bottom: 0;
+}
+
+.due-cards-info p {
+  margin: 0;
+  color: #2c5282;
+  font-size: 14px;
+}
+
+.session-limit-selector {
+  margin-bottom: 20px;
+}
+
+.session-limit-selector label {
+  display: block;
+  font-weight: 600;
+  margin-bottom: 8px;
+  color: #2d3748;
+}
+
+.session-limit-help {
+  font-size: 0.8rem;
+  color: #718096;
+  margin-left: 8px;
+}
+
+.remaining-cards-indicator {
+  position: relative;
+  cursor: help;
+  border-bottom: 1px dotted #666;
+  transition: all 0.2s ease;
+}
+
+.remaining-cards-indicator:hover {
+  color: #3182ce;
+  border-bottom-color: #3182ce;
 }
 
 .quiz-start-section {

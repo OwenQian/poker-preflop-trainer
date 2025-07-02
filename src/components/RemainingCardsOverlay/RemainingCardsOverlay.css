@@ -1,0 +1,194 @@
+.remaining-cards-overlay {
+  position: absolute;
+  top: 40px;
+  left: 50%;
+  transform: translateX(-50%);
+  background: white;
+  border: 2px solid #3182ce;
+  border-radius: 12px;
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.15);
+  padding: 20px;
+  z-index: 1000;
+  width: 800px;
+  max-width: 95vw;
+}
+
+.overlay-header {
+  margin-bottom: 15px;
+}
+
+.overlay-header h3 {
+  margin: 0 0 10px 0;
+  color: #2d3748;
+  font-size: 1.2rem;
+}
+
+.legend {
+  display: flex;
+  gap: 15px;
+  flex-wrap: wrap;
+}
+
+.legend-item {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 0.9rem;
+}
+
+.legend-color {
+  width: 12px;
+  height: 12px;
+  border-radius: 2px;
+  border: 1px solid #ccc;
+}
+
+.legend-color.overdue {
+  background-color: #d32f2f;
+}
+
+.legend-color.due {
+  background-color: #ff9800;
+}
+
+.legend-color.new {
+  background-color: #4caf50;
+}
+
+.hand-grid {
+  display: grid;
+  grid-template-rows: repeat(13, 1fr);
+  gap: 3px;
+  margin: 15px 0;
+  max-height: 500px;
+  overflow-y: auto;
+  justify-content: center;
+}
+
+.hand-row {
+  display: grid;
+  grid-template-columns: repeat(13, 1fr);
+  gap: 3px;
+  justify-content: center;
+}
+
+.hand-cell {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 48px;
+  height: 36px;
+  font-size: 0.85rem;
+  font-weight: 600;
+  color: #2d3748;
+  border: 1px solid #cbd5e0;
+  border-radius: 4px;
+  transition: all 0.2s ease;
+  cursor: default;
+  position: relative;
+  flex-direction: column;
+  gap: 1px;
+}
+
+.hand-cell.due {
+  border-width: 2px;
+  color: white;
+  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.3);
+}
+
+.hand-cell.not-due {
+  color: #a0a0a0;
+  border-color: #e2e8f0;
+}
+
+.hand-cell:hover {
+  transform: scale(1.1);
+  z-index: 1;
+}
+
+.session-count {
+  font-size: 0.6rem;
+  font-weight: 700;
+  color: #ffffff;
+  background: rgba(0, 0, 0, 0.7);
+  border-radius: 8px;
+  padding: 1px 3px;
+  line-height: 1;
+  min-width: 12px;
+  text-align: center;
+}
+
+.overlay-footer {
+  border-top: 1px solid #e2e8f0;
+  padding-top: 10px;
+  margin-top: 10px;
+}
+
+.overlay-footer p {
+  margin: 0;
+  font-size: 0.9rem;
+  font-weight: 600;
+  color: #2d3748;
+  text-align: center;
+}
+
+.session-summary {
+  margin-top: 5px !important;
+  font-size: 0.8rem !important;
+  color: #4a5568 !important;
+  font-weight: normal !important;
+}
+
+@media (max-width: 768px) {
+  .remaining-cards-overlay {
+    width: 95vw;
+    padding: 15px;
+  }
+  
+  .hand-cell {
+    width: 28px;
+    height: 26px;
+    font-size: 0.7rem;
+  }
+  
+  .session-count {
+    font-size: 0.5rem;
+    padding: 0px 2px;
+  }
+  
+  .legend {
+    gap: 8px;
+    flex-wrap: wrap;
+  }
+  
+  .legend-item {
+    font-size: 0.8rem;
+  }
+}
+
+@media (max-width: 480px) {
+  .remaining-cards-overlay {
+    width: 98vw;
+    padding: 12px;
+  }
+  
+  .hand-cell {
+    width: 22px;
+    height: 22px;
+    font-size: 0.65rem;
+  }
+  
+  .session-count {
+    font-size: 0.45rem;
+    padding: 0px 1px;
+    min-width: 8px;
+  }
+  
+  .hand-grid {
+    gap: 2px;
+  }
+  
+  .hand-row {
+    gap: 2px;
+  }
+}

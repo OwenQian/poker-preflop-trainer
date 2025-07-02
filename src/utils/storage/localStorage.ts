@@ -1,4 +1,4 @@
-import { HandProgress, Position, GradingMode } from '../../types';
+import { HandProgress, Position, GradingMode, SamplingMode } from '../../types';
 import { RangeCategory } from '../../components/RangeTabSelector/RangeTabSelector';
 
 const STORAGE_KEYS = {
@@ -13,6 +13,9 @@ export interface UserSettings {
   gradingMode: GradingMode;
   showMatrix: boolean;
   rangeCategory?: RangeCategory;
+  samplingMode?: SamplingMode;
+  daysAhead?: number;
+  sessionLimit?: number;
 }
 
 export interface QuizState {
@@ -101,7 +104,9 @@ export const getUserSettings = (): UserSettings => {
     heroPosition: null,
     opponentPositions: [],
     gradingMode: 'lax',
-    showMatrix: true
+    showMatrix: true,
+    samplingMode: 'random',
+    daysAhead: 0
   };
 };
 

@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import { Action, QuizQuestion, QuizAnswer, QuizResult, GradingMode } from '../../types';
 import { RangeCategory } from '../RangeTabSelector/RangeTabSelector';
 import CardDisplay from '../CardDisplay/CardDisplay';
@@ -32,15 +32,15 @@ const Quiz: React.FC<QuizProps> = ({
   const [selectedActions, setSelectedActions] = useState<Action[]>([]);
   const [showResult, setShowResult] = useState(false);
 
-  const handleActionToggle = (action: Action) => {
+  const handleActionToggle = useCallback((action: Action) => {
     setSelectedActions(prev => 
       prev.includes(action)
         ? prev.filter(a => a !== action)
         : [...prev, action]
     );
-  };
+  }, []);
 
-  const handleSubmit = () => {
+  const handleSubmit = useCallback(() => {
     if (selectedActions.length === 0) return;
     
     const answer: QuizAnswer = {
@@ -49,14 +49,81 @@ const Quiz: React.FC<QuizProps> = ({
     };
     onAnswer(answer);
     setShowResult(true);
-  };
+  }, [selectedActions, onAnswer]);
 
-  const handleNextQuestion = () => {
+  const handleNextQuestion = useCallback(() => {
     // Reset for next question
     setSelectedActions([]);
     setShowResult(false);
     onNextQuestion?.();
-  };
+  }, [onNextQuestion]);
+
+  // Keyboard shortcuts
+  useEffect(() => {
+    const handleKeyPress = (event: KeyboardEvent) => {
+      console.log('🎹 Key event received:', event.key, 'showResult:', showResult);
+      
+      // Prevent shortcuts if user is typing in an input field
+      const target = event.target as HTMLElement;
+      if (target && (target.tagName === 'INPUT' || target.tagName === 'TEXTAREA' || target.isContentEditable)) {
+        console.log('🚫 Ignoring key press - in input field');
+        return;
+      }
+      
+      // Prevent shortcuts when modifier keys are pressed (cmd+1, ctrl+1, etc.)
+      if (event.metaKey || event.ctrlKey || event.altKey || event.shiftKey) {
+        console.log('🚫 Ignoring key press - modifier key pressed');
+        return;
+      }
+      
+      // Only handle shortcuts when quiz is active (not showing results)
+      if (showResult) {
+        // Handle Enter or Space to go to next question
+        if (event.key === 'Enter' || event.key === ' ') {
+          event.preventDefault();
+          console.log('➡️ Going to next question');
+          handleNextQuestion();
+        }
+        return;
+      }
+
+      // Handle shortcuts during question phase
+      switch (event.key) {
+        case '1':
+          event.preventDefault();
+          console.log('📊 Toggling RAISE');
+          handleActionToggle('raise');
+          break;
+        case '2':
+          event.preventDefault();
+          console.log('📞 Toggling CALL');
+          handleActionToggle('call');
+          break;
+        case '3':
+          event.preventDefault();
+          console.log('🗂️ Toggling FOLD');
+          handleActionToggle('fold');
+          break;
+        case ' ':
+        case 'Enter':
+          event.preventDefault();
+          console.log('✅ Submitting answer');
+          handleSubmit();
+          break;
+        default:
+          console.log('❓ Unhandled key:', event.key);
+          break;
+      }
+    };
+
+    // Add event listener
+    window.addEventListener('keydown', handleKeyPress);
+
+    // Cleanup
+    return () => {
+      window.removeEventListener('keydown', handleKeyPress);
+    };
+  }, [handleActionToggle, handleSubmit, handleNextQuestion, showResult]); // Dependencies for the handlers
 
   const getActionLabel = (action: Action): string => {
     switch (action) {
@@ -110,6 +177,9 @@ const Quiz: React.FC<QuizProps> = ({
         </div>
         <div className="grading-mode-info">
           {getGradingModeHelp()}
+          <div className="keyboard-shortcuts-info">
+            Keyboard shortcuts: <strong>1</strong> Raise, <strong>2</strong> Call, <strong>3</strong> Fold, <strong>Space</strong> Submit/Next
+          </div>
         </div>
       </div>
 
@@ -144,11 +214,11 @@ const Quiz: React.FC<QuizProps> = ({
           <CardDisplay cards={[question.hand.card1, question.hand.card2]} size="large" />
         </div>
 
-        {gradingMode === 'randomizer' && showResult && (
+        {showResult && (
           <ProbabilityBars 
             frequencies={question.frequencies} 
-            randomNumber={question.randomNumber}
-            showResult={showResult}
+            randomNumber={gradingMode === 'randomizer' ? question.randomNumber : undefined}
+            showResult={gradingMode === 'randomizer' ? showResult : false}
           />
         )}
 
@@ -169,7 +239,7 @@ const Quiz: React.FC<QuizProps> = ({
                   }}
                   onClick={() => handleActionToggle(action)}
                 >
-                  {getActionLabel(action)}
+                  {getActionLabel(action)} <span className="keyboard-shortcut">({action === 'raise' ? '1' : action === 'call' ? '2' : '3'})</span>
                 </button>
               ))}
             </div>
@@ -179,7 +249,7 @@ const Quiz: React.FC<QuizProps> = ({
               onClick={handleSubmit}
               disabled={selectedActions.length === 0}
             >
-              Submit Answer
+              Submit Answer <span className="keyboard-shortcut">(Space)</span>
             </button>
           </div>
         ) : quizResult && (
@@ -240,7 +310,7 @@ const Quiz: React.FC<QuizProps> = ({
               className="next-button"
               onClick={handleNextQuestion}
             >
-              Next Question
+              Next Question <span className="keyboard-shortcut">(Space/Enter)</span>
             </button>
           </div>
         )}

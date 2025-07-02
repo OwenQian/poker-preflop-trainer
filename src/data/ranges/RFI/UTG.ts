@@ -4,6 +4,7 @@ import { RangeData } from '../../../types';
 // Consolidated from zenith ranges (primary) with Jon Little ranges as reference
 const UTG_RFI: RangeData = {
   positionCombo: 'UTG_RFI',
+  missingHandTreatment: 'fold',
   hands: {
     // Premium pairs - 100% raise
     'AA': { raise: 100, call: 0, fold: 0 },

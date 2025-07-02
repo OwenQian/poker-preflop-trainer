@@ -1,6 +1,7 @@
-import { Card, Hand, HandName, Position, QuizQuestion, Rank, Suit, Action } from '../types';
+import { Card, Hand, HandName, Position, QuizQuestion, Rank, Suit, Action, SamplingMode, GradingMode } from '../types';
 import { getRangeData } from '../data/sampleRanges';
 import { RangeCategory } from '../components/RangeTabSelector/RangeTabSelector';
+import { getWeightedHandSelection, generateHandId, resolveRangeCombo } from './fsrs/quizIntegration';
 
 const RANKS: Rank[] = ['A', 'K', 'Q', 'J', 'T', '9', '8', '7', '6', '5', '4', '3', '2'];
 const SUITS: Suit[] = ['hearts', 'diamonds', 'clubs', 'spades'];
@@ -82,79 +83,16 @@ export const handNameToHand = (handName: HandName): Hand => {
 export const generateQuizQuestion = (
   heroPosition: Position,
   opponentPositions: Position[],
-  rangeCategory: RangeCategory = 'RFI'
+  rangeCategory: RangeCategory = 'RFI',
+  samplingMode: SamplingMode = 'spaced-repetition',
+  gradingMode: GradingMode = 'strict',
+  daysAhead: number = 0
 ): QuizQuestion | null => {
-  // Generate position combination string based on range category
-  let positionCombo: string;
+  // Use centralized range resolution to ensure consistency with FSRS visualization
+  const { rangeCombo: positionCombo, effectiveOpponents } = resolveRangeCombo(heroPosition, opponentPositions, rangeCategory);
   
-  switch (rangeCategory) {
-    case 'RFI':
-      positionCombo = `${heroPosition}_RFI`;
-      break;
-    case 'vs RFI':
-      if (opponentPositions.length > 0) {
-        positionCombo = `${heroPosition}_vs_${opponentPositions[0]}_RFI`;
-      } else {
-        positionCombo = `${heroPosition}_vs_BU_RFI`;
-      }
-      break;
-    case 'RFI vs 3bet':
-      if (opponentPositions.length > 0) {
-        positionCombo = `${heroPosition}_RFI_vs_${opponentPositions[0]}_3BET`;
-      } else {
-        positionCombo = `${heroPosition}_RFI_vs_3BET`;
-      }
-      break;
-    case '3bet vs 4bet':
-      if (opponentPositions.length > 0) {
-        positionCombo = `${heroPosition}_3BET_vs_${opponentPositions[0]}_4BET`;
-      } else {
-        positionCombo = `${heroPosition}_3BET_vs_4BET`;
-      }
-      break;
-    case 'vs Limp':
-      if (opponentPositions.length > 0) {
-        positionCombo = `${heroPosition}_vs_${opponentPositions[0]}_LIMP`;
-      } else {
-        positionCombo = `${heroPosition}_vs_LIMP`;
-      }
-      break;
-    default:
-      positionCombo = `${heroPosition}_RFI`;
-  }
-  
-  // Get range data for this position combination
-  let rangeData = getRangeData(positionCombo, rangeCategory);
-  
-  // Fallback strategies for each range category
-  if (!rangeData) {
-    switch (rangeCategory) {
-      case 'RFI':
-        // Try standard RFI fallbacks
-        rangeData = getRangeData(`${heroPosition}_RFI`, rangeCategory) || 
-                   getRangeData('BU_RFI', rangeCategory);
-        break;
-      case 'vs RFI':
-        // Try with different opponent positions
-        rangeData = getRangeData('BB_vs_BU_RFI', rangeCategory);
-        break;
-      case 'RFI vs 3bet':
-        // Try generic RFI vs 3bet fallback
-        rangeData = getRangeData('CO_RFI_vs_SB_3BET', rangeCategory) ||
-                   getRangeData('CO_RFI_vs_BU_3BET', rangeCategory);
-        break;
-      case '3bet vs 4bet':
-        // Try generic 3bet vs 4bet - fallback to any available 3bet vs 4bet range
-        rangeData = getRangeData('BB_3BET_vs_SB_4BET', rangeCategory) ||
-                   getRangeData('SB_3BET_vs_CO_4BET', rangeCategory);
-        break;
-      case 'vs Limp':
-        // Try generic vs limp ranges
-        rangeData = getRangeData(`${heroPosition}_vs_LIMP`, rangeCategory) ||
-                   getRangeData(`${heroPosition}_vs_SB_LIMP`, rangeCategory);
-        break;
-    }
-  }
+  // Get range data for the resolved position combination
+  const rangeData = getRangeData(positionCombo, rangeCategory);
   
   if (!rangeData) {
     console.error(`No range data available for ${positionCombo} in category ${rangeCategory}`);
@@ -163,6 +101,7 @@ export const generateQuizQuestion = (
   
   // Check if range data specifies to treat missing hands as fold
   // If so, sample from ALL possible hands, otherwise only sample explicitly specified hands
+  // TODO: this should be handled in `getRangeData()` instead of here
   const shouldSampleAllHands = rangeData?.missingHandTreatment === 'fold';
   
   let availableHands: [HandName, any][];
@@ -188,10 +127,52 @@ export const generateQuizQuestion = (
     return null;
   }
   
-  // Select random hand
-  const [handName, frequencies] = availableHands[
-    Math.floor(Math.random() * availableHands.length)
-  ];
+  // Select hand based on sampling mode
+  let handName: HandName;
+  let frequencies;
+  
+  if (samplingMode === 'spaced-repetition') {
+    // Use FSRS-based sampling with the effective opponents from range resolution
+    const weightedHandIds = getWeightedHandSelection(heroPosition, effectiveOpponents, gradingMode, rangeCategory, daysAhead);
+    
+    // Debug logging to track sampling consistency
+    console.log('🎯 FSRS Sampling Debug:', {
+      originalOpponents: opponentPositions,
+      effectiveOpponents,
+      rangeCombo: positionCombo,
+      weightedHandIds: weightedHandIds.length,
+      sampledHandIds: weightedHandIds.slice(0, 5) // Show first 5 for debugging
+    });
+    
+    if (weightedHandIds.length > 0) {
+      // Select from weighted list
+      const selectedHandId = weightedHandIds[Math.floor(Math.random() * weightedHandIds.length)];
+      // Extract hand name from handId (format: handName_position_vs_opponents_gradingMode)
+      handName = selectedHandId.split('_')[0] as HandName;
+      frequencies = rangeData!.hands[handName];
+      
+      console.log('🎯 Hand Selected:', {
+        selectedHandId,
+        handName,
+        frequencies
+      });
+    } else {
+      // TODO: prompt the user if they want to continue. If they choose to continue then proceed with random sampling from the range.
+      // Fallback to random if no weighted selection available
+      const [randomHandName, randomFrequencies] = availableHands[
+        Math.floor(Math.random() * availableHands.length)
+      ];
+      handName = randomHandName;
+      frequencies = randomFrequencies;
+    }
+  } else {
+    // Random sampling (original behavior)
+    const [randomHandName, randomFrequencies] = availableHands[
+      Math.floor(Math.random() * availableHands.length)
+    ];
+    handName = randomHandName;
+    frequencies = randomFrequencies;
+  }
   
   // Generate the actual hand cards
   const hand = handNameToHand(handName);
@@ -217,7 +198,7 @@ export const generateQuizQuestion = (
     hand,
     handName,
     position: heroPosition,
-    opponents: opponentPositions,
+    opponents: effectiveOpponents, // Use effective opponents for consistency
     correctActions,
     frequencies,
     randomNumber,

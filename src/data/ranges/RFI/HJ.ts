@@ -11,6 +11,7 @@ import { RangeData } from '../../../types';
 
 const HJ_RFI: RangeData = {
   positionCombo: 'HJ_RFI',
+  missingHandTreatment: 'fold',
   hands: {
     // Premium pairs - 100% raise (dark red)
     'AA': { raise: 100, call: 0, fold: 0 },

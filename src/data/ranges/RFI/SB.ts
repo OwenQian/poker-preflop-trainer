@@ -12,6 +12,7 @@ import { RangeData } from '../../../types';
 
 const SB_RFI: RangeData = {
   positionCombo: 'SB_RFI',
+  missingHandTreatment: 'fold',
   hands: {
     // Premium pairs - 100% raise (green)
     'AA': { raise: 100, call: 0, fold: 0 },
