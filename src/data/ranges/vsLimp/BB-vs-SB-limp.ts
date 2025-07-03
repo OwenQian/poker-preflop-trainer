@@ -119,7 +119,7 @@ const BB_vs_SB_LIMP: RangeData = {
     'T9o': { raise: 25, call: 75, fold: 0 },
     'K8o': { raise: 0, call: 100, fold: 0 },
     'Q8o': { raise: 25, call: 75, fold: 0 },
-    'Q7o': { raise: 100, call: 0, fold: 0 },
+    'Q7o': { raise: 75, call: 25, fold: 0 },
     'Q6o': { raise: 50, call: 50, fold: 0 },
     'Q5o': { raise: 50, call: 50, fold: 0 },
     'Q4o': { raise: 25, call: 75, fold: 0 },
