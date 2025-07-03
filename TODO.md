@@ -1,7 +1,9 @@
 # Preflop Trainer - TODO
 
 ## Current Tasks
-- [x] Scan through the codebase for TODO comments and add them to this file as the top of the high priority.
+- [ ] Allow import and export of only one selection, e.g., strict, BB vs LJ RFI; lax, BU 3bet vs CO 4bet.
+  - Partial import would overwrite only that one state in local storage
+- [ ] Add a refresh button on the quiz setup page that will keep the current selections but refresh the data
 
 ### High Priority
 - [x] Fix problems with spaced repetition / FSRS algorithm problems.
