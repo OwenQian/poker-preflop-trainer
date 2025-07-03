@@ -38,10 +38,11 @@ const App: React.FC = () => {
   const [showMatrix, setShowMatrix] = useState(true);
   const [rangeCategory, setRangeCategory] = useState<RangeCategory>('RFI');
   const [selectedRange, setSelectedRange] = useState<string | null>(null);
-  const [samplingMode, setSamplingMode] = useState<SamplingMode>('random');
+  const [samplingMode, setSamplingMode] = useState<SamplingMode>('spaced-repetition');
   const [daysAhead, setDaysAhead] = useState<number>(0);
   const [showRemainingOverlay, setShowRemainingOverlay] = useState<boolean>(false);
   const [remainingCardsKey, setRemainingCardsKey] = useState<number>(0); // Force re-render of remaining count
+  const [dueCardsKey, setDueCardsKey] = useState<number>(0); // Force re-render of due cards count in setup
   
   const [currentQuestion, setCurrentQuestion] = useState<QuizQuestion | null>(null);
   const [currentResult, setCurrentResult] = useState<QuizResult | null>(null);
@@ -67,7 +68,7 @@ const App: React.FC = () => {
     setGradingMode(settings.gradingMode);
     setShowMatrix(settings.showMatrix);
     setRangeCategory(settings.rangeCategory || 'RFI');
-    setSamplingMode(settings.samplingMode || 'random');
+    setSamplingMode(settings.samplingMode || 'spaced-repetition');
     setDaysAhead(settings.daysAhead || 0);
     setSessionLimit(settings.sessionLimit || 50);
 
@@ -149,7 +150,7 @@ const App: React.FC = () => {
     setGradingMode(settings.gradingMode);
     setShowMatrix(settings.showMatrix);
     setRangeCategory(settings.rangeCategory || 'RFI');
-    setSamplingMode(settings.samplingMode || 'random');
+    setSamplingMode(settings.samplingMode || 'spaced-repetition');
     setDaysAhead(settings.daysAhead || 0);
   };
 
@@ -284,8 +285,9 @@ const App: React.FC = () => {
     
     saveHandProgress(handId, updatedProgress);
 
-    // Force update of remaining cards count
+    // Force update of remaining cards count and due cards count
     setRemainingCardsKey(prev => prev + 1);
+    setDueCardsKey(prev => prev + 1);
 
     // Show result instead of alert
     setCurrentResult(quizResult);
@@ -342,16 +344,22 @@ const App: React.FC = () => {
             console.error('Failed to generate random question:', randomResult.error);
             alert('Unable to continue quiz. Returning to setup.');
             setAppState('range-select');
+            // Force refresh of due cards count when quiz ends with error
+            setDueCardsKey(prev => prev + 1);
           }
         } else {
           // User chose to end the quiz
           alert('Quiz completed! All spaced repetition cards have been reviewed.');
           setAppState('range-select');
+          // Force refresh of due cards count when quiz ends
+          setDueCardsKey(prev => prev + 1);
         }
       } else {
         // Handle other errors by ending quiz
         alert(`Unable to continue quiz: ${result.errorDetails || result.error}`);
         setAppState('range-select');
+        // Force refresh of due cards count when quiz ends with error
+        setDueCardsKey(prev => prev + 1);
       }
     }
   };
@@ -359,6 +367,8 @@ const App: React.FC = () => {
   const handleBackToSetup = () => {
     setAppState('range-select');
     setCurrentQuestion(null);
+    // Force refresh of due cards count when returning to setup
+    setDueCardsKey(prev => prev + 1);
   };
 
 
@@ -677,6 +687,8 @@ const App: React.FC = () => {
                   {heroPosition && samplingMode === 'spaced-repetition' && (
                     <div className="due-cards-info">
                       {(() => {
+                        // Use dueCardsKey to force re-render when cards are updated
+                        const _forceUpdate = dueCardsKey; // Reference to trigger re-render
                         const dueInfo = getDueCardsInfo(heroPosition, opponentPositions, gradingMode, rangeCategory, daysAhead);
                         return (
                           <p>

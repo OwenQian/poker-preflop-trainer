@@ -354,6 +354,52 @@ switch (rangeCategory) {
 - **Development**: `npm start` (http://localhost:3000)
 - **Build**: `npm run build`
 - **Test**: `npm test`
+- **FSRS Tests**: `npm test src/utils/fsrs/__tests__/fsrs.test.ts -- --watchAll=false`
+- **Due Cards Consistency Test**: `node test-due-cards-consistency.js`
+
+### FSRS Algorithm Testing
+
+A comprehensive test suite has been implemented for the FSRS (Free Spaced Repetition Scheduler) algorithm to ensure correctness and reliability of the spaced repetition system.
+
+**Test Coverage:**
+- **Core Algorithm Functions**: Card creation, review processing, state transitions
+- **Stability Calculations**: New card initialization, stability growth, constraints
+- **Difficulty Calculations**: Rating-based adjustments, mean reversion, constraints
+- **Interval Calculations**: Next review scheduling, maximum interval enforcement
+- **Edge Cases**: High/low difficulty values, many lapses, high rep counts
+- **State Transitions**: New → Learning → Review, lapse handling
+- **Due Card Detection**: Date-based filtering, timezone handling
+- **Retention Calculations**: Memory decay modeling
+- **Parameter Validation**: Default vs custom parameters
+- **Algorithm Consistency**: Reproducible results for identical inputs
+
+**Running FSRS Tests:**
+```bash
+# Run all FSRS tests
+npm test src/utils/fsrs/__tests__/ -- --watchAll=false
+
+# Run specific test file
+npm test src/utils/fsrs/__tests__/fsrs.test.ts -- --watchAll=false
+
+# Run with coverage
+npm test src/utils/fsrs/__tests__/ -- --coverage --watchAll=false
+```
+
+**Test Structure:**
+- `src/utils/fsrs/__tests__/fsrs.test.ts` - Core FSRS algorithm tests
+- `src/utils/fsrs/__tests__/quizIntegration.test.ts` - Quiz integration tests (partial)
+
+**Expected Behavior Verification:**
+The tests verify that the FSRS implementation correctly follows the FSRS-4 specification:
+- Cards progress through states: new → learning → review
+- Difficulty is constrained between 1-10 with mean reversion toward 4
+- Stability increases with successful reviews and elapsed time
+- Intervals respect maximum constraints (30 days for poker training)
+- "Again" ratings cause lapses and return cards to learning state
+- Rating scale (1=Again, 2=Hard, 3=Good, 4=Easy) affects scheduling appropriately
+
+**Testing Philosophy:**
+The test suite focuses on behavior verification rather than implementation details, ensuring the algorithm works as expected for the poker training use case while maintaining compatibility with FSRS-4 principles.
 
 ## Future Architecture Considerations
 

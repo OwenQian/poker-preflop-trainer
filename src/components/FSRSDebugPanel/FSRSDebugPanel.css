@@ -27,16 +27,28 @@
 .debug-header {
   display: flex;
   justify-content: space-between;
-  align-items: center;
+  align-items: flex-start;
   padding: 20px 24px;
   border-bottom: 1px solid #e2e8f0;
   background: #f8fafc;
+}
+
+.debug-title-container {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
 }
 
 .debug-header h2 {
   margin: 0;
   color: #2d3748;
   font-size: 1.5rem;
+}
+
+.debug-subtitle {
+  color: #4a5568;
+  font-size: 0.875rem;
+  font-weight: 500;
 }
 
 .close-button {

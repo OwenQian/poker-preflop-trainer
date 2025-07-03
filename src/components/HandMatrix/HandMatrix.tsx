@@ -12,7 +12,7 @@ interface HandMatrixProps {
   // Optional dependency range for frequency weighting
   dependencyRangeData?: Record<HandName, HandFrequencies>;
   // Missing hand treatment - how to handle hands not in rangeData
-  missingHandTreatment?: 'not-in-range' | 'fold';
+  missingHandTreatment?: 'not-in-range' | 'fold' | 'parent';
   // Whether to show colors based on frequencies
   showColors?: boolean;
 }
@@ -253,7 +253,7 @@ const HandMatrix: React.FC<HandMatrixProps> = ({
     
     // Handle missing hands based on treatment setting
     if (!frequencies) {
-      if (missingHandTreatment === 'fold') {
+      if (missingHandTreatment === 'fold' || missingHandTreatment === 'parent') {
         // Treat as fold: 100 (lighter gray)
         return '#9e9e9e';
       } else {

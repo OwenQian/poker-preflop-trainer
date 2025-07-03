@@ -32,6 +32,37 @@ const FSRSDebugPanel: React.FC<FSRSDebugPanelProps> = ({
 
   if (!visible) return null;
 
+  const formatPositionCombo = (): string => {
+    switch (rangeCategory) {
+      case 'RFI':
+        return `${heroPosition} RFI`;
+      case 'vs RFI':
+        if (opponentPositions.length > 0) {
+          return `${heroPosition} vs ${opponentPositions.join('/')} RFI`;
+        }
+        return `${heroPosition} vs RFI`;
+      case 'RFI vs 3bet':
+        if (opponentPositions.length > 0) {
+          return `${heroPosition} RFI vs ${opponentPositions.join('/')} 3bet`;
+        }
+        return `${heroPosition} RFI vs 3bet`;
+      case 'vs Limp':
+        return `${heroPosition} vs Limp`;
+      case '3bet vs 4bet':
+        if (opponentPositions.length > 0) {
+          return `${heroPosition} 3bet vs ${opponentPositions.join('/')} 4bet`;
+        }
+        return `${heroPosition} 3bet vs 4bet`;
+      case '4bet vs JAM':
+        if (opponentPositions.length > 0) {
+          return `${heroPosition} 4bet vs ${opponentPositions.join('/')} jam`;
+        }
+        return `${heroPosition} 4bet vs jam`;
+      default:
+        return `${heroPosition} ${rangeCategory}`;
+    }
+  };
+
   const handleColumnClick = (column: SortColumn) => {
     if (sortBy === column) {
       // If clicking the same column, toggle direction
@@ -176,7 +207,10 @@ const FSRSDebugPanel: React.FC<FSRSDebugPanelProps> = ({
     <div className="fsrs-debug-overlay">
       <div className="fsrs-debug-panel">
         <div className="debug-header">
-          <h2>FSRS Debug Panel</h2>
+          <div className="debug-title-container">
+            <h2>FSRS Debug Panel</h2>
+            <div className="debug-subtitle">{formatPositionCombo()}</div>
+          </div>
           <button onClick={onClose} className="close-button">×</button>
         </div>
 

@@ -156,7 +156,7 @@ export const getUserSettings = (): UserSettings => {
     opponentPositions: [],
     gradingMode: 'lax',
     showMatrix: true,
-    samplingMode: 'random',
+    samplingMode: 'spaced-repetition',
     daysAhead: 0
   };
 };

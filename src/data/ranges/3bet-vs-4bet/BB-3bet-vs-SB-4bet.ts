@@ -2,7 +2,8 @@ import { RangeData } from "../../../types";
 
 const BB_3BET_vs_SB_4BET: RangeData = {
   positionCombo: "BB_3BET_vs_SB_4BET",
-  missingHandTreatment: "not-in-range",
+  missingHandTreatment: "parent",
+  parentRange: "BB_vs_SB_RFI", // Note: This corresponds to BB 3bet range against SB RFI
   hands: {
     "55": { raise: 0, call: 100, fold: 0 },
     "66": { raise: 0, call: 100, fold: 0 },

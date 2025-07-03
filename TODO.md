@@ -8,12 +8,17 @@
 - [x] Handling of missingHandTreatment should be done in `getRangeData()`
 - [x] Setting of missingHandTreatment by grouping. E.g., set in index.ts, then individual files like `CO-vs-SB-3bet.ts` can explicitly set it to override the folder wide setting.
 - [x] Add support for 4bet vs 5bet ranges in A) the home page range explorer, fix bugs where the quiz for these aren't working. CO 3bet vs BU jam is currently in the `RFI-vs-3bet` folder.
-- [ ] Implement parent range feature so that the sampler will know what the full range is and thus sample hands that are 100% frequency folds.
+- [x] Implement parent range feature so that the sampler will know what the full range is and thus sample hands that are 100% frequency folds.
   - If a hand is in the parent range but doesn't appear in the child range, then the program should treat that as if it's a 100% fold.
   - This behavior is related to the treatment missingHandTreatment: 'fold'. However, instead of treating any of the missing 169 hands as fold, it treats missing hands in the parent range as 100% fold. Since the behavior is related, the implementation should be cohesive between the two.
   - Add a new missingHandTreatment option: "parent". When this is set then the behavior will be to treat hands that are in the parent range but not in the child range as fold:100%. Should also add a field to specify which range is the parent. If no parent is explicitly specified, default to a parent range of 100% of hands (169) in which case the behavior would be equivalent to missingHandTreatment: fold.
+  - [ ] Verify the parent implementation is correct
 - [x] If the primary range can't be found in `quizIntegration` then display an error instead of falling back to a range.
-- [ ] Create test suite for FSRS spaced repetition to test that it's working correctly.
+- [x] Create test suite for FSRS spaced repetition to test that it's working correctly.
+  - ✅ **Comprehensive FSRS test suite implemented**: 39 tests covering all core algorithm functions
+  - ✅ **Test coverage includes**: Card creation, state transitions, stability/difficulty calculations, interval scheduling, edge cases
+  - ✅ **Behavior verification**: Tests validate FSRS-4 specification compliance for poker training use case
+  - ✅ **Running tests**: `npm test src/utils/fsrs/__tests__/fsrs.test.ts -- --watchAll=false`
 - [ ] **Create Postflop Visualizer** - Build dedicated postflop analysis page with flop selection and equity visualization
 
 ### Backlog
@@ -29,8 +34,8 @@
   - [ ] After the pop up that ends the quiz, the stats on the page don't reset until the page is refreshed. So if a spaced repetition quiz just ended because there were no more scheduled cards then we go back to the quiz setup page, that page still shows that the 1 card is due for review. Seems to just be a text update problem because trying to start the quiz again does correctly get stopped by the pop up.
 - UI improvements
   - [ ] spaced repetition sampling should be the default instead of random
-  - [ ] FSRS debug panel should be able to sort by any of the columns by clicking on the column title. Clicking once sorts it by descending, clicking it again reverse it to sort by ascending.
   - [ ] FSRS debug panel should have a more descriptive title to indicate which range we're looking at. Situation e.g., CO RFI vs 3bet vs BU. Strictness: Lax.
+  - [x] FSRS debug panel should be able to sort by any of the columns by clicking on the column title. Clicking once sorts it by descending, clicking it again reverse it to sort by ascending.
 
 ### Parent-Child Range Relationship
   - [ ] **Add Parent Range System for Game Tree Structure** - Implement ability to specify parent ranges for proper poker decision tree modeling

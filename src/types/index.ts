@@ -26,11 +26,12 @@ export interface HandFrequencies {
 export interface RangeData {
   positionCombo: string;
   hands: Record<HandName, HandFrequencies>;
-  missingHandTreatment?: 'not-in-range' | 'fold'; // How to treat hands not explicitly defined
+  missingHandTreatment?: 'not-in-range' | 'fold' | 'parent'; // How to treat hands not explicitly defined
+  parentRange?: string; // Position combo of parent range for decision tree modeling
 }
 
 export interface RangeCategoryConfig {
-  defaultMissingHandTreatment: 'not-in-range' | 'fold';
+  defaultMissingHandTreatment: 'not-in-range' | 'fold' | 'parent';
 }
 
 export type GradingMode = 'strict' | 'lax' | 'randomizer';

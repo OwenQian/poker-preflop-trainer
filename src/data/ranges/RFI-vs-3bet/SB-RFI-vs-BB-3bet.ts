@@ -2,7 +2,8 @@ import { RangeData } from '../../../types';
 
 const SB_RFI_vs_BB_3BET: RangeData = {
   positionCombo: 'SB_RFI_vs_BB_3BET',
-  missingHandTreatment: "not-in-range",
+  missingHandTreatment: "parent",
+  parentRange: "SB_RFI",
   hands: {
     '22': { raise: 0, call: 0, fold: 100 },
     '33': { raise: 0, call: 0, fold: 100 },

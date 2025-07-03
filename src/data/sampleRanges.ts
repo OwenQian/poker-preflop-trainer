@@ -121,6 +121,73 @@ export const getRangeData = (positionCombo: string, rangeCategory: RangeCategory
     };
   }
   
+  // If missingHandTreatment is 'parent', use parent range to determine missing hands
+  if (missingHandTreatment === 'parent') {
+    const parentRangeCombo = foundRange.parentRange;
+    
+    if (!parentRangeCombo) {
+      // No parent specified, default to treating all 169 hands as parent range (equivalent to 'fold')
+      const allHands = getAllHandNames();
+      const expandedHands: Record<HandName, HandFrequencies> = {};
+      
+      allHands.forEach(handName => {
+        if (foundRange.hands[handName]) {
+          expandedHands[handName] = foundRange.hands[handName];
+        } else {
+          expandedHands[handName] = { raise: 0, call: 0, fold: 100 };
+        }
+      });
+      
+      return {
+        ...foundRange,
+        hands: expandedHands,
+        missingHandTreatment
+      };
+    }
+    
+    // Look up parent range data directly to avoid circular dependency
+    // For parent ranges, we need to look across all categories since parent may be in different category
+    let parentRange: RangeData | undefined;
+    
+    // Search for parent range across all categories
+    for (const [categoryName, categoryRanges] of Object.entries(ALL_RANGES)) {
+      if (categoryRanges && Array.isArray(categoryRanges)) {
+        parentRange = categoryRanges.find(range => range.positionCombo === parentRangeCombo);
+        if (parentRange) break;
+      }
+    }
+    
+    if (!parentRange) {
+      // Parent range not found, fall back to 'not-in-range' behavior
+      console.warn(`Parent range not found: ${parentRangeCombo}, falling back to 'not-in-range' treatment`);
+      return {
+        ...foundRange,
+        missingHandTreatment: 'not-in-range'
+      };
+    }
+    
+    // Build expanded hands using parent range as the universe
+    const expandedHands: Record<HandName, HandFrequencies> = {};
+    
+    // Only include hands that are in the parent range
+    Object.keys(parentRange.hands).forEach(handName => {
+      if (foundRange.hands[handName]) {
+        // Use existing frequencies for hands in the child range
+        expandedHands[handName] = foundRange.hands[handName];
+      } else {
+        // Hand is in parent range but not in child range, treat as 100% fold
+        expandedHands[handName] = { raise: 0, call: 0, fold: 100 };
+      }
+    });
+    
+    // Return enhanced range with parent range hands included
+    return {
+      ...foundRange,
+      hands: expandedHands,
+      missingHandTreatment
+    };
+  }
+  
   // For 'not-in-range' treatment, return range as-is with explicit treatment
   return {
     ...foundRange,

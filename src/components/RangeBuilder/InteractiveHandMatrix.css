@@ -12,7 +12,8 @@
   box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
 }
 
-.hand-cell {
+.interactive-hand-matrix .hand-cell {
+  display: table-cell !important;
   width: 45px;
   height: 45px;
   border: 1px solid #e2e8f0;
@@ -25,7 +26,7 @@
   font-weight: 600;
 }
 
-.hand-cell:hover {
+.interactive-hand-matrix .hand-cell:hover {
   transform: scale(1.05);
   z-index: 10;
   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
@@ -79,28 +80,28 @@
 }
 
 /* Hover effects based on selected tool */
-.tool-always-raise .hand-cell:hover {
+.interactive-hand-matrix.tool-always-raise .hand-cell:hover {
   background: #ff9500 !important;
   color: white !important;
 }
 
-.tool-mixed-frequency .hand-cell:hover {
+.interactive-hand-matrix.tool-mixed-frequency .hand-cell:hover {
   /* Don't override background - let gradient show through */
   opacity: 0.8;
   color: black !important;
 }
 
-.tool-always-call .hand-cell:hover {
+.interactive-hand-matrix.tool-always-call .hand-cell:hover {
   background: #8BC34A !important;
   color: white !important;
 }
 
-.tool-always-fold .hand-cell:hover {
+.interactive-hand-matrix.tool-always-fold .hand-cell:hover {
   background: #9e9e9e !important;
   color: white !important;
 }
 
-.tool-not-in-range .hand-cell:hover {
+.interactive-hand-matrix.tool-not-in-range .hand-cell:hover {
   background: #606060 !important;
   color: white !important;
 }
@@ -117,31 +118,31 @@
   cursor: crosshair;
 }
 
-.hand-cell.drag-selected {
+.interactive-hand-matrix .hand-cell.drag-selected {
   box-shadow: 0 0 0 3px #3b82f6 !important;
   transform: scale(1.05) !important;
   z-index: 100 !important;
 }
 
-.hand-cell.drag-selected.always-raise {
+.interactive-hand-matrix .hand-cell.drag-selected.always-raise {
   box-shadow: 0 0 0 3px #ff9500 !important;
 }
 
-.hand-cell.drag-selected.mixed-frequency {
+.interactive-hand-matrix .hand-cell.drag-selected.mixed-frequency {
   box-shadow: 0 0 0 3px #ffeb3b !important;
 }
 
-.hand-cell.drag-selected.always-call {
+.interactive-hand-matrix .hand-cell.drag-selected.always-call {
   box-shadow: 0 0 0 3px #8BC34A !important;
 }
 
-.hand-cell.drag-selected.always-fold {
+.interactive-hand-matrix .hand-cell.drag-selected.always-fold {
   box-shadow: 0 0 0 3px #6b7280 !important;
 }
 
 /* Responsive design */
 @media (max-width: 768px) {
-  .hand-cell {
+  .interactive-hand-matrix .hand-cell {
     width: 35px;
     height: 35px;
     font-size: 10px;
@@ -151,7 +152,7 @@
     font-size: 7px;
   }
 
-  .hand-cell.drag-selected {
+  .interactive-hand-matrix .hand-cell.drag-selected {
     box-shadow: 0 0 0 2px #3b82f6 !important;
   }
 }

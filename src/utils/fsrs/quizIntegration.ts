@@ -168,13 +168,42 @@ export const getDueCardsInfo = (
   rangeCategory: RangeCategory,
   daysAhead: number = 0
 ): DueCardsInfo => {
+  console.log('🔍 getDueCardsInfo called with:', {
+    heroPosition,
+    opponentPositions,
+    gradingMode,
+    rangeCategory,
+    daysAhead
+  });
+  
+  // Use the same range resolution logic as quiz generation for consistency
+  const resolveResult = resolveRangeCombo(heroPosition, opponentPositions, rangeCategory);
+  
+  // If there's an error resolving the range, return empty result
+  if (resolveResult.error) {
+    console.error('Range resolution error in getDueCardsInfo:', resolveResult.error);
+    return {
+      dueCount: 0,
+      totalCards: 0,
+      dueCards: []
+    };
+  }
+  
+  const { effectiveOpponents } = resolveResult;
+  
+  console.log('🔍 getDueCardsInfo range resolution:', {
+    originalOpponents: opponentPositions,
+    effectiveOpponents,
+    rangeCombo: resolveResult.rangeCombo
+  });
+  
   const fsrs = new FSRS();
   const allProgress = getAllHandProgress();
   const now = new Date();
   const futureDate = new Date(now.getTime() + daysAhead * 24 * 60 * 60 * 1000);
   
-  // Get all possible handIds for this range
-  const allHandIds = getHandIdsForRange(heroPosition, opponentPositions, gradingMode, rangeCategory);
+  // Get all possible handIds for this range using effective opponents (same as quiz generation)
+  const allHandIds = getHandIdsForRange(heroPosition, effectiveOpponents, gradingMode, rangeCategory);
   
   // If no hand IDs (likely due to range resolution error), return empty result
   if (allHandIds.length === 0) {
@@ -202,25 +231,16 @@ export const getDueCardsInfo = (
       const isHard = card.difficulty > 6; // Difficulty scale 1-10
       const hasLapses = card.lapses > 0;
       
-      // Debug logging for date comparison issues
+      // Reduced debug logging - only for premium hands
       const handName = handId.split('_')[0];
-      if (handName === 'KTs' || handName === 'A9s' || handName === 'AQs') {
+      if ((handName === 'AA' || handName === 'KK')) {
         const timeDiff = card.due.getTime() - now.getTime();
         const daysDiff = timeDiff / (1000 * 60 * 60 * 24);
         console.log(`🔍 FSRS Debug ${handName}:`, {
-          handId,
-          dueDate: card.due.toISOString(),
-          currentTime: now.toISOString(),
-          futureDate: futureDate.toISOString(),
-          daysAhead,
           daysDifference: Math.round(daysDiff * 100) / 100,
           isDue,
-          isHard,
-          hasLapses,
-          difficulty: card.difficulty,
-          lapses: card.lapses,
-          state: card.state,
-          reps: card.reps
+          daysAhead,
+          state: card.state
         });
       }
       
@@ -245,11 +265,21 @@ export const getDueCardsInfo = (
   // This matches the sampling logic in getWeightedHandSelection() for consistency
   const allDueHandIds = [...newHandIds, ...dueHandIds, ...difficultHandIds];
   
-  return {
+  const result = {
     dueCount: allDueHandIds.length,
     totalCards: allHandIds.length,
     dueCards: allDueHandIds
   };
+  
+  console.log('🔍 getDueCardsInfo result:', {
+    ...result,
+    newCards: newHandIds.length,
+    dueCards: dueHandIds.length,
+    difficultCards: difficultHandIds.length,
+    sampleDueCards: allDueHandIds.slice(0, 5)
+  });
+  
+  return result;
 };
 
 // Get weighted hand selection for FSRS-based sampling
@@ -262,6 +292,7 @@ export const getWeightedHandSelection = (
   sessionCorrectAnswers?: Record<string, number>,
   maxCorrectPerSession: number = 3
 ): string[] => {
+  console.log('🎯 getWeightedHandSelection called with daysAhead:', daysAhead);
   const fsrs = new FSRS();
   const allProgress = getAllHandProgress();
   const now = new Date();
@@ -323,16 +354,7 @@ export const getWeightedHandSelection = (
     difficultCards.splice(0, difficultCards.length, ...filterOverpracticedHands(difficultCards));
     reviewCards.splice(0, reviewCards.length, ...filterOverpracticedHands(reviewCards));
     
-    console.log('🚫 Session filtering applied:', {
-      sessionCorrectAnswers,
-      maxCorrectPerSession,
-      filteredCounts: {
-        dueCards: dueCards.length,
-        newCards: newCards.length,
-        difficultCards: difficultCards.length,
-        reviewCards: reviewCards.length
-      }
-    });
+    console.log('🚫 Session filtering applied - filtered out overpracticed hands');
   }
   
   // Create weighted array: only include cards that should be reviewed
@@ -345,6 +367,16 @@ export const getWeightedHandSelection = (
   ].filter(handId => handId); // Remove empty entries
   
   // If no cards are due/new/difficult, return empty array to trigger user prompt
+  console.log('🎯 getWeightedHandSelection result:', {
+    totalHandIds: allHandIds.length,
+    dueCards: dueCards.length,
+    newCards: newCards.length,
+    difficultCards: difficultCards.length,
+    weightedSelectionLength: weightedSelection.length,
+    sample: weightedSelection.slice(0, 5),
+    hasSessionFiltering: !!sessionCorrectAnswers
+  });
+  
   return weightedSelection;
 };
 
