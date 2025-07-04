@@ -54,6 +54,28 @@ export const resolveRangeCombo = (
         rangeCombo = `${heroPosition}_vs_LIMP`;
       }
       break;
+    case 'squeeze':
+      if (opponentPositions.length >= 2) {
+        // For squeeze: hero vs RFI_and_call (e.g., BB_vs_HJ_RFI_and_BU_call)
+        rangeCombo = `${heroPosition}_vs_${opponentPositions[0]}_RFI_and_${opponentPositions[1]}_call`;
+      } else if (opponentPositions.length === 1) {
+        // Determine correct caller position based on available ranges
+        const rfiPosition = opponentPositions[0];
+        let callerPosition = 'BU'; // Default
+        
+        // Map RFI positions to their typical caller positions based on available ranges
+        if (rfiPosition === 'LJ') {
+          callerPosition = 'CO'; // LJ RFI typically called by CO
+        } else if (rfiPosition === 'HJ') {
+          callerPosition = 'BU'; // HJ RFI typically called by BU
+        }
+        
+        rangeCombo = `${heroPosition}_vs_${rfiPosition}_RFI_and_${callerPosition}_call`;
+      } else {
+        // Default squeeze scenario: BB vs HJ RFI and BU call
+        rangeCombo = `${heroPosition}_vs_HJ_RFI_and_BU_call`;
+      }
+      break;
     default:
       rangeCombo = `${heroPosition}_RFI`;
   }
