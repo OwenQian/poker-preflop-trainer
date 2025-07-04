@@ -26,3 +26,4 @@ export { default as BU_vs_CO_RFI } from './BU-vs-CO';
 export { default as SB_vs_LJ_RFI } from './SB-vs-LJ';
 export { default as SB_vs_CO_RFI } from './SB-vs-CO';
 export { default as SB_vs_HJ_RFI } from './SB-vs-HJ';
+export { default as SB_vs_BU_RFI } from './SB-vs-BU';

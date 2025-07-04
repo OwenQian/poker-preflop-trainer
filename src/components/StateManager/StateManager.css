@@ -227,3 +227,151 @@
     opacity: 1;
   }
 }
+
+/* Import Selection Modal */
+.import-selection-modal {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(0, 0, 0, 0.5);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1000;
+}
+
+.import-selection-content {
+  background: white;
+  border-radius: 8px;
+  padding: 20px;
+  max-width: 700px;
+  max-height: 80vh;
+  width: 90vw;
+  display: flex;
+  flex-direction: column;
+}
+
+.import-selection-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 20px;
+  padding-bottom: 15px;
+  border-bottom: 1px solid #ddd;
+}
+
+.import-selection-header h3 {
+  margin: 0;
+  color: #333;
+}
+
+.selection-actions {
+  display: flex;
+  gap: 10px;
+  align-items: center;
+}
+
+.selection-button {
+  padding: 6px 12px;
+  border: 1px solid #ddd;
+  border-radius: 4px;
+  background: #f8f9fa;
+  cursor: pointer;
+  font-size: 12px;
+  transition: all 0.2s ease;
+}
+
+.selection-button:hover {
+  background: #e9ecef;
+  border-color: #ccc;
+}
+
+.range-selections {
+  flex: 1;
+  overflow-y: auto;
+  margin-bottom: 20px;
+  max-height: 400px;
+}
+
+.range-selection-item {
+  margin-bottom: 12px;
+  border: 1px solid #e0e0e0;
+  border-radius: 6px;
+  transition: all 0.2s ease;
+}
+
+.range-selection-item:hover {
+  border-color: #007bff;
+  background: #f8f9ff;
+}
+
+.selection-label {
+  display: flex;
+  align-items: flex-start;
+  padding: 12px;
+  cursor: pointer;
+  gap: 12px;
+}
+
+.selection-checkbox {
+  margin: 0;
+  margin-top: 2px;
+  transform: scale(1.2);
+}
+
+.selection-info {
+  flex: 1;
+}
+
+.selection-description {
+  font-weight: 500;
+  color: #333;
+  margin-bottom: 4px;
+}
+
+.selection-stats {
+  font-size: 12px;
+  color: #666;
+}
+
+.import-selection-footer {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding-top: 15px;
+  border-top: 1px solid #ddd;
+}
+
+.selected-summary {
+  font-size: 14px;
+  color: #666;
+  font-weight: 500;
+}
+
+.import-actions {
+  display: flex;
+  gap: 10px;
+}
+
+.import-button.confirm {
+  background: #28a745;
+  color: white;
+  padding: 10px 20px;
+  border: none;
+  border-radius: 6px;
+  cursor: pointer;
+  font-weight: 500;
+  transition: all 0.2s ease;
+}
+
+.import-button.confirm:hover:not(:disabled) {
+  background: #1e7e34;
+}
+
+.import-button.confirm:disabled {
+  background: #6c757d;
+  cursor: not-allowed;
+  opacity: 0.6;
+}

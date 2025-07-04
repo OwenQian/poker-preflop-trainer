@@ -13,9 +13,10 @@ interface FSRSDebugPanelProps {
   rangeCategory: RangeCategory;
   visible: boolean;
   onClose: () => void;
+  daysAhead?: number; // Add daysAhead prop for better debugging
 }
 
-type SortColumn = 'hand' | 'state' | 'reviews' | 'accuracy' | 'difficulty' | 'interval' | 'lapses' | 'dueDate';
+type SortColumn = 'hand' | 'state' | 'reviews' | 'accuracy' | 'difficulty' | 'interval' | 'lapses' | 'dueDate' | 'stability' | 'elapsedDays' | 'reps' | 'isDue';
 type SortDirection = 'asc' | 'desc';
 
 const FSRSDebugPanel: React.FC<FSRSDebugPanelProps> = ({
@@ -24,11 +25,13 @@ const FSRSDebugPanel: React.FC<FSRSDebugPanelProps> = ({
   gradingMode,
   rangeCategory,
   visible,
-  onClose
+  onClose,
+  daysAhead = 0
 }) => {
   const [sortBy, setSortBy] = useState<SortColumn>('reviews');
   const [sortDirection, setSortDirection] = useState<SortDirection>('desc');
   const [filterStuck, setFilterStuck] = useState<boolean>(false);
+  const [expandedCard, setExpandedCard] = useState<string | null>(null);
 
   if (!visible) return null;
 
@@ -76,14 +79,24 @@ const FSRSDebugPanel: React.FC<FSRSDebugPanelProps> = ({
 
   const allProgress = getAllHandProgress();
   const handIds = getHandIdsForRange(heroPosition, opponentPositions, gradingMode, rangeCategory);
+  const now = new Date();
+  const futureDate = new Date(now.getTime() + daysAhead * 24 * 60 * 60 * 1000);
   
-  // Get cards with progress data
+  // Get cards with progress data and calculate due status
   const cardsWithProgress = handIds
-    .map(handId => ({
-      handId,
-      handName: handId.split('_')[0] as HandName,
-      progress: allProgress[handId]
-    }))
+    .map(handId => {
+      const progress = allProgress[handId];
+      const isDue = progress?.fsrsCard ? progress.fsrsCard.due <= futureDate : true; // New cards are always due
+      const daysDiff = progress?.fsrsCard ? (progress.fsrsCard.due.getTime() - now.getTime()) / (1000 * 60 * 60 * 24) : 0;
+      
+      return {
+        handId,
+        handName: handId.split('_')[0] as HandName,
+        progress: progress,
+        isDue,
+        daysDifference: Math.round(daysDiff * 100) / 100
+      };
+    })
     .filter(card => card.progress?.fsrsCard);
 
   // Identify stuck cards (>5 reviews in learning state or high lapses)
@@ -134,6 +147,21 @@ const FSRSDebugPanel: React.FC<FSRSDebugPanelProps> = ({
         const aDate = a.progress.fsrsCard.due ? a.progress.fsrsCard.due.getTime() : 0;
         const bDate = b.progress.fsrsCard.due ? b.progress.fsrsCard.due.getTime() : 0;
         comparison = aDate - bDate;
+        break;
+      case 'stability':
+        if (!a.progress?.fsrsCard || !b.progress?.fsrsCard) return 0;
+        comparison = a.progress.fsrsCard.stability - b.progress.fsrsCard.stability;
+        break;
+      case 'elapsedDays':
+        if (!a.progress?.fsrsCard || !b.progress?.fsrsCard) return 0;
+        comparison = a.progress.fsrsCard.elapsedDays - b.progress.fsrsCard.elapsedDays;
+        break;
+      case 'reps':
+        if (!a.progress?.fsrsCard || !b.progress?.fsrsCard) return 0;
+        comparison = a.progress.fsrsCard.reps - b.progress.fsrsCard.reps;
+        break;
+      case 'isDue':
+        comparison = (a.isDue ? 1 : 0) - (b.isDue ? 1 : 0);
         break;
       default:
         return 0;
@@ -209,7 +237,7 @@ const FSRSDebugPanel: React.FC<FSRSDebugPanelProps> = ({
         <div className="debug-header">
           <div className="debug-title-container">
             <h2>FSRS Debug Panel</h2>
-            <div className="debug-subtitle">{formatPositionCombo()}</div>
+            <div className="debug-subtitle">{formatPositionCombo()} • Strictness: {gradingMode.charAt(0).toUpperCase() + gradingMode.slice(1)}</div>
           </div>
           <button onClick={onClose} className="close-button">×</button>
         </div>
@@ -223,13 +251,17 @@ const FSRSDebugPanel: React.FC<FSRSDebugPanelProps> = ({
             <h3>With Progress</h3>
             <div className="stat-value">{cardsWithProgress.length}</div>
           </div>
+          <div className="stat-card">
+            <h3>Due Cards</h3>
+            <div className="stat-value">{cardsWithProgress.filter(c => c.isDue).length}</div>
+          </div>
           <div className="stat-card stuck">
             <h3>Stuck Cards</h3>
             <div className="stat-value">{stuckCards.length}</div>
           </div>
           <div className="stat-card">
-            <h3>Range</h3>
-            <div className="stat-value">{rangeCategory}</div>
+            <h3>Days Ahead</h3>
+            <div className="stat-value">{daysAhead}</div>
           </div>
         </div>
 
@@ -267,6 +299,9 @@ const FSRSDebugPanel: React.FC<FSRSDebugPanelProps> = ({
             <div className="sortable-header" onClick={() => handleColumnClick('state')}>
               State{getSortIndicator('state')}
             </div>
+            <div className="sortable-header" onClick={() => handleColumnClick('isDue')}>
+              Due?{getSortIndicator('isDue')}
+            </div>
             <div className="sortable-header" onClick={() => handleColumnClick('reviews')}>
               Reviews{getSortIndicator('reviews')}
             </div>
@@ -276,8 +311,14 @@ const FSRSDebugPanel: React.FC<FSRSDebugPanelProps> = ({
             <div className="sortable-header" onClick={() => handleColumnClick('difficulty')}>
               Difficulty{getSortIndicator('difficulty')}
             </div>
+            <div className="sortable-header" onClick={() => handleColumnClick('stability')}>
+              Stability{getSortIndicator('stability')}
+            </div>
             <div className="sortable-header" onClick={() => handleColumnClick('interval')}>
               Interval{getSortIndicator('interval')}
+            </div>
+            <div className="sortable-header" onClick={() => handleColumnClick('reps')}>
+              Reps{getSortIndicator('reps')}
             </div>
             <div className="sortable-header" onClick={() => handleColumnClick('lapses')}>
               Lapses{getSortIndicator('lapses')}
@@ -296,31 +337,65 @@ const FSRSDebugPanel: React.FC<FSRSDebugPanelProps> = ({
               const isStuck = stuckCards.some(stuck => stuck.handId === card.handId);
               
               return (
-                <div key={card.handId} className={`table-row ${isStuck ? 'stuck' : ''}`}>
-                  <div className="hand-name">{card.handName}</div>
-                  <div 
-                    className="card-state"
-                    style={{ color: getStateColor(fsrsCard.state) }}
-                  >
-                    {fsrsCard.state}
-                  </div>
-                  <div>{performanceStats.totalReviews}</div>
-                  <div>{Math.round(performanceStats.accuracyRate * 100)}%</div>
-                  <div>{fsrsCard.difficulty.toFixed(1)}</div>
-                  <div>{fsrsCard.scheduledDays.toFixed(1)}d</div>
-                  <div>{fsrsCard.lapses}</div>
-                  <div className="due-date">
-                    {fsrsCard.due ? formatDate(fsrsCard.due) : 'Never'}
-                  </div>
-                  <div>
-                    <button 
-                      onClick={() => resetCard(card.handId)}
-                      className="reset-button"
+                <>
+                  <div key={card.handId} className={`table-row ${isStuck ? 'stuck' : ''} ${card.isDue ? 'due' : ''}`}>
+                    <div className="hand-name">{card.handName}</div>
+                    <div 
+                      className="card-state"
+                      style={{ color: getStateColor(fsrsCard.state) }}
                     >
-                      Reset
-                    </button>
+                      {fsrsCard.state}
+                    </div>
+                    <div className={`due-status ${card.isDue ? 'due' : 'not-due'}`}>
+                      {card.isDue ? '✓' : '○'} {card.daysDifference.toFixed(1)}d
+                    </div>
+                    <div>{performanceStats.totalReviews}</div>
+                    <div>{Math.round(performanceStats.accuracyRate * 100)}%</div>
+                    <div>{fsrsCard.difficulty.toFixed(1)}</div>
+                    <div>{fsrsCard.stability.toFixed(2)}</div>
+                    <div>{fsrsCard.scheduledDays.toFixed(1)}d</div>
+                    <div>{fsrsCard.reps}</div>
+                    <div>{fsrsCard.lapses}</div>
+                    <div className="due-date">
+                      {fsrsCard.due ? formatDate(fsrsCard.due) : 'Never'}
+                    </div>
+                    <div>
+                      <button 
+                        onClick={() => setExpandedCard(expandedCard === card.handId ? null : card.handId)}
+                        className="expand-button"
+                        style={{ marginRight: '5px' }}
+                      >
+                        {expandedCard === card.handId ? '−' : '+'}
+                      </button>
+                      <button 
+                        onClick={() => resetCard(card.handId)}
+                        className="reset-button"
+                      >
+                        Reset
+                      </button>
+                    </div>
                   </div>
-                </div>
+                  {expandedCard === card.handId && (
+                    <div className="expanded-details">
+                      <div className="details-grid">
+                        <div><strong>Hand ID:</strong> {card.handId}</div>
+                        <div><strong>Elapsed Days:</strong> {fsrsCard.elapsedDays}</div>
+                        <div><strong>Last Review:</strong> {fsrsCard.lastReview ? formatDate(fsrsCard.lastReview) : 'Never'}</div>
+                        <div><strong>Correct Streak:</strong> {performanceStats.correctStreak}</div>
+                        <div><strong>Due in days:</strong> {card.daysDifference > 0 ? `+${card.daysDifference.toFixed(2)}` : card.daysDifference.toFixed(2)}</div>
+                        <div><strong>Days Ahead Setting:</strong> {daysAhead}</div>
+                        <div><strong>Review History:</strong> {card.progress.reviewHistory?.length || 0} entries</div>
+                        <div><strong>FSRS State:</strong> {JSON.stringify({
+                          state: fsrsCard.state,
+                          stability: Math.round(fsrsCard.stability * 100) / 100,
+                          difficulty: Math.round(fsrsCard.difficulty * 100) / 100,
+                          reps: fsrsCard.reps,
+                          lapses: fsrsCard.lapses
+                        }, null, 2)}</div>
+                      </div>
+                    </div>
+                  )}
+                </>
               );
             })}
           </div>

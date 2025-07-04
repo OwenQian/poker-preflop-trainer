@@ -8,6 +8,7 @@ import * as RFI_VS_3BET_RANGES from './ranges/RFI-vs-3bet';
 import * as THREEBET_VS_FOURBET_RANGES from './ranges/3bet-vs-4bet';
 import * as FOURBET_VS_JAM_RANGES from './ranges/4bet-vs-JAM';
 import * as VS_LIMP_RANGES from './ranges/vsLimp';
+import * as SQUEEZE_RANGES from './ranges/squeeze';
 
 // Import category configurations
 import { RFI_CATEGORY_CONFIG } from './ranges/RFI';
@@ -16,6 +17,7 @@ import { RFI_VS_3BET_CATEGORY_CONFIG } from './ranges/RFI-vs-3bet';
 import { THREEBET_VS_FOURBET_CATEGORY_CONFIG } from './ranges/3bet-vs-4bet';
 import { FOURBET_VS_JAM_CATEGORY_CONFIG } from './ranges/4bet-vs-JAM';
 import { VS_LIMP_CATEGORY_CONFIG } from './ranges/vsLimp';
+import { SQUEEZE_CATEGORY_CONFIG } from './ranges/squeeze';
 
 // Convert imported ranges to RangeData arrays
 const rfiRanges = Object.values(RFI_RANGES) as RangeData[];
@@ -24,6 +26,7 @@ const rfiVs3betRanges = Object.values(RFI_VS_3BET_RANGES) as RangeData[];
 const threebetVsFourbetRanges = Object.values(THREEBET_VS_FOURBET_RANGES) as RangeData[];
 const fourbetVsJamRanges = Object.values(FOURBET_VS_JAM_RANGES) as RangeData[];
 const vsLimpRanges = Object.values(VS_LIMP_RANGES) as RangeData[];
+const squeezeRanges = Object.values(SQUEEZE_RANGES).filter(item => typeof item === 'object' && 'positionCombo' in item && 'hands' in item) as RangeData[];
 
 // Helper function to generate all possible hand names
 const getAllHandNames = (): HandName[] => {
@@ -55,7 +58,8 @@ const CATEGORY_CONFIGS = {
   'RFI vs 3bet': RFI_VS_3BET_CATEGORY_CONFIG,
   '3bet vs 4bet': THREEBET_VS_FOURBET_CATEGORY_CONFIG,
   '4bet vs JAM': FOURBET_VS_JAM_CATEGORY_CONFIG,
-  'vs Limp': VS_LIMP_CATEGORY_CONFIG
+  'vs Limp': VS_LIMP_CATEGORY_CONFIG,
+  'squeeze': SQUEEZE_CATEGORY_CONFIG
 };
 
 // Export consolidated RFI ranges as the main ranges (for backward compatibility)
@@ -68,7 +72,8 @@ export const ALL_RANGES = {
   'RFI vs 3bet': rfiVs3betRanges,
   '3bet vs 4bet': threebetVsFourbetRanges,
   '4bet vs JAM': fourbetVsJamRanges,
-  'vs Limp': vsLimpRanges
+  'vs Limp': vsLimpRanges,
+  'squeeze': squeezeRanges
 };
 
 export const getRangeData = (positionCombo: string, rangeCategory: RangeCategory = 'RFI'): RangeData | undefined => {

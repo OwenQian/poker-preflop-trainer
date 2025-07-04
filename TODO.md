@@ -1,9 +1,10 @@
 # Preflop Trainer - TODO
 
 ## Current Tasks
-- [ ] Allow import and export of only one selection, e.g., strict, BB vs LJ RFI; lax, BU 3bet vs CO 4bet.
+- [x] Allow import and export of only one selection, e.g., strict, BB vs LJ RFI; lax, BU 3bet vs CO 4bet.
   - Partial import would overwrite only that one state in local storage
 - [ ] Add a refresh button on the quiz setup page that will keep the current selections but refresh the data
+  - [ ] verify that this works
 
 ### High Priority
 - [x] Fix problems with spaced repetition / FSRS algorithm problems.
@@ -35,18 +36,21 @@
   - [x] The 3bet vs 4bet quiz isn't reading the data correctly. When CO 4bet vs BU jam quiz is selected, the `BB 3BET vs SB 4BET` range gets loaded instead.
   - [ ] After the pop up that ends the quiz, the stats on the page don't reset until the page is refreshed. So if a spaced repetition quiz just ended because there were no more scheduled cards then we go back to the quiz setup page, that page still shows that the 1 card is due for review. Seems to just be a text update problem because trying to start the quiz again does correctly get stopped by the pop up.
 - UI improvements
-  - [ ] spaced repetition sampling should be the default instead of random
-  - [ ] FSRS debug panel should have a more descriptive title to indicate which range we're looking at. Situation e.g., CO RFI vs 3bet vs BU. Strictness: Lax.
+  - [x] spaced repetition sampling should be the default instead of random
+  - [x] strict mode should be the default quiz mode instead of lax
+  - [x] change the default quiz limit from 50 to 100
+  - [x] FSRS debug panel should have a more descriptive title to indicate which range we're looking at. Situation e.g., CO RFI vs 3bet vs BU. Strictness: Lax.
   - [x] FSRS debug panel should be able to sort by any of the columns by clicking on the column title. Clicking once sorts it by descending, clicking it again reverse it to sort by ascending.
 
 ### Parent-Child Range Relationship
   - [ ] **Add Parent Range System for Game Tree Structure** - Implement ability to specify parent ranges for proper poker decision tree modeling
-    - [ ] Add `parentRange` field to range data structure to track decision tree dependencies
+    - [x] Add `parentRange` field to range data structure to track decision tree dependencies
     - [ ] Implement parent range lookup system (e.g., CO RFI is parent of CO RFI vs 3bet)
     - [ ] Support multi-level dependencies: vs 4bet ranges are descendants of 3bet portions of vs RFI ranges
     - [ ] Example game tree paths:
       - CO RFI → BU 3bet → CO faces 3bet (CO RFI vs 3bet range weighted by CO RFI frequencies)
       - CO RFI → BU 3bet → BU faces 4bet (BU vs 4bet range weighted by BU 3bet frequencies from BU vs RFI range)
+    - [ ] verify this works
     - [ ] Update frequency weighting to traverse full decision tree path for accurate combo calculations
     - [ ] Add UI to display decision tree context and parent range information
 

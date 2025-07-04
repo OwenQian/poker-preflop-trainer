@@ -200,6 +200,7 @@ const HandMatrix: React.FC<HandMatrixProps> = ({
           case '3bet vs 4bet': return '#c62828'; // dark red
           case '4bet vs JAM': return '#c62828'; // dark red
           case 'vs Limp': return '#ff9500'; // orange
+          case 'squeeze': return '#c62828'; // dark red (3bet)
           default: return '#ff9500';
         }
       })(),
@@ -209,6 +210,7 @@ const HandMatrix: React.FC<HandMatrixProps> = ({
           case 'RFI vs 3bet': return '#4CAF50'; // green
           case '3bet vs 4bet': return '#4CAF50'; // green
           case '4bet vs JAM': return '#4CAF50'; // green
+          case 'squeeze': return '#4CAF50'; // green
           default: return '#8BC34A'; // light green
         }
       })(),
@@ -299,6 +301,12 @@ const HandMatrix: React.FC<HandMatrixProps> = ({
         if (call > 0) return 'lightteal'; // Mixed call
         return 'gray';
         
+      case 'squeeze':
+        if (raise > 0 && call > 0) return '#9C27B0'; // Mixed 3bet/call (purple)
+        if (raise > 0) return '#c62828'; // Any 3bet (dark red)
+        if (call > 0) return '#4CAF50'; // Any call (green)
+        return 'gray';
+        
       default:
         return 'gray';
     }
@@ -332,6 +340,7 @@ const HandMatrix: React.FC<HandMatrixProps> = ({
           case 'vs RFI': return '3B';
           case 'RFI vs 3bet': return '4B';
           case 'vs Limp': return 'R';
+          case 'squeeze': return '3B';
           default: return 'R';
         }
       })();

@@ -55,7 +55,7 @@ const range: RangeData = {
     'K9s': { raise: 25, call: 0, fold: 75 },
     'KJo': { raise: 25, call: 0, fold: 75 },
     'J9s': { raise: 25, call: 0, fold: 75 },
-    '55': { raise: 25, call: 25, fold: 50 },
+    '55': { raise: 50, call: 0, fold: 50 },
     
     // Pure folds
     'QJo': { raise: 0, call: 0, fold: 100 },

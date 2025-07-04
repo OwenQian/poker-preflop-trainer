@@ -1,20 +1,23 @@
 import React from 'react';
 import './RangeTabSelector.css';
 
-export type RangeCategory = 'RFI' | 'vs RFI' | 'RFI vs 3bet' | '3bet vs 4bet' | '4bet vs JAM' | 'vs Limp';
+export type RangeCategory = 'RFI' | 'vs RFI' | 'RFI vs 3bet' | '3bet vs 4bet' | '4bet vs JAM' | 'vs Limp' | 'squeeze';
 
 interface RangeTabSelectorProps {
   activeCategory: RangeCategory;
   onCategoryChange: (category: RangeCategory) => void;
   className?: string;
+  excludeTabs?: RangeCategory[];
 }
 
 const RangeTabSelector: React.FC<RangeTabSelectorProps> = ({
   activeCategory,
   onCategoryChange,
-  className = ''
+  className = '',
+  excludeTabs = []
 }) => {
-  const tabs: RangeCategory[] = ['RFI', 'vs RFI', 'RFI vs 3bet', '3bet vs 4bet', '4bet vs JAM', 'vs Limp'];
+  const allTabs: RangeCategory[] = ['RFI', 'vs RFI', 'RFI vs 3bet', '3bet vs 4bet', '4bet vs JAM', 'vs Limp', 'squeeze'];
+  const tabs = allTabs.filter(tab => !excludeTabs.includes(tab));
 
   const getTabDescription = (category: RangeCategory): string => {
     switch (category) {
@@ -30,6 +33,8 @@ const RangeTabSelector: React.FC<RangeTabSelectorProps> = ({
         return '4bet vs JAM - Call/fold when opponent jams after your 4bet';
       case 'vs Limp':
         return 'vs Limp - Raise/call/fold vs limpers';
+      case 'squeeze':
+        return 'Squeeze - 3bet/call/fold when facing RFI + call';
       default:
         return '';
     }

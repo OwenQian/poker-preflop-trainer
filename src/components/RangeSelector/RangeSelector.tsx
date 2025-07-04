@@ -49,6 +49,13 @@ const RangeSelector: React.FC<RangeSelectorProps> = ({
       const opponentIndex = parts.indexOf('vs') + 1;
       const opponent = parts[opponentIndex] as Position;
       return { hero, opponents: [opponent] };
+    } else if (positionCombo.includes('_vs_') && positionCombo.includes('_RFI_and_') && positionCombo.includes('_call')) {
+      // Format: "BB_vs_HJ_RFI_and_BU_call" -> hero: BB, opponents: [HJ, BU]
+      const parts = positionCombo.split('_');
+      const hero = parts[0] as Position;
+      const rfiPosition = parts[2] as Position; // HJ
+      const callPosition = parts[5] as Position; // BU
+      return { hero, opponents: [rfiPosition, callPosition] };
     } else if (positionCombo.includes('_vs_LIMP') || positionCombo.includes('_vs_SB_LIMP')) {
       // Format: "BB_vs_LIMP" -> hero: BB, opponents: [] (generic vs limp)
       // Format: "BB_vs_SB_LIMP" -> hero: BB, opponents: [SB] (vs SB limp)
@@ -70,7 +77,10 @@ const RangeSelector: React.FC<RangeSelectorProps> = ({
   };
 
   const formatRangeDisplayName = (positionCombo: string): string => {
-    if (positionCombo.includes('_vs_') && positionCombo.includes('_RFI')) {
+    if (positionCombo.includes('_vs_') && positionCombo.includes('_RFI_and_') && positionCombo.includes('_call')) {
+      // "BB_vs_HJ_RFI_and_BU_call" -> "BB vs HJ RFI + BU call"
+      return positionCombo.replace(/_and_/g, ' + ').replace(/_/g, ' ');
+    } else if (positionCombo.includes('_vs_') && positionCombo.includes('_RFI')) {
       // "BB_vs_BU_RFI" -> "BB vs BU RFI"
       return positionCombo.replace(/_/g, ' ');
     } else if (positionCombo.includes('_RFI_vs_')) {
@@ -97,7 +107,10 @@ const RangeSelector: React.FC<RangeSelectorProps> = ({
   };
 
   const getRangeDescription = (positionCombo: string): string => {
-    if (positionCombo.includes('_vs_') && positionCombo.includes('_RFI')) {
+    if (positionCombo.includes('_vs_') && positionCombo.includes('_RFI_and_') && positionCombo.includes('_call')) {
+      const { hero, opponents } = parsePositionCombo(positionCombo);
+      return `You are in ${hero} facing an RFI from ${opponents[0]} and a call from ${opponents[1]}. Practice your squeeze (3-bet) and calling ranges.`;
+    } else if (positionCombo.includes('_vs_') && positionCombo.includes('_RFI')) {
       const { hero, opponents } = parsePositionCombo(positionCombo);
       return `You are in ${hero} and facing an RFI from ${opponents[0]}. Practice your 3-betting and calling ranges.`;
     } else if (positionCombo.includes('_RFI_vs_')) {

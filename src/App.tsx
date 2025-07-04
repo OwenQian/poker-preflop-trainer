@@ -34,7 +34,7 @@ const App: React.FC = () => {
   const [appState, setAppState] = useState<AppState>('home');
   const [heroPosition, setHeroPosition] = useState<Position | null>(null);
   const [opponentPositions, setOpponentPositions] = useState<Position[]>([]);
-  const [gradingMode, setGradingMode] = useState<GradingMode>('lax');
+  const [gradingMode, setGradingMode] = useState<GradingMode>('strict');
   const [showMatrix, setShowMatrix] = useState(true);
   const [rangeCategory, setRangeCategory] = useState<RangeCategory>('RFI');
   const [selectedRange, setSelectedRange] = useState<string | null>(null);
@@ -55,7 +55,7 @@ const App: React.FC = () => {
   const [sessionHandCounts, setSessionHandCounts] = useState<Record<string, number>>({});
   const [sessionCorrectAnswers, setSessionCorrectAnswers] = useState<Record<string, number>>({});
   const [showFSRSDebug, setShowFSRSDebug] = useState<boolean>(false);
-  const [sessionLimit, setSessionLimit] = useState<number>(50); // Default session limit
+  const [sessionLimit, setSessionLimit] = useState<number>(100); // Default session limit
   const [sessionLimitWarningShown, setSessionLimitWarningShown] = useState<boolean>(false); // Track if popup shown
   
   const [fsrs] = useState(new FSRS());
@@ -70,7 +70,7 @@ const App: React.FC = () => {
     setRangeCategory(settings.rangeCategory || 'RFI');
     setSamplingMode(settings.samplingMode || 'spaced-repetition');
     setDaysAhead(settings.daysAhead || 0);
-    setSessionLimit(settings.sessionLimit || 50);
+    setSessionLimit(settings.sessionLimit || 100);
 
     const quizState = getQuizState();
     setSessionStats(quizState.currentSessionStats);
@@ -399,6 +399,7 @@ const App: React.FC = () => {
                   <RangeTabSelector
                     activeCategory={rangeCategory}
                     onCategoryChange={setRangeCategory}
+                    excludeTabs={['squeeze']}
                   />
                   {heroPosition ? (
                     <MultiRangeDisplay
@@ -587,6 +588,13 @@ const App: React.FC = () => {
               <h2>Quiz Setup</h2>
               <div className="header-buttons">
                 <button 
+                  className="refresh-button"
+                  onClick={() => setDueCardsKey(prev => prev + 1)}
+                  title="Refresh data while keeping current selections"
+                >
+                  🔄
+                </button>
+                <button 
                   className="debug-button"
                   onClick={() => setShowFSRSDebug(true)}
                   title="FSRS Debug Panel"
@@ -711,7 +719,7 @@ const App: React.FC = () => {
                         min="10"
                         max="200"
                         value={sessionLimit}
-                        onChange={(e) => setSessionLimit(parseInt(e.target.value) || 50)}
+                        onChange={(e) => setSessionLimit(parseInt(e.target.value) || 100)}
                       />
                       <div className="number-controls">
                         <button 
@@ -763,6 +771,7 @@ const App: React.FC = () => {
           rangeCategory={rangeCategory}
           visible={showFSRSDebug}
           onClose={() => setShowFSRSDebug(false)}
+          daysAhead={daysAhead}
         />
       </main>
     </div>

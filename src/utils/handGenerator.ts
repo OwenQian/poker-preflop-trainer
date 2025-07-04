@@ -117,9 +117,9 @@ export const generateQuizQuestionWithResult = (
   }
   
   // getRangeData() now handles missingHandTreatment logic
-  // Sample from all hands in the range data (which may include all 169 hands if treatment is 'fold')
+  // Sample only from hands that have some action (raise or call), not pure fold hands
   const availableHands = Object.entries(rangeData.hands).filter(
-    ([_, frequencies]) => frequencies.raise + frequencies.call + frequencies.fold > 0
+    ([_, frequencies]) => frequencies.raise > 0 || frequencies.call > 0
   );
   
   if (availableHands.length === 0) {

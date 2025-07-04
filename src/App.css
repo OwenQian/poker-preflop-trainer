@@ -591,6 +591,21 @@
   margin-left: auto;
 }
 
+.refresh-button {
+  background: #38a169;
+  color: white;
+  border: none;
+  border-radius: 8px;
+  padding: 8px 12px;
+  font-size: 1.2rem;
+  cursor: pointer;
+  transition: background-color 0.2s ease;
+}
+
+.refresh-button:hover {
+  background: #2f855a;
+}
+
 .debug-button {
   background: #f56565;
   color: white;
