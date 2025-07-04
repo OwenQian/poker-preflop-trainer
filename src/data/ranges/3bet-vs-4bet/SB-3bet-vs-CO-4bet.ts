@@ -31,7 +31,7 @@ const range: RangeData = {
     'AKs': { raise: 100, call: 0, fold: 0 },
     'AKo': { raise: 100, call: 0, fold: 0 },
     'AQs': { raise: 0, call: 100, fold: 0 },
-    'AQo': { raise: 0, call: 25, fold: 75 },
+    'AQo': { raise: 25, call: 25, fold: 75 },
     'AJs': { raise: 0, call: 100, fold: 0 },
     'AJo': { raise: 0, call: 0, fold: 100 },
     'ATs': { raise: 0, call: 100, fold: 0 },

@@ -16,3 +16,5 @@ export const RFI_VS_3BET_CATEGORY_CONFIG: RangeCategoryConfig = {
 export { default as CO_RFI_vs_SB_3BET } from './CO-vs-SB-3bet';
 export { default as CO_RFI_vs_BU_3BET } from './CO-vs-BU-3bet';
 export { default as SB_RFI_vs_BB_3BET } from './SB-RFI-vs-BB-3bet';
+export { default as BU_RFI_vs_SB_3BET } from './BU-vs-SB-3bet';
+export { default as BU_RFI_vs_BB_3BET } from './BU-vs-BB-3bet';
