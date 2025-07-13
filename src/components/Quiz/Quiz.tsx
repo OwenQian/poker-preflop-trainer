@@ -258,6 +258,13 @@ const Quiz: React.FC<QuizProps> = ({
               <h3>{quizResult.isCorrect ? '✓ Correct!' : '✗ Incorrect'}</h3>
             </div>
             
+            <button 
+              className="next-button"
+              onClick={handleNextQuestion}
+            >
+              Next Question <span className="keyboard-shortcut">(Space/Enter)</span>
+            </button>
+            
             <div className="result-details">
               <div className="your-answer">
                 <h4>Your Answer:</h4>
@@ -305,13 +312,6 @@ const Quiz: React.FC<QuizProps> = ({
                 </div>
               )}
             </div>
-            
-            <button 
-              className="next-button"
-              onClick={handleNextQuestion}
-            >
-              Next Question <span className="keyboard-shortcut">(Space/Enter)</span>
-            </button>
           </div>
         )}
 

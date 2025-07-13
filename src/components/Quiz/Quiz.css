@@ -273,31 +273,77 @@
 /* Responsive design */
 @media (max-width: 768px) {
   .quiz-container {
-    padding: 15px;
+    padding: 10px;
+  }
+  
+  .quiz-header {
+    margin-bottom: 15px;
+  }
+  
+  .quiz-title-section {
+    margin-bottom: 8px;
+  }
+  
+  .quiz-header h2 {
+    font-size: 20px;
+  }
+  
+  .grading-mode-info {
+    padding: 8px;
+    font-size: 12px;
+  }
+  
+  .keyboard-shortcuts-info {
+    margin-top: 5px;
+    font-size: 11px;
+  }
+  
+  .quiz-content {
+    gap: 15px;
   }
   
   .situation-info {
     flex-direction: column;
-    gap: 15px;
+    gap: 10px;
     text-align: center;
+    padding: 15px;
+  }
+  
+  .cards-section {
+    margin: 10px 0;
+  }
+  
+  .cards-section h3 {
+    font-size: 18px;
+    margin-bottom: 10px;
   }
   
   .action-buttons {
     flex-direction: column;
     align-items: center;
+    gap: 10px;
+    margin-bottom: 15px;
   }
   
   .action-button {
     width: 100%;
     max-width: 200px;
+    padding: 10px 20px;
+    font-size: 14px;
+  }
+  
+  .submit-button {
+    padding: 10px 25px;
+    font-size: 14px;
   }
   
   .confidence-buttons {
     grid-template-columns: 1fr;
   }
   
-  .cards-section h3 {
-    font-size: 20px;
+  .actions-section h3 {
+    font-size: 16px;
+    margin-bottom: 10px;
   }
 }
 
@@ -407,17 +453,58 @@
 }
 
 @media (max-width: 768px) {
+  .result-section {
+    padding: 20px 15px;
+  }
+  
+  .result-header h3 {
+    font-size: 20px;
+    margin-bottom: 10px;
+  }
+  
   .result-details {
-    gap: 15px;
+    gap: 12px;
+    margin-bottom: 20px;
+  }
+  
+  .your-answer h4, .correct-answer h4, .frequencies-display h4 {
+    font-size: 14px;
+    margin-bottom: 6px;
+  }
+  
+  .answer-action {
+    padding: 6px 12px;
+    font-size: 13px;
   }
   
   .frequency-breakdown {
-    flex-direction: column;
-    gap: 10px;
+    flex-direction: row;
+    gap: 8px;
+    flex-wrap: wrap;
+    justify-content: center;
+  }
+  
+  .frequency-breakdown span {
+    padding: 6px 8px;
+    font-size: 12px;
   }
   
   .answer-actions {
     justify-content: center;
+    gap: 8px;
+  }
+  
+  .next-button {
+    padding: 12px 25px;
+    font-size: 14px;
+  }
+  
+  .explanation {
+    padding: 10px;
+  }
+  
+  .explanation p {
+    font-size: 14px;
   }
 }
 
