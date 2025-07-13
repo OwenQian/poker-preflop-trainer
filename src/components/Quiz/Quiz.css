@@ -321,20 +321,25 @@
   .action-buttons {
     flex-direction: column;
     align-items: center;
-    gap: 10px;
-    margin-bottom: 15px;
+    gap: 15px;
+    margin-bottom: 20px;
   }
   
   .action-button {
     width: 100%;
-    max-width: 200px;
-    padding: 10px 20px;
-    font-size: 14px;
+    max-width: 280px;
+    padding: 16px 24px;
+    font-size: 16px;
+    min-height: 56px;
+    touch-action: manipulation;
   }
   
   .submit-button {
-    padding: 10px 25px;
-    font-size: 14px;
+    padding: 16px 32px;
+    font-size: 16px;
+    min-height: 56px;
+    touch-action: manipulation;
+    margin-top: 8px;
   }
   
   .confidence-buttons {
@@ -495,8 +500,11 @@
   }
   
   .next-button {
-    padding: 12px 25px;
-    font-size: 14px;
+    padding: 16px 32px;
+    font-size: 16px;
+    min-height: 56px;
+    touch-action: manipulation;
+    margin-bottom: 16px;
   }
   
   .explanation {
@@ -524,9 +532,33 @@
   opacity: 1;
 }
 
-/* Responsive: hide shortcuts on very small screens */
+/* Additional mobile improvements for very small screens */
 @media (max-width: 480px) {
   .keyboard-shortcut {
     display: none;
   }
+  
+  .action-button {
+    max-width: 300px;
+    min-height: 60px;
+    padding: 18px 28px;
+    font-size: 17px;
+  }
+  
+  .submit-button, .next-button {
+    min-height: 60px;
+    padding: 18px 36px;
+    font-size: 17px;
+  }
+  
+  .action-buttons {
+    gap: 18px;
+  }
+}
+
+/* Prevent double-tap zoom on buttons */
+.action-button, .submit-button, .next-button {
+  user-select: none;
+  -webkit-user-select: none;
+  -webkit-tap-highlight-color: transparent;
 }
